@@ -1,0 +1,25 @@
+{
+  "name": "sme-booking-system",
+  "version": "1.0.0",
+  "description": "A simple booking system for small and medium-sized businesses. Customers can reserve time slots, while the system helps prevent overbooking by managing capacity and queue limits.",
+  "homepage": "https://github.com/hong-nhung-nguyen/sme-booking-system#readme",
+  "bugs": {
+    "url": "https://github.com/hong-nhung-nguyen/sme-booking-system/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hong-nhung-nguyen/sme-booking-system.git"
+  },
+  "license": "ISC",
+  "author": "Rose Nguyen",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --inspect index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14"
+  }
+}
