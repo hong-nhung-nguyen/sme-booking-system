@@ -35,15 +35,16 @@ const locationSchema = new mongoose.Schema({
     },
     maxCapacity: {
         type: Number,
-        default: null
+        default: null,
+        min: 1
     },
     openingHours: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "OpeningHours",
         required: true,
     },
-    services: [
-        {
+    services: {
+        type: [{
             serviceId: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Service",
@@ -51,34 +52,49 @@ const locationSchema = new mongoose.Schema({
             },
             price: {
                 type: Number,
-                default: null
+                default: null,
+                min: 1
             }
-        }
-    ],
-    timeslots: [
-
-        {
-            serviceId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Service",
-                required: true
+        }],
+        required: true,
+        validate: {
+            validator: function(value) {
+                return Array.isArray(value) && value.length > 0;
             },
-            slots: {
-                type: [String],
-                match: /^([01]\d|2[0-3]):([0-5]\d)$/,
-                validate: {
-                    validator: function(value) {
-                        return new Set(value).size() === value.length;
-                    },
-                    message: "timeslots cannot contain duplicate times"
+            message: "required at least one service"
+        }
+    },
+    timeslots: {
+        type: [
+            {
+                serviceId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Service",
+                    required: true
+                },
+                slots: {
+                    type: [
+                        {
+                            type: String,
+                            match: /^([01]\d|2[0-3]):([0-5]\d)$/,
+                        }
+                    ],
+                    validate: {
+                        validator: function(value) {
+                            return new Set(value).size === value.length;
+                        },
+                        message: "timeslots cannot contain duplicate times"
+                    }
                 }
             }
-        }
-    ],
+        ],
+        required: true
+    },
     status: {
         type: String,
         enum: ["active", "inactive", "temporarilyClosed", "closed", "deleted"],
-        default: "active"
+        default: "active",
+        required: true
     }
 }, {
     timestamps: true
