@@ -11,8 +11,8 @@ const serviceSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        minLength: 2,
-        maxLength: 100
+        minlength: 2,
+        maxlength: 100
     },
     defaultDurationMinutes: {
         type: Number,
@@ -33,6 +33,7 @@ const serviceSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ["active", "inactive", "temporarilyUnavailable", "discontinued", "deleted"],
+        required: true,
         default: "active"
     }
 }, {
