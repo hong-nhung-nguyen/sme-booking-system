@@ -7,12 +7,16 @@ const userSchema = new mongoose.Schema({
         required: true,
         index: true
     },
-    locationIds: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Location"
+    locationIds: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "Location",
+        validate: {
+            validator: function(value) {
+                return new Set(value).size === value.length;
+            },
+            message: "locationIds cannot contain duplicates"
         }
-    ],
+    },
     firstName: {
         type: String,
         required: true,
@@ -67,6 +71,6 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 })
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema, "users");
 
 module.exports = User;

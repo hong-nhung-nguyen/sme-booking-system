@@ -55,18 +55,23 @@ const locationSchema = new mongoose.Schema({
         }
     ],
     timeslots: [
+
         {
             serviceId: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Service",
                 required: true
             },
-            slots: [
-                {
-                    type: String,
-                    pattern: /^([01]\d|2[0-3]):([0-5]\d)$/
+            slots: {
+                type: [String],
+                match: /^([01]\d|2[0-3]):([0-5]\d)$/,
+                validate: {
+                    validator: function(value) {
+                        return new Set(value).size() === value.length;
+                    },
+                    message: "timeslots cannot contain duplicate times"
                 }
-            ]
+            }
         }
     ],
     status: {
@@ -78,6 +83,6 @@ const locationSchema = new mongoose.Schema({
     timestamps: true
 })
 
-const Location = mongoose.model("Location", locationSchema);
+const Location = mongoose.model("Location", locationSchema, "locations");
 
 module.exports = Location;

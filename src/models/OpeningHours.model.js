@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const OperningHoursSchema = new mongoose.Schema({
+const OpeningHoursSchema = new mongoose.Schema({
     businessId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Business",
@@ -19,11 +19,22 @@ const OperningHoursSchema = new mongoose.Schema({
     },
     openTime: {
         type: String,
-        required: function() { return this.isClosed }
+        required: function() { return !this.isClosed },
+        match: /^([01]\d|2[0-3]):[0-5]\d$/
     },
     closeTime: {
         type: String,
-        required: function() { return !this.isClosed}
+        required: function() { return !this.isClosed},
+        match: /^([01]\d|2[0-3]):[0-5]\d$/,
+        validate: {
+            validator: function(value) {
+                if(this.isClosed) return true;
+                if(!this.openTime || !value) return true;
+
+                return value > this.openTime;
+            },
+            message: "closeTime must be after openTime"
+        }
     }
 }, {
     discriminatorKey: "type",
@@ -31,6 +42,6 @@ const OperningHoursSchema = new mongoose.Schema({
     timestamps: true
 })
 
-const OpeningHours = mongoose.model("OpeningHours", OperningHoursSchema);
+const OpeningHours = mongoose.model("OpeningHours", OpeningHoursSchema, "openingHours");
 
 module.exports = OpeningHours;

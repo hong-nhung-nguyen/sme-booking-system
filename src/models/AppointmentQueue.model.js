@@ -34,6 +34,7 @@ const AppointmentQueueSchema = new mongoose.Schema({
     requestedTime: {
         type: Date,
         default: Date.now,
+        required: true
     },
     priorityRate: {
         type: Number,
@@ -45,10 +46,10 @@ const AppointmentQueueSchema = new mongoose.Schema({
         type: Number,
         min: 1
     },
-    satus: {
+    status: {
         type: String,
-        enum: ["waiting", "matched", "cancelled", "expired", "failed"],
-        default: "waiting",
+        enum: ["queued", "booked", "cancelled", "expired", "failed"],
+        default: "queued",
         index: true
     },
     desiredTime: {
@@ -58,7 +59,14 @@ const AppointmentQueueSchema = new mongoose.Schema({
     expiresAt: {
         type: Date,
         required: true,
-        index: true
+        index: true,
+        validate: {
+            validator: function(value) {
+                if (!this.requestedTime || !value) return true;
+                return (value > this.requestedTime);
+            },
+            message: "expiresAt must be after requestedTime"
+        }
     },
     note: {
         type: String,
@@ -68,5 +76,9 @@ const AppointmentQueueSchema = new mongoose.Schema({
     timestamps: true
 })
 
-AppointmentQueueSchema.index({businessId: 1, locationId: 1, status: 1, priority: 1});
+AppointmentQueueSchema.index({businessId: 1, locationId: 1, status: 1, priorityRate: 1});
 AppointmentQueueSchema.index({clientId: 1, status: 1});
+
+const AppointmentQueue = mongoose.model("AppointmentQueue", AppointmentQueueSchema, "appointmentQueue");
+
+module.exports = AppointmentQueue;

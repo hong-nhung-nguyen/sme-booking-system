@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const AppointmentStatusHistory = require("./AppointmentStatusHistory.model");
+const AppointmentStatusHistorySchema = require("./AppointmentStatusHistory.schema");
 
 const AppointmentSchema = new mongoose.Schema({
     businessId: {
@@ -37,8 +37,27 @@ const AppointmentSchema = new mongoose.Schema({
         required: true,
     },
     // Note: only require either durationMinutes or endTime
-    durationMinutes: Number,
-    endTime: Date,
+    durationMinutes: {
+        type: Number,
+        min: [5, "Duration must be at least 5 minutes"],
+        max: [480, "Duration cannot be more than 8 hours"],
+        required: function() {
+            return !this.endTime;
+        }
+    },
+    endTime: {
+        type: Date,
+        required: function() {
+            return !this.durationMinutes;
+        },
+        validate: {
+            validator: function(value) {
+                if (!this.startTime || !value) return true;
+                return value > this.startTime;
+            },
+            message: "endTime must be after startTime"
+        }
+    },
     // End note
     partySize: {
         type: Number,
@@ -50,13 +69,25 @@ const AppointmentSchema = new mongoose.Schema({
         default: "Australia/Sydney",
         required: true,
     },
+    // the current/latest appointment status
     status: {
         type: String,
         index: true,
-        enum: ["requested", "unconfirmed", "confirmed", "rescheduled", "cancelled", "completed", "noShow", "queued"],
+        enum: [
+            "requested", 
+            "unconfirmed", 
+            "confirmed", 
+            "rescheduled", 
+            "cancelled", 
+            "completed", 
+            "noShow", 
+            "queued",
+            "failed"
+        ],
+        required: true,
         default: "requested"
     },
-    statusHistory: [AppointmentStatusHistory],
+    statusHistory: [AppointmentStatusHistorySchema],
     channel: {
         type: String,
         enum: ["online", "sms", "manual", "email", "other"],
@@ -71,10 +102,10 @@ const AppointmentSchema = new mongoose.Schema({
     timestamps: true
 })
 
-AppointmentSchema.index({ businessId: 1, locationId: 1, date: 1, startTime: 1 });
+AppointmentSchema.index({ businessId: 1, locationId: 1, startTime: 1 });
 AppointmentSchema.index({ businessId: 1, clientId: 1 });
-AppointmentSchema.index({ businessId: 1, serviceId: 1, date: 1 });
+AppointmentSchema.index({ businessId: 1, serviceId: 1 });
 
-const Appointment = mongoose.model("Appointment", AppointmentSchema);
+const Appointment = mongoose.model("Appointment", AppointmentSchema, "appointments");
 
 module.exports = Appointment;

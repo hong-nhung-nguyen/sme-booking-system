@@ -18,7 +18,13 @@ const serviceSchema = new mongoose.Schema({
         type: Number,
         min: 5,
         max: 1000,
-        required: true
+        required: true,
+        validate: {
+            validator: function(value) {
+                return value % 5 === 0;
+            },
+            message: "defaultDurationMinutes must be in 5-minute intervals"
+        }
     },
     price: {
         type: Number,
@@ -33,6 +39,6 @@ const serviceSchema = new mongoose.Schema({
     timestamps: true,
 })
 
-const Service = mongoose.model("Service", serviceSchema);
+const Service = mongoose.model("Service", serviceSchema, "services");
 
 module.exports = Service;

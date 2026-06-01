@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
-const ParsedIntent = require("./ParsedIntent.model");
+const ParsedIntentSchema = require("./ParsedIntent.schema");
 
 const IncomingMessageSchema = new mongoose.Schema({
     businessId: {
-        types: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Business",
         required: true,
         index: true
@@ -23,11 +23,39 @@ const IncomingMessageSchema = new mongoose.Schema({
     },
     from: {
         type: String,
-        required: true
+        required: true,
+        validate: {
+            validator: function(value) {
+                if (this.channel == "email") {
+                    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                }
+
+                if (this.channel == "sms") {
+                    return /^\+?[0-9\s-]{8,20}$/.test(value);
+                }
+
+                return true;
+            },
+            message: "from must match the selected channel format"
+        }
     },
     to: {
         type: String,
-        required: true
+        required: true,
+        validate: {
+            validator: function(value) {
+                if (this.channel == "email") {
+                    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                }
+
+                if (this.channel == "sms") {
+                    return /^\+?[0-9\s-]{8,20}$/.test(value);
+                }
+
+                return true;
+            },
+            message: "to must match the selected channel format"
+        }
     },
     subject: {
         type: String,
@@ -43,7 +71,7 @@ const IncomingMessageSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    parsedIntent: ParsedIntent,
+    parsedIntent: ParsedIntentSchema,
     processingStatus: {
         type: String,
         enum: ["pending", "processed", "failed"],
@@ -57,6 +85,6 @@ const IncomingMessageSchema = new mongoose.Schema({
 IncomingMessageSchema.index({ businessId: 1, receivedAt: -1 });
 IncomingMessageSchema.index({ businessId: 1, processingStatus: 1 });
 
-const IncomingMessage = mongoose.model("IncomingMessage", IncomingMessageSchema);
+const IncomingMessage = mongoose.model("IncomingMessage", IncomingMessageSchema, "incomingMessages");
 
 module.exports = IncomingMessage;

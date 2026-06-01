@@ -3,7 +3,17 @@ const mongoose = require("mongoose");
 const AppointmentStatusHistorySchema = new mongoose.Schema({
     status: {
         type: String,
-        enum: ["scheduled", "completed", "cancelled", "noShow", "rescheduled"],
+        enum: [
+            "requested",
+            "unconfirmed",
+            "confirmed",
+            "rescheduled",
+            "cancelled",
+            "completed",
+            "noShow",
+            "queued",
+            "failed"
+        ],
         required: true
     },
     reason: {
@@ -26,6 +36,4 @@ const AppointmentStatusHistorySchema = new mongoose.Schema({
     _id: false
 })
 
-const AppointmentStatusHistory = mongoose.model("AppointmentStatusHistory", AppointmentStatusHistorySchema);
-
-module.exports = AppointmentStatusHistory;
+module.exports = AppointmentStatusHistorySchema;

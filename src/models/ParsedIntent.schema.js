@@ -22,6 +22,4 @@ const ParsedIntentSchema = new mongoose.Schema({
     _id: false
 })
 
-const ParsedIntent = mongoose.model("ParsedIntent", ParsedIntentSchema);
-
-module.exports = ParsedIntent;
+module.exports = ParsedIntentSchema;

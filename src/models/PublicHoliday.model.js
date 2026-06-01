@@ -17,7 +17,14 @@ const PublicHolidaySchema = new mongoose.Schema({
     },
     endDate: {
         type: Date,
-        required: true
+        required: true,
+        validate: {
+            validator: function(value) {
+                if(!this.startDate || !value) return true;
+                return value >= this.startDate;
+            },
+            message: "endDate must be after or equal to startDate"
+        }
     }
 }, {
     timestamps: true

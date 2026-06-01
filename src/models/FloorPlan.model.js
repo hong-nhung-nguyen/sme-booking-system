@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const SectionSchema = require("./Section.schema");
+
 const FloorPlanSchema = new mongoose.Schema({
     businessId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -17,6 +19,7 @@ const FloorPlanSchema = new mongoose.Schema({
         enum: ["active", "inactive"],
         default: "active"
     },
+    sections: [SectionSchema],
     updatedBy: [
         {
             account_id: {
@@ -24,9 +27,16 @@ const FloorPlanSchema = new mongoose.Schema({
                 ref: "User",
                 required: true
             },
-            updatedAt: Date.now
+            updatedAt: {
+                type: Date,
+                default: Date.now
+            }
         }
     ]
 }, {
     timestamps: true
 })
+
+const FloorPlan = mongoose.model("FloorPlan", FloorPlanSchema, "floorPlans");
+
+module.exports = FloorPlan;
