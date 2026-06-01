@@ -18,11 +18,13 @@ const clientSchema = new mongoose.Schema({
         type: String,
         trim: true,
         lowercase: true,
+        unique: true,
         match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     },
     phone: {
         type: String,
         trim: true,
+        unique: true,
         match: /^\+?[0-9\s-]{8,20}$/
     },
     notes: {

@@ -18,7 +18,8 @@ const locationSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        match: /^\+?[0-9\s-]{8,20}$/
+        match: /^\+?[0-9\s-]{8,20}$/,
+        unique: true
     },
     address: {
         street: { type: String, trim: true, required: true },

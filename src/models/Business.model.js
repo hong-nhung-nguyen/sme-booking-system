@@ -13,12 +13,14 @@ const businessSchema = new mongoose.Schema({
         minLength: 2,
         maxLength: 100,
         lowercase: true,
-        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        unique: true
     },
     phone: {
         type: String,
         required: true,
         trim: true,
+        unique: true,
         match: /^\+?[0-9\s-]{8,20}$/
     },
     status: {
