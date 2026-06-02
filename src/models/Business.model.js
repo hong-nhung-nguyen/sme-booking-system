@@ -4,7 +4,9 @@ const businessSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        minlength: 1,
+        maxlength: 100
     },
     email: {
         type: String,
@@ -26,7 +28,8 @@ const businessSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ["active", "inactive", "closed", "deleted", "pending"],
-        default: "pending"
+        default: "pending",
+        required: true
     }
 }, {
     timestamps: true
