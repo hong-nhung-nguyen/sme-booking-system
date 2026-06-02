@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const OpeningHours = require('./OpeningHours.model');
 
 const ExceptionDateSchema = new mongoose.Schema({
-    _id: false,
     reason: {
         type: String,
         default: null,

@@ -5,7 +5,7 @@ const OpeningHours = require("./OpeningHours.model");
 const BusinessDaySchema = new mongoose.Schema({
     day: {
         type: String,
-        enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        enum: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
         required: true
     },
     effectiveFrom: Date,

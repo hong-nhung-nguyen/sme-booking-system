@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const OpeningHours = require("./OpeningHours.model");
 
 const PublicHolidaySchema = new mongoose.Schema({
-    _id: false,
     holidayName: {
         type: String,
         required: true,
@@ -27,6 +26,7 @@ const PublicHolidaySchema = new mongoose.Schema({
         }
     }
 }, {
+    _id: false,
     timestamps: true
 })
 

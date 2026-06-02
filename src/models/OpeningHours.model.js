@@ -15,26 +15,43 @@ const OpeningHoursSchema = new mongoose.Schema({
     },
     isClosed: {
         type: Boolean,
-        default: false
+        default: false,
+        required: true
     },
     openTime: {
         type: String,
         required: function() { return !this.isClosed },
-        match: /^([01]\d|2[0-3]):[0-5]\d$/
+        match: /^([01]\d|2[0-3]):[0-5]\d$/,
+        validate: {
+            validator: function(value) {
+                if (this.isClosed) return !value;
+                return true;
+            },
+            message: "no openTime on a closed day"
+        }
     },
     closeTime: {
         type: String,
         required: function() { return !this.isClosed},
         match: /^([01]\d|2[0-3]):[0-5]\d$/,
-        validate: {
-            validator: function(value) {
-                if(this.isClosed) return true;
-                if(!this.openTime || !value) return true;
-
-                return value > this.openTime;
+        validate: [
+            {
+                validator: function(value) {
+                    if (this.isClosed) return !value;
+                    return true;
+                },
+                message: "no closeTime on a closed day"
             },
-            message: "closeTime must be after openTime"
-        }
+            {
+                validator: function(value) {
+                    if(this.isClosed) return true;
+                    if(!this.openTime || !value) return true;
+
+                    return value > this.openTime;
+                },
+                message: "closeTime must be after openTime"
+            }
+        ]
     }
 }, {
     discriminatorKey: "type",
