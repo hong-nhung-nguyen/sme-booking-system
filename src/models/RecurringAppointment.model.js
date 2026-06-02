@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const ChangeHistorySchema = require("./ChangeHistory.schema");
+
 const RecurringAppointmentSchema = new mongoose.Schema({
     businessId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -58,28 +60,49 @@ const RecurringAppointmentSchema = new mongoose.Schema({
             },
             {
                 validator: function(value) {
-                    if (this.frequency == "monthly") {
+                    if (["monthly", "daily"].includes(this.frequency)) {
                         return !value || value.length === 0;
                     }
 
                     return true;
                 },
-                message: "Choose dates for monthly occurrence"
+                message: "No daysOfWeek for frequency that is not weekly/fortnightly"
             }
         ]
     },
     dates:{
         type: [Date],
         required: function() { return this.frequency === "monthly" },
-        validate: {
-            validator: function(value) {
-                if (this.frequency == "monthly") {
-                    return value.length > 0
-                }
-                return true;
+        validate: [
+            {
+                validator: function(value) {
+                    if (["weekly", "fortnightly", "daily"].includes(this.frequency)) {
+                        return !value || value.length === 0 
+                    }
+                    return true;
+                },
+                message: "no dates for frequency that is not monthly"
             },
-            message: "dates must include at least one date"
-        }
+            {
+                validator: function(value) {
+                    if (this.frequency == "monthly") {
+                        return Array.isArray(value) && value.length > 0;
+                    }
+                    return true;
+                },
+                message: "dates must include at least one date"
+            },
+            {
+                validator: function(value) {
+                    if (this.frequency == "monthly") {
+                        const timestamps = value.map(date => date.getTime());
+                        return new Set(timestamps).size === value.length;
+                    };
+                    return true;
+                },
+                message: "dates must not contain duplicates"
+            }
+        ]
     },
     startDate: {
         type: Date,
@@ -134,7 +157,8 @@ const RecurringAppointmentSchema = new mongoose.Schema({
         default: "active",
         index: true,
         required: true
-    }
+    },
+    changeHistory: [ChangeHistorySchema]
 }, {
     timestamps: true
 })
