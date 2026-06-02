@@ -19,7 +19,9 @@ const IncomingMessageSchema = new mongoose.Schema({
     },
     channel: {
         type: String,
-        enum: ["sms", "email", "other"]
+        enum: ["sms", "email", "other"],
+        required: true,
+        default: "other"
     },
     from: {
         type: String,
@@ -59,7 +61,6 @@ const IncomingMessageSchema = new mongoose.Schema({
     },
     subject: {
         type: String,
-        required: function() { return this.channel == "email" },
         default: null
     },
     body: {
@@ -71,11 +72,16 @@ const IncomingMessageSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    parsedIntent: ParsedIntentSchema,
+    parsedIntent: {
+        type: ParsedIntentSchema,
+        required: true
+    },
     processingStatus: {
         type: String,
         enum: ["pending", "processed", "failed"],
-        index: true
+        index: true,
+        required: true,
+        default: "pending"
     },
     processingError: String,
 }, {
