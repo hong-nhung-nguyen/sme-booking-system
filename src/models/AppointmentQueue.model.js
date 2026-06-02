@@ -44,12 +44,14 @@ const AppointmentQueueSchema = new mongoose.Schema({
     },
     partySize: {
         type: Number,
-        min: 1
+        min: 1,
+        required: true,
     },
     status: {
         type: String,
         enum: ["queued", "booked", "cancelled", "expired", "failed"],
         default: "queued",
+        required: true,
         index: true
     },
     desiredTime: {
@@ -70,7 +72,7 @@ const AppointmentQueueSchema = new mongoose.Schema({
     },
     note: {
         type: String,
-        max: 1000
+        maxlength: 1000
     }
 }, {
     timestamps: true
