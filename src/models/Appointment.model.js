@@ -32,24 +32,27 @@ const AppointmentSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    date: {
+        type: String,
+        required: true,
+        index: true,
+        match: /^\d{4}-\d{2}-\d{2}$/
+    },
     startTime: {
         type: Date,
         required: true,
+        index: true
     },
-    // Note: only require either durationMinutes or endTime
     durationMinutes: {
         type: Number,
         min: [5, "Duration must be at least 5 minutes"],
         max: [480, "Duration cannot be more than 8 hours"],
-        required: function() {
-            return !this.endTime;
-        }
+        required: true
     },
     endTime: {
         type: Date,
-        required: function() {
-            return !this.durationMinutes;
-        },
+        required: true,
+        index: true,
         validate: {
             validator: function(value) {
                 if (!this.startTime || !value) return true;
@@ -58,7 +61,6 @@ const AppointmentSchema = new mongoose.Schema({
             message: "endTime must be after startTime"
         }
     },
-    // End note
     partySize: {
         type: Number,
         required: true,
@@ -105,6 +107,16 @@ const AppointmentSchema = new mongoose.Schema({
 }, {
     timestamps: true
 })
+
+AppointmentSchema.pre("validate", function(next) {
+    if (this.startTime && this.durationMinutes) {
+        this.endTime = new Date(
+            this.startTime.getTime() + this.durationMinutes * 60000
+        );
+    }
+
+    next();
+});
 
 AppointmentSchema.index({ businessId: 1, locationId: 1, startTime: 1 });
 AppointmentSchema.index({ businessId: 1, clientId: 1 });
