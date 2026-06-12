@@ -64,6 +64,10 @@ const AppointmentSchema = new mongoose.Schema({
         required: true,
         min: 1
     },
+    resourceId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Resource"
+    },
     timezone: {
         type: String,
         default: "Australia/Sydney",

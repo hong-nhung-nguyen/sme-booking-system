@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 
 const ResourceSchema = new mongoose.Schema({
+    floorPlanId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FloorPlan",
+        required: true,
+        index: true
+    },
     sectionId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Section",
         required: true,
         index: true
     },
