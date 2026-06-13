@@ -6,9 +6,9 @@ const tenantRoutes = require("./tenant/index.tenant.route");
 module.exports = (app) => {
     const version = "/api/v1";
     const PATH_PLATFORM = systemConfig.prefixPlatform;
-    const PATH_TENANT = systemConfig.prefixTenant;
+    const PATH_BUSINESS = systemConfig.prefixTenant;
 
     app.use(version + PATH_PLATFORM, platformRoutes);
 
-    app.use(version + PATH_TENANT + "/:tenantId", tenantRoutes);
+    app.use(version + PATH_BUSINESS + "/:businessId", tenantRoutes);
 }

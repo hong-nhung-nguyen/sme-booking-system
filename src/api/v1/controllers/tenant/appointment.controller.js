@@ -1,29 +1,26 @@
 const appointmentService = require("../../../../services/tenant/appointment.service");
 
-// [GET] api/v1/tenants/:tenantId/locations/:locationId/appointments
-module.exports.index = async (req, res) => {
+// [GET] api/v1/business/:businessId/locations/:locationId/appointments
+module.exports.index = async (req, res, next) => {
     try {
-        const { tenantId, locationId } = req.params;
+        const { businessId, locationId } = req.params;
+
+        const requiredParams = ["businessId", "locationId"];
+
+        let find = {};
 
         // Validate required parameters
-        if (!tenantId) {
-            return res.status(400).json({
-                message: "tenantId missing"
-            })
-        };
-
-        if (!locationId) {
-            return res.status(400).json({
-                message: "locationId missing"
-            })
-        };
+        for (const param of requiredParams) {
+            if (!req.params[param]) {
+                return res.status(400).json({
+                    message: `${param} is missing`
+                })
+            };
+            find[param] = req.params[param];
+        }
         // End validate parameters
 
         // Filter GET with query
-        let find = {
-            businessId: tenantId,
-            locationId: locationId
-        }
 
         const allowedFilters = ["serviceId", "clientId", "status", "date"];
 
@@ -37,7 +34,6 @@ module.exports.index = async (req, res) => {
         // Find all appointments 
         const appointments = await appointmentService.find(find);
 
-
         if (appointments.length > 0) {
             return res.status(200).json({
                 message: "Appointments found",
@@ -50,9 +46,46 @@ module.exports.index = async (req, res) => {
         });
 
     } catch(error) {
-        return res.status(500).json({
-            message: "Server error",
-            error: error.message
+        next(error);
+    }
+}
+
+// [GET] api/v1/businesses/:businessId/locations/:locationId/appointments/detail/:appointmentId
+module.exports.detail = async (req, res, next) => {
+    try {
+        const { businessId, locationId, appointmentId } = req.params;
+
+        const requiredParams = ["businessId", "locationId", "appointmentId"];
+
+
+        for (const param of requiredParams) {
+            if (!req.params[param]) {
+                return res.status(400).json({
+                    message: `${param} is missing`
+                })
+            }
+        };
+
+        let find = {
+            _id: appointmentId,
+            businessId: businessId,
+            locationId: locationId
+        }
+
+        const record = await appointmentService.find(find);
+
+        if (record[0]) {
+            return res.status(200).json({
+                message: "appointment found",
+                data: record[0]
+            })
+        };
+
+        return res.status(404).json({
+            message: "No appointment found"
         });
+
+    } catch(error) {
+        next(error);
     }
 }

@@ -11,6 +11,15 @@ const apiV1 = require("./src/api/v1/routes/index.route");
 
 apiV1(app);
 
+// Global error handler
+app.use((err, req, res, next) => {
+    res.status(500).json({
+        success: false,
+        message: err.message
+    });
+});
+// End global error handler
+
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);
 })
