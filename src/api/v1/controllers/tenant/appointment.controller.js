@@ -48,7 +48,7 @@ module.exports.index = async (req, res, next) => {
     } catch(error) {
         next(error);
     }
-}
+};
 
 // [GET] api/v1/businesses/:businessId/locations/:locationId/appointments/detail/:appointmentId
 module.exports.detail = async (req, res, next) => {
@@ -88,4 +88,46 @@ module.exports.detail = async (req, res, next) => {
     } catch(error) {
         next(error);
     }
+};
+
+// [POST] api/v1/businesses/:businessId/locations/:locationId/appointments/create
+module.exports.create = async (req, res, next) => {
+    try {
+        const { businessId, locationId } = req.params;
+
+        if (!req.body) {
+            return res.status(400).json({
+                message: "Missing request body"
+            });
+        }
+
+        const requiredParams = ["businessId", "locationId"];
+
+        for (const param of requiredParams) {
+            if (!req.params[param]) {
+                return res.status(400).json({
+                    message: `${param} is missing`
+                })
+            }
+            req.body[param] = req.params[param];
+        }
+
+        try {
+            const newAppointment = await appointmentService.create(req.body);
+
+            return res.status(200).json({
+                success: true,
+                data: newAppointment
+            })
+
+        } catch(error) {
+            return res.status(400).json({
+                success: false,
+                message: error.message
+            })
+        }
+    } catch(error) {
+        next(error)
+    }
 }
+

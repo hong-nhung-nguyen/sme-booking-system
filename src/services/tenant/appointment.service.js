@@ -6,4 +6,9 @@ module.exports.find = async (find) => {
     return appointments;
 };
 
+module.exports.create = async (data) => {
+    const newAppointment = await appointmentRepository.create(data);
+
+    return newAppointment;
+}
 

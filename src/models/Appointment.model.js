@@ -108,14 +108,12 @@ const AppointmentSchema = new mongoose.Schema({
     timestamps: true
 })
 
-AppointmentSchema.pre("validate", function(next) {
+AppointmentSchema.pre("validate", function() {
     if (this.startTime && this.durationMinutes) {
         this.endTime = new Date(
             this.startTime.getTime() + this.durationMinutes * 60000
         );
     }
-
-    next();
 });
 
 AppointmentSchema.index({ businessId: 1, locationId: 1, startTime: 1 });

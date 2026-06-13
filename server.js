@@ -9,6 +9,9 @@ database.connect();
 
 const apiV1 = require("./src/api/v1/routes/index.route");
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 apiV1(app);
 
 // Global error handler
