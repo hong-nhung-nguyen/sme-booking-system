@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const ChangeHistorySchema = require("./ChangeHistory.schema");
+
 const OpeningHoursSchema = new mongoose.Schema({
     businessId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -52,7 +54,9 @@ const OpeningHoursSchema = new mongoose.Schema({
                 message: "closeTime must be after openTime"
             }
         ]
-    }
+    },
+    changeHistory: [ChangeHistorySchema]
+    
 }, {
     discriminatorKey: "type",
     collection: "openingHours",

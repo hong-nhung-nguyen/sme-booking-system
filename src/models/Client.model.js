@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const ChangeHistorySchema = require("./ChangeHistory.schema");
+
 const clientSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -31,7 +33,8 @@ const clientSchema = new mongoose.Schema({
         type: String,
         trim: true,
         maxLength: 1000
-    }
+    },
+    changeHistory: [ChangeHistorySchema]
 }, {
     timestamps: true
 })

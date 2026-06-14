@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const ChangeHistorySchema = require("./ChangeHistory.schema");
+
 const businessSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -30,7 +32,8 @@ const businessSchema = new mongoose.Schema({
         enum: ["active", "inactive", "closed", "deleted", "pending"],
         default: "pending",
         required: true
-    }
+    },
+    changeHistory: [ChangeHistorySchema]
 }, {
     timestamps: true
 })

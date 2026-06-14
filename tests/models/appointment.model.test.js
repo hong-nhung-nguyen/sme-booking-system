@@ -23,7 +23,55 @@ describe("Appointment Model", () => {
             serviceId: new mongoose.Types.ObjectId(),
             startTime: new Date("2026-06-01T10:00:00.000Z"),
             endTime: new Date("2026-06-01T11:30:00.000Z"),
-            partySize: 3
+            partySize: 3,
+            statusHistory: [
+                {status: "requested"},
+                {status: "unconfirmed"},
+                {
+                    status: "confirmed",
+                    updatedBy: "Rose"
+                },
+            ],
+            changeHistory: [
+                {
+                    changes: [
+                        {
+                            field: "status",
+                            oldValue: null,
+                            newValue: "requested"
+                        }
+                    ],
+                    updatedBy: "system",
+                    updatedAt: new Date("2026-05-01T11:30:00.000Z"),
+                },
+                {
+                    changes: [
+                        {
+                            field: "status",
+                            oldValue: "requested",
+                            newValue: "unconfirmed"
+                        }
+                    ],
+                    updatedBy: "system",
+                    updatedAt: new Date("2026-05-01T11:30:59.000Z"),
+                },
+                {
+                    changes: [
+                        {
+                            field: "status",
+                            oldValue: "unconfirmed",
+                            newValue: "confirmed"
+                        },
+                        {
+                            field: "partySize",
+                            oldValue: 2,
+                            newValue: 3
+                        }
+                    ],
+                    updatedBy: "Rose",
+                    updatedAt: new Date("2026-05-01T12:30:59.000Z"),
+                }
+            ]
         }
     );
 
@@ -98,4 +146,6 @@ describe("Appointment Model", () => {
 
         await expect(appointment.validate()).rejects.toThrow();
     })
+
+    // test 
 })

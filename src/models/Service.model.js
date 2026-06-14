@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const ChangeHistorySchema = require("./ChangeHistory.schema");
+
 const serviceSchema = new mongoose.Schema({
     businessId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -35,7 +37,8 @@ const serviceSchema = new mongoose.Schema({
         enum: ["active", "inactive", "temporarilyUnavailable", "discontinued", "deleted"],
         required: true,
         default: "active"
-    }
+    },
+    changeHistory: [ChangeHistorySchema]
 }, {
     timestamps: true,
 })

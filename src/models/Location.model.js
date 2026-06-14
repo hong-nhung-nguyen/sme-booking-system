@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const ChangeHistorySchema = require("./ChangeHistory.schema");
+
 const locationSchema = new mongoose.Schema({
     businessId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -95,7 +97,9 @@ const locationSchema = new mongoose.Schema({
         enum: ["active", "inactive", "temporarilyClosed", "closed", "deleted"],
         default: "active",
         required: true
-    }
+    },
+    changeHistory: [ChangeHistorySchema]
+    
 }, {
     timestamps: true
 })
