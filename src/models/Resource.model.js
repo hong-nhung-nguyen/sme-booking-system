@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const ChangeHistorySchema = require("./ChangeHistory.schema");
+
 const ResourceSchema = new mongoose.Schema({
     sectionId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -56,18 +58,7 @@ const ResourceSchema = new mongoose.Schema({
         enum: ["available", "booked", "unavailable"],
         required: true
     },
-    updatedBy: [
-        {
-            name: {
-                type: String,
-                required: true
-            },
-            updatedAt: {
-                type: Date,
-                default: Date.now
-            }
-        }
-    ]
+    changeHistory: [ChangeHistorySchema]
 }, {
     timestamps: true
 })

@@ -20,20 +20,20 @@ const AppointmentStatusHistorySchema = new mongoose.Schema({
         type: String,
         default: null,
         trim: true,
-        maxLength: 500
+        maxlength: 500
     },
     updatedBy: {
         type: String,
-        required: true,
         trim: true,
-        maxLength: 100
+        maxlength: 100,
     },
     updatedAt: {
         type: Date,
         default: Date.now
-    },
+    }
 }, {
-    _id: false
+    _id: false,
+    timestamps: false
 })
 
 module.exports = AppointmentStatusHistorySchema;

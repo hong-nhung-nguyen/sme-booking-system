@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const ChangeHistorySchema = require("./ChangeHistory.schema");
+
 const userSchema = new mongoose.Schema({
     businessId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -68,7 +70,8 @@ const userSchema = new mongoose.Schema({
             // banned: account is permanently banned due to severe policy violations, cannot log in and data may be deleted after a retention period
             // deleted: account is soft-deleted but still kept in database 
         default: "pending"
-    }
+    },
+    changeHistory: [ChangeHistorySchema]
 }, {
     timestamps: true
 })

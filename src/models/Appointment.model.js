@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const AppointmentStatusHistorySchema = require("./AppointmentStatusHistory.schema");
+const ChangeHistorySchema = require("./ChangeHistory.schema");
 
 const AppointmentSchema = new mongoose.Schema({
     businessId: {
@@ -62,7 +63,7 @@ const AppointmentSchema = new mongoose.Schema({
     partySize: {
         type: Number,
         required: true,
-        min: 1
+        min: 1,
     },
     timezone: {
         type: String,
@@ -97,7 +98,8 @@ const AppointmentSchema = new mongoose.Schema({
         type: String,
         trim: true,
         maxLength: 1000
-    }
+    },
+    changeHistory: [ChangeHistorySchema]
 }, {
     timestamps: true
 })
