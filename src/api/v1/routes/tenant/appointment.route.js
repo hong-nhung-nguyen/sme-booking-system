@@ -12,4 +12,7 @@ router.get("/detail/:appointmentId", controller.detail);
 // create a new appointment
 router.post("/create", controller.create);
 
+// edit an appointment
+router.patch("/edit/:appointmentId", controller.edit);
+
 module.exports = router;

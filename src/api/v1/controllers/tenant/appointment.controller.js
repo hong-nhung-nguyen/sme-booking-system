@@ -129,5 +129,48 @@ module.exports.create = async (req, res, next) => {
     } catch(error) {
         next(error)
     }
+};
+
+// [PATCH] api/v1/businesses/:businessId/locations/:locationId/appointments/edit/:appointmentId
+module.exports.edit = async (req, res, next) => {
+    try {   
+        const { businessId, locationId, appointmentId } = req.params;
+
+        const requiredParams = ["businessId", "locationId", "appointmentId"];
+
+        for (const param of requiredParams) {
+            if (!req.params[param]) {
+                res.status(400).json({
+                    success: false,
+                    message: `{param} is missing`
+                })
+            }
+        };
+
+        if(!req.body) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing request body"
+            })
+        };
+
+        try {
+            const editedAppointment = await appointmentService.edit(appointmentId, req.body);
+
+            return res.status(200).json({
+                success: true,
+                message: "Update successfully",
+                data: editedAppointment
+            });
+
+        } catch(error) {
+            next(error);
+        };
+
+
+    } catch(error) {
+        next(error);
+    }
 }
+
 

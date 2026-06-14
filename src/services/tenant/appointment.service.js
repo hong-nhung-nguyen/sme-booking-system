@@ -10,5 +10,64 @@ module.exports.create = async (data) => {
     const newAppointment = await appointmentRepository.create(data);
 
     return newAppointment;
-}
+};
 
+/**
+ * check if the value has the Date type
+if yes --> treat is as a Date object
+if no --> just plain String
+ */
+const isSameValue = (oldValue, newValue) => {
+    if (oldValue instanceof Date) {
+        return oldValue.getTime() == new Date(newValue).getTime();
+    }
+
+    return String(oldValue) === String(newValue);
+};
+
+module.exports.edit = async (appointmentId, newData) => {
+    const appointment = await appointmentRepository.findOne(appointmentId);
+
+    if (appointment) {
+        const changes = [];
+
+        for (const field in newData) {
+            /**
+             * endTime is re-calculated everytime before validation (check model)
+             * --> everytime the record is updated, endTime also be updated --> stored in changeLog although the value didnt change
+             * --> skip endTime 
+             */
+            if (field === "updater" || field === "endTime") continue;
+
+            const oldValue = appointment[field];
+            const newValue = newData[field];
+
+            if(!isSameValue(oldValue, newValue)) {
+                changes.push({
+                    field: field,
+                    oldValue: oldValue,
+                    newValue: newValue
+                });
+
+                appointment[field] = newValue;
+            };
+
+        };
+
+        if (changes.length > 0) {
+            appointment.changeHistory.push({
+                changes,
+                updatedBy: newData.updater,
+                updatedAt: new Date()
+            });
+            
+            const editedAppointment = await appointmentRepository.editOne(appointment);
+
+            return editedAppointment;
+        } 
+        
+    };
+
+    return null;
+
+} 
