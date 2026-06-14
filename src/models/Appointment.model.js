@@ -105,7 +105,24 @@ const AppointmentSchema = new mongoose.Schema({
         trim: true,
         maxLength: 1000
     },
-    changeHistory: [ChangeHistorySchema]
+    changeHistory: [ChangeHistorySchema],
+    deleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedBy: {
+        deleter: {
+            type: String,
+            minLength: 1,
+            maxLength: 100,
+            trim: true,
+            required: true
+        },
+        deletedAt: {
+            type: Date,
+            required: true
+        }
+    }
 }, {
     timestamps: true
 })

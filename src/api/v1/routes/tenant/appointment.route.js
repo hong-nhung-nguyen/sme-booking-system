@@ -15,4 +15,7 @@ router.post("/create", controller.create);
 // edit an appointment
 router.patch("/edit/:appointmentId", controller.edit);
 
+// delete an appointment
+router.delete("/delete/:appointmentId", controller.delete);
+
 module.exports = router;

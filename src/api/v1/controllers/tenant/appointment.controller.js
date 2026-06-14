@@ -1,4 +1,5 @@
 const appointmentService = require("../../../../services/tenant/appointment.service");
+const appointmentRepository = require("../../../../repository/appointment.repository");
 
 // [GET] api/v1/business/:businessId/locations/:locationId/appointments
 module.exports.index = async (req, res, next) => {
@@ -7,7 +8,9 @@ module.exports.index = async (req, res, next) => {
 
         const requiredParams = ["businessId", "locationId"];
 
-        let find = {};
+        let find = {
+            deleted: false,
+        };
 
         // Validate required parameters
         for (const param of requiredParams) {
@@ -66,15 +69,9 @@ module.exports.detail = async (req, res, next) => {
             }
         };
 
-        let find = {
-            _id: appointmentId,
-            businessId: businessId,
-            locationId: locationId
-        }
+        const record = await appointmentRepository.findOne(businessId, locationId, appointmentId);
 
-        const record = await appointmentService.find(find);
-
-        if (record[0]) {
+        if (record) {
             return res.status(200).json({
                 message: "appointment found",
                 data: record[0]
@@ -155,7 +152,7 @@ module.exports.edit = async (req, res, next) => {
         };
 
         try {
-            const editedAppointment = await appointmentService.edit(appointmentId, req.body);
+            const editedAppointment = await appointmentService.edit(businessId, locationId, appointmentId, req.body);
 
             return res.status(200).json({
                 success: true,
@@ -171,6 +168,53 @@ module.exports.edit = async (req, res, next) => {
     } catch(error) {
         next(error);
     }
+};
+
+// [DELETE] api/v1/businesses/:businessId/locations/:locationId/appointments/delete/:appointmentId
+module.exports.delete = async (req, res, next) => {
+    try {
+        const { businessId, locationId, appointmentId } = req.params;
+
+        const requiredParams = ["businessId", "locationId", "appointmentId"];
+
+        for (const param of requiredParams) {
+            if (!req.params[param]) {
+                return res.status(400).json({
+                    success: false,
+                    message: `${param} is missing`
+                })
+            }
+        };
+
+        if (!req.body) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing request body"
+            })
+        };
+
+        try {
+            const deleted = await appointmentService.delete(businessId, locationId, appointmentId, req.body);
+
+            if (deleted === null) {
+                return res.status(404).json({
+                    success: false,
+                    message: "No matching appointment found"
+                })
+            };
+
+            return res.status(200).json({
+                success: true,
+                message: "Delete appointment successfully"
+            });
+            
+        } catch(error) {
+            next(error);
+        }
+    } catch(error) {
+        next(error);
+    }
 }
+
 
 

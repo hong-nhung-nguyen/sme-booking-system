@@ -25,8 +25,8 @@ const isSameValue = (oldValue, newValue) => {
     return String(oldValue) === String(newValue);
 };
 
-module.exports.edit = async (appointmentId, newData) => {
-    const appointment = await appointmentRepository.findOne(appointmentId);
+module.exports.edit = async (businessId, locationId, appointmentId, newData) => {
+    const appointment = await appointmentRepository.findOne(businessId, locationId, appointmentId);
 
     if (appointment) {
         const changes = [];
@@ -70,4 +70,20 @@ module.exports.edit = async (appointmentId, newData) => {
 
     return null;
 
-} 
+} ;
+
+module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo) => {
+    const appointment = await appointmentRepository.findOne(businessId, locationId, appointmentId);
+
+    if (appointment === null) return null;
+
+    const deleteField = {
+        deleted: true,
+        deletedBy: {
+            deleter: deleteInfo.deleter,
+            deletedAt: new Date()
+        }
+    }
+
+    return await appointmentRepository.delete(businessId, locationId, appointmentId, deleteField);
+}
