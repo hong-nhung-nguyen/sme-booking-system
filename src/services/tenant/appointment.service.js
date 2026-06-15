@@ -7,9 +7,28 @@ module.exports.find = async (find) => {
 };
 
 module.exports.create = async (data) => {
-    const newAppointment = await appointmentRepository.create(data);
+    const initialStatus = "pending";
 
-    return newAppointment;
+    const createData = {
+        ...data,
+        status: initialStatus,
+        statusHistory: [
+            {
+                "status": "pending",
+                "updatedAt": new Date(),
+                "updatedBy": "SYSTEM"
+            }
+        ]
+    }
+
+    const newAppointment = await appointmentRepository.create(createData);
+
+    /**
+     * after the system successfully creates a new appointment record
+     * the current status will automatically be changed to "unconfirmed"
+     * with later version: the queue will be checked first to decide "unconfirm" or "queued"
+     */
+    return await module.exports.changeStatus(newAppointment.businessId, newAppointment.locationId, newAppointment.id, "unconfirmed", {updatedBy: "SYSTEM"});
 };
 
 /**

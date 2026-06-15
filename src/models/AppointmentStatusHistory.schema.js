@@ -4,7 +4,7 @@ const AppointmentStatusHistorySchema = new mongoose.Schema({
     status: {
         type: String,
         enum: [
-            "requested",
+            "pending",
             "unconfirmed",
             "confirmed",
             "rescheduled",

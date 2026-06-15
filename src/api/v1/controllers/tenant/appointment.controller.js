@@ -72,7 +72,7 @@ module.exports.detail = async (req, res, next) => {
         if (record) {
             return res.status(200).json({
                 message: "appointment found",
-                data: record[0]
+                data: record
             })
         };
 
