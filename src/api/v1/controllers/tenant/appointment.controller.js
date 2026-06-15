@@ -247,7 +247,44 @@ module.exports.changeStatus = async (req, res, next) => {
     } catch(error) {
         next(error);
     }
+};
+
+// [PATCH] api/v1/businesses/:businessId/locations/:locationId/appointments/status-history/:appointmentId
+module.exports.statusHistory = async (req, res, next) => {
+    try {
+        const { businessId, locationId, appointmentId } = req.params;
+
+        const requiredParams = ["businessId", "locationId", "appointmentId"];
+
+        for (const param of requiredParams) {
+            if (!req.params[param]) {
+                return res.status(400).json({
+                    success: false,
+                    message: `${param} is missing`
+                })
+            };
+        };
+
+        const appointmentStatusHistory = await appointmentService.statusHistory(businessId, locationId, appointmentId);
+
+        if (appointmentStatusHistory.length > 0) {
+            return res.status(200).json({
+                success: true,
+                message: "Found appointment status history",
+                data: appointmentStatusHistory
+            })
+        };
+
+        return res.status(404).json({
+            success: false,
+            message: "Invalid appointment"
+        });
+
+    } catch(error) {
+        next(error);
+    }
 }
+
 
 
 

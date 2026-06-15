@@ -21,4 +21,7 @@ router.delete("/delete/:appointmentId", controller.delete);
 // update status an appointment
 router.patch("/change-status/:status/:appointmentId", controller.changeStatus);
 
+// get an appointment status history
+router.get("/status-history/:appointmentId", controller.statusHistory);
+
 module.exports = router;

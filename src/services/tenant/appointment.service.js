@@ -100,4 +100,10 @@ module.exports.changeStatus = async (businessId, locationId, appointmentId, stat
     await appointmentRepository.changeStatus(businessId, locationId, appointmentId, status, statusLog);
 
     return await appointmentRepository.findOne(businessId, locationId, appointmentId);
+};
+
+module.exports.statusHistory = async (businessId, locationId, appointmentId) => {
+    const appointment = await appointmentRepository.findOne(businessId, locationId, appointmentId);
+
+    return appointment.statusHistory;
 }
