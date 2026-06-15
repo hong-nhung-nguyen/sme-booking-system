@@ -8,7 +8,9 @@ module.exports.index = async (req, res, next) => {
 
         const requiredParams = ["businessId", "locationId"];
 
-        let find = {};
+        let find = {
+            deleted: false,
+        };
 
         // Validate required parameters
         for (const param of requiredParams) {
@@ -110,7 +112,7 @@ module.exports.create = async (req, res, next) => {
         try {
             const newAppointment = await appointmentService.create(req.body);
 
-            return res.status(200).json({
+            return res.status(201).json({
                 success: true,
                 data: newAppointment
             })
@@ -135,9 +137,9 @@ module.exports.edit = async (req, res, next) => {
 
         for (const param of requiredParams) {
             if (!req.params[param]) {
-                res.status(400).json({
+                return res.status(400).json({
                     success: false,
-                    message: `{param} is missing`
+                    message: `${param} is missing`
                 })
             }
         };
@@ -152,10 +154,17 @@ module.exports.edit = async (req, res, next) => {
         try {
             const editedAppointment = await appointmentService.edit(businessId, locationId, appointmentId, req.body);
 
-            return res.status(200).json({
-                success: true,
-                message: "Update successfully",
-                data: editedAppointment
+            if (editedAppointment !== null) {
+                return res.status(200).json({
+                    success: true,
+                    message: "Update successfully",
+                    data: editedAppointment
+                });
+            };
+            
+            return res.status(404).json({
+                success: false,
+                message: "No matching appointment found"
             });
 
         } catch(error) {
@@ -238,10 +247,17 @@ module.exports.changeStatus = async (req, res, next) => {
             req.body || null
         );
 
-        return res.status(200).json({
-            success: true,
-            message: "Update status successfully",
-            data: updatedStatusAppointment
+        if (updatedStatusAppointment !== null) {
+            return res.status(200).json({
+                success: true,
+                message: "Update status successfully",
+                data: updatedStatusAppointment
+            });
+        };
+
+        return res.status(404).json({
+            success: false,
+            message: "No matching appointment found"
         });
 
     } catch(error) {
@@ -249,7 +265,7 @@ module.exports.changeStatus = async (req, res, next) => {
     }
 };
 
-// [PATCH] api/v1/businesses/:businessId/locations/:locationId/appointments/status-history/:appointmentId
+// [GET] api/v1/businesses/:businessId/locations/:locationId/appointments/status-history/:appointmentId
 module.exports.statusHistory = async (req, res, next) => {
     try {
         const { businessId, locationId, appointmentId } = req.params;
@@ -267,6 +283,13 @@ module.exports.statusHistory = async (req, res, next) => {
 
         const appointmentStatusHistory = await appointmentService.statusHistory(businessId, locationId, appointmentId);
 
+        if (appointmentStatusHistory === null) {
+              return res.status(404).json({
+                success: false,
+                message: "No matching appointment found"
+            });
+        };
+
         if (appointmentStatusHistory.length > 0) {
             return res.status(200).json({
                 success: true,
@@ -275,9 +298,9 @@ module.exports.statusHistory = async (req, res, next) => {
             })
         };
 
-        return res.status(404).json({
-            success: false,
-            message: "Invalid appointment"
+        return res.status(200).json({
+            success: true,
+            message: "No status history yet"
         });
 
     } catch(error) {

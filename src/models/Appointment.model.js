@@ -92,7 +92,6 @@ const AppointmentSchema = new mongoose.Schema({
             "failed"
         ],
         required: true,
-        default: "requested"
     },
     statusHistory: [AppointmentStatusHistorySchema],
     channel: {

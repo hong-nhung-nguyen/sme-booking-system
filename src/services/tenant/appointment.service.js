@@ -116,13 +116,18 @@ module.exports.changeStatus = async (businessId, locationId, appointmentId, stat
         ...(changeInfo?.reason && { reason: changeInfo.reason })
     };
     
-    await appointmentRepository.changeStatus(businessId, locationId, appointmentId, status, statusLog);
+    const updatedAppointment = await appointmentRepository.changeStatus(businessId, locationId, appointmentId, status, statusLog);
+
+    if (updatedAppointment.matchedCount === 0) return null;
 
     return await appointmentRepository.findOne(businessId, locationId, appointmentId);
+
 };
 
 module.exports.statusHistory = async (businessId, locationId, appointmentId) => {
     const appointment = await appointmentRepository.findOne(businessId, locationId, appointmentId);
 
+    if (!appointment) return null;
+    
     return appointment.statusHistory;
 }
