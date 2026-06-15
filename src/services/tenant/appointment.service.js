@@ -86,4 +86,18 @@ module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo
     }
 
     return await appointmentRepository.delete(businessId, locationId, appointmentId, deleteField);
+};
+
+module.exports.changeStatus = async (businessId, locationId, appointmentId, status, changeInfo) => {
+    let statusLog = {
+        status: status,
+        updatedAt: new Date(),
+        // if exists changeInfo (req.body) and updatedBy/reason --> include the fields, or else not
+        ...(changeInfo?.updatedBy && { updatedBy: changeInfo.updatedBy }),
+        ...(changeInfo?.reason && { reason: changeInfo.reason })
+    };
+    
+    await appointmentRepository.changeStatus(businessId, locationId, appointmentId, status, statusLog);
+
+    return await appointmentRepository.findOne(businessId, locationId, appointmentId);
 }

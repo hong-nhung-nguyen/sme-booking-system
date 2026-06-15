@@ -18,7 +18,6 @@ const AppointmentStatusHistorySchema = new mongoose.Schema({
     },
     reason: {
         type: String,
-        default: null,
         trim: true,
         maxlength: 500
     },

@@ -3,6 +3,14 @@ const Appointment = require("../models/Appointment.model");
 module.exports.find = async (find) => {
     const appointments = await Appointment.find(find);
 
+// update all the records to have `deleted` field
+    // const changeAll = await Promise.all(
+    //     appointments.map((appointment) => {
+    //         appointment.deleted = false;
+    //         return appointment.save();
+    //     })
+    // )
+
     return appointments;
 };
 
@@ -31,3 +39,15 @@ module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo
         locationId: locationId
     }, deleteInfo);
 };
+
+module.exports.changeStatus = async (businessId, locationId, appointmentId, status, statusLog) => {
+    return await Appointment.updateOne({
+        _id: appointmentId,
+        businessId: businessId,
+        locationId: locationId,
+        deleted: false
+    }, {
+        status: status,
+        $push: { statusHistory: statusLog}
+    })
+}

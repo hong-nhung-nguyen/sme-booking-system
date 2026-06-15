@@ -116,11 +116,11 @@ const AppointmentSchema = new mongoose.Schema({
             minLength: 1,
             maxLength: 100,
             trim: true,
-            required: true
+            required: function() { return this.deleted }
         },
         deletedAt: {
             type: Date,
-            required: true
+            required: function() { return this.deleted }
         }
     }
 }, {
