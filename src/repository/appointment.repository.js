@@ -47,7 +47,18 @@ module.exports.changeStatus = async (businessId, locationId, appointmentId, stat
         locationId: locationId,
         deleted: false
     }, {
-        status: status,
-        $push: { statusHistory: statusLog}
+        $set: { status: status },
+        $push: { 
+            statusHistory: statusLog,
+            changeHistory: {
+                changes: [
+                    {
+                        field: "status",
+                        newValue: status
+                    }
+                ],
+                updatedBy: statusLog.updatedBy || null
+            } 
+        }
     })
 }

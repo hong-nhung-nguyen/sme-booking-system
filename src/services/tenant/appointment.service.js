@@ -14,9 +14,21 @@ module.exports.create = async (data) => {
         status: initialStatus,
         statusHistory: [
             {
-                "status": "pending",
+                "status": initialStatus,
                 "updatedAt": new Date(),
                 "updatedBy": "SYSTEM"
+            }
+        ],
+        changeHistory: [
+            {
+                "changes": [
+                    {
+                        "field": "status",
+                        "newValue": initialStatus
+                    },
+                ],
+                "updatedBy": "SYSTEM",
+                "updatedAt": new Date()
             }
         ],
         updatedBy: "SYSTEM"
@@ -108,6 +120,10 @@ module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo
 };
 
 module.exports.changeStatus = async (businessId, locationId, appointmentId, status, changeInfo) => {
+    const appointment = await appointmentRepository.findOne(businessId, locationId, appointmentId);
+    // if status is still the same then just return, no change is made
+    if (appointment.status === status) return appointment;
+
     let statusLog = {
         status: status,
         updatedAt: new Date(),
@@ -116,8 +132,8 @@ module.exports.changeStatus = async (businessId, locationId, appointmentId, stat
         ...(changeInfo?.reason && { reason: changeInfo.reason })
     };
     
-    const updatedAppointment = await appointmentRepository.changeStatus(businessId, locationId, appointmentId, status, statusLog);
-
+    let updatedAppointment = await appointmentRepository.changeStatus(businessId, locationId, appointmentId, status, statusLog);
+    
     if (updatedAppointment.matchedCount === 0) return null;
 
     return await appointmentRepository.findOne(businessId, locationId, appointmentId);
