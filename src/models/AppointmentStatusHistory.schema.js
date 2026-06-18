@@ -23,6 +23,7 @@ const AppointmentStatusHistorySchema = new mongoose.Schema({
     },
     updatedBy: {
         type: String,
+        set: (value) => value.toUpperCase(),
         trim: true,
         maxlength: 100,
     },

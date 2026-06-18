@@ -18,7 +18,8 @@ module.exports.create = async (data) => {
                 "updatedAt": new Date(),
                 "updatedBy": "SYSTEM"
             }
-        ]
+        ],
+        updatedBy: "SYSTEM"
     }
 
     const newAppointment = await appointmentRepository.create(createData);
@@ -56,7 +57,7 @@ module.exports.edit = async (businessId, locationId, appointmentId, newData) => 
              * --> everytime the record is updated, endTime also be updated --> stored in changeLog although the value didnt change
              * --> skip endTime 
              */
-            if (field === "updater" || field === "endTime") continue;
+            if (field === "updatedBy" || field === "endTime") continue;
 
             const oldValue = appointment[field];
             const newValue = newData[field];
@@ -76,19 +77,18 @@ module.exports.edit = async (businessId, locationId, appointmentId, newData) => 
         if (changes.length > 0) {
             appointment.changeHistory.push({
                 changes,
-                updatedBy: newData.updater,
+                updatedBy: newData.updatedBy,
                 updatedAt: new Date()
             });
+
+            appointment.updatedBy = newData.updatedBy;
             
             const editedAppointment = await appointmentRepository.editOne(appointment);
 
             return editedAppointment;
         } 
-        
     };
-
     return null;
-
 } ;
 
 module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo) => {

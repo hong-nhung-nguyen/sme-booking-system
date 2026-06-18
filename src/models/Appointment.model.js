@@ -30,13 +30,15 @@ const AppointmentSchema = new mongoose.Schema({
     clientPhone: {
         type: String,
         trim: true,
-        match: /^\+?[0-9\s-]{8,20}$/
+        match: /^\+?[0-9\s-]{8,20}$/,
+        default: null
     },
     clientEmail: {
         type: String,
         trim: true,
         lowercase: true,
-        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        default: null
     },
     serviceId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -114,7 +116,8 @@ const AppointmentSchema = new mongoose.Schema({
     note: {
         type: String,
         trim: true,
-        maxLength: 1000
+        maxLength: 1000,
+        default: null
     },
     changeHistory: [ChangeHistorySchema],
     deleted: {
@@ -124,6 +127,7 @@ const AppointmentSchema = new mongoose.Schema({
     deletedBy: {
         deleter: {
             type: String,
+            set: (value) => value.toUpperCase(),
             minLength: 1,
             maxLength: 100,
             trim: true,
@@ -133,6 +137,13 @@ const AppointmentSchema = new mongoose.Schema({
             type: Date,
             required: function() { return this.deleted }
         }
+    },
+    updatedBy: {
+        type: String,
+        set: (value) => value.toUpperCase(),
+        required: true,
+        trim: true,
+        minLength: 1
     }
 }, {
     timestamps: true

@@ -18,6 +18,26 @@ const createAppointmentSchema = Joi.object({
     }),
 });
 
+const updatedAppointmentSchema = Joi.object({
+    params: Joi.object({
+        businessId: Joi.string().required(),
+        locationId: Joi.string().required(),
+        appointmentId: Joi.string().required(),
+    }),
+    body: Joi.object({
+        // User can only update these fields
+        // Other extra fields will be stripped
+        serviceId: Joi.string(),
+        date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/),
+        startTime: Joi.date(),
+        partySize: Joi.number().integer().min(1),
+        channel: Joi.string().valid("online", "sms", "manual", "email", "other"),
+        note: Joi.string().trim().max(1000).allow("", null),
+        updatedBy: Joi.string().trim().min(1).required(),
+    }),
+});
+
 module.exports = {
     createAppointmentSchema,
+    updatedAppointmentSchema,
 };

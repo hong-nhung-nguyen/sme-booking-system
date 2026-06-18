@@ -133,17 +133,6 @@ module.exports.edit = async (req, res, next) => {
     try {   
         const { businessId, locationId, appointmentId } = req.params;
 
-        const requiredParams = ["businessId", "locationId", "appointmentId"];
-
-        for (const param of requiredParams) {
-            if (!req.params[param]) {
-                return res.status(400).json({
-                    success: false,
-                    message: `${param} is missing`
-                })
-            }
-        };
-
         if(!req.body) {
             return res.status(400).json({
                 success: false,
