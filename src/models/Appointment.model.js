@@ -27,6 +27,17 @@ const AppointmentSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    clientPhone: {
+        type: String,
+        trim: true,
+        match: /^\+?[0-9\s-]{8,20}$/
+    },
+    clientEmail: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    },
     serviceId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Service",
@@ -48,7 +59,8 @@ const AppointmentSchema = new mongoose.Schema({
         type: Number,
         min: [5, "Duration must be at least 5 minutes"],
         max: [480, "Duration cannot be more than 8 hours"],
-        required: true
+        required: true,
+        default: 90
     },
     endTime: {
         type: Date,

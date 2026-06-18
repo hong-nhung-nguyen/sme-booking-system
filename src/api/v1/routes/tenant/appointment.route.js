@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true });
 
+// Joi validation
+const appointmentValidation = require("../../../../validations/tenant/appointment.validation");
+const validateMiddleware = require("../../../../middlewares/validateRequest.middleware");
+// End Joi validation
+
 const controller = require("../../controllers/tenant/appointment.controller");
 
 // get all the appointments OR customed queries 
@@ -10,7 +15,10 @@ router.get("/", controller.index);
 router.get("/detail/:appointmentId", controller.detail);
 
 // create a new appointment
-router.post("/create", controller.create);
+router.post(
+    "/create", 
+    validateMiddleware(appointmentValidation.createAppointmentSchema),
+    controller.create);
 
 // edit an appointment
 router.patch("/edit/:appointmentId", controller.edit);
