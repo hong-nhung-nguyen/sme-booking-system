@@ -9,7 +9,11 @@ const validateMiddleware = require("../../../../middlewares/validateRequest.midd
 const controller = require("../../controllers/tenant/appointment.controller");
 
 // get all the appointments OR customed queries 
-router.get("/", controller.index);
+router.get(
+    "/", 
+    validateMiddleware(appointmentValidation.querySchema),
+    controller.index
+);
 
 // get one detailed appointment
 router.get("/detail/:appointmentId", controller.detail);
