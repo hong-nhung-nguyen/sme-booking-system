@@ -112,7 +112,8 @@ module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo
         deleted: true,
         deletedBy: {
             deleter: deleteInfo.deleter,
-            deletedAt: new Date()
+            deletedAt: new Date(),
+            reason: deleteInfo?.reason || null
         }
     }
 

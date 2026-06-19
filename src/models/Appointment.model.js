@@ -136,6 +136,11 @@ const AppointmentSchema = new mongoose.Schema({
         deletedAt: {
             type: Date,
             required: function() { return this.deleted }
+        },
+        reason: {
+            type: String,
+            maxLength: 1000,
+            trim: true
         }
     },
     updatedBy: {
