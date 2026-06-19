@@ -27,6 +27,19 @@ const AppointmentSchema = new mongoose.Schema({
         required: true,
         index: true
     },
+    clientPhone: {
+        type: String,
+        trim: true,
+        match: /^\+?[0-9\s-]{8,20}$/,
+        default: null
+    },
+    clientEmail: {
+        type: String,
+        trim: true,
+        lowercase: true,
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        default: null
+    },
     serviceId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Service",
@@ -48,7 +61,8 @@ const AppointmentSchema = new mongoose.Schema({
         type: Number,
         min: [5, "Duration must be at least 5 minutes"],
         max: [480, "Duration cannot be more than 8 hours"],
-        required: true
+        required: true,
+        default: 90
     },
     endTime: {
         type: Date,
@@ -102,7 +116,8 @@ const AppointmentSchema = new mongoose.Schema({
     note: {
         type: String,
         trim: true,
-        maxLength: 1000
+        maxLength: 1000,
+        default: null
     },
     changeHistory: [ChangeHistorySchema],
     deleted: {
@@ -112,6 +127,7 @@ const AppointmentSchema = new mongoose.Schema({
     deletedBy: {
         deleter: {
             type: String,
+            set: (value) => value.toUpperCase(),
             minLength: 1,
             maxLength: 100,
             trim: true,
@@ -120,7 +136,19 @@ const AppointmentSchema = new mongoose.Schema({
         deletedAt: {
             type: Date,
             required: function() { return this.deleted }
+        },
+        reason: {
+            type: String,
+            maxLength: 1000,
+            trim: true
         }
+    },
+    updatedBy: {
+        type: String,
+        set: (value) => value.toUpperCase(),
+        required: true,
+        trim: true,
+        minLength: 1
     }
 }, {
     timestamps: true

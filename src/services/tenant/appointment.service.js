@@ -14,11 +14,24 @@ module.exports.create = async (data) => {
         status: initialStatus,
         statusHistory: [
             {
-                "status": "pending",
+                "status": initialStatus,
                 "updatedAt": new Date(),
                 "updatedBy": "SYSTEM"
             }
-        ]
+        ],
+        changeHistory: [
+            {
+                "changes": [
+                    {
+                        "field": "status",
+                        "newValue": initialStatus
+                    },
+                ],
+                "updatedBy": "SYSTEM",
+                "updatedAt": new Date()
+            }
+        ],
+        updatedBy: "SYSTEM"
     }
 
     const newAppointment = await appointmentRepository.create(createData);
@@ -56,7 +69,7 @@ module.exports.edit = async (businessId, locationId, appointmentId, newData) => 
              * --> everytime the record is updated, endTime also be updated --> stored in changeLog although the value didnt change
              * --> skip endTime 
              */
-            if (field === "updater" || field === "endTime") continue;
+            if (field === "updatedBy" || field === "endTime") continue;
 
             const oldValue = appointment[field];
             const newValue = newData[field];
@@ -76,19 +89,18 @@ module.exports.edit = async (businessId, locationId, appointmentId, newData) => 
         if (changes.length > 0) {
             appointment.changeHistory.push({
                 changes,
-                updatedBy: newData.updater,
+                updatedBy: newData.updatedBy,
                 updatedAt: new Date()
             });
+
+            appointment.updatedBy = newData.updatedBy;
             
             const editedAppointment = await appointmentRepository.editOne(appointment);
 
             return editedAppointment;
         } 
-        
     };
-
     return null;
-
 } ;
 
 module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo) => {
@@ -100,7 +112,8 @@ module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo
         deleted: true,
         deletedBy: {
             deleter: deleteInfo.deleter,
-            deletedAt: new Date()
+            deletedAt: new Date(),
+            reason: deleteInfo?.reason || null
         }
     }
 
@@ -108,6 +121,10 @@ module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo
 };
 
 module.exports.changeStatus = async (businessId, locationId, appointmentId, status, changeInfo) => {
+    const appointment = await appointmentRepository.findOne(businessId, locationId, appointmentId);
+    // if status is still the same then just return, no change is made
+    if (appointment.status === status) return appointment;
+
     let statusLog = {
         status: status,
         updatedAt: new Date(),
@@ -116,8 +133,8 @@ module.exports.changeStatus = async (businessId, locationId, appointmentId, stat
         ...(changeInfo?.reason && { reason: changeInfo.reason })
     };
     
-    const updatedAppointment = await appointmentRepository.changeStatus(businessId, locationId, appointmentId, status, statusLog);
-
+    let updatedAppointment = await appointmentRepository.changeStatus(businessId, locationId, appointmentId, status, statusLog);
+    
     if (updatedAppointment.matchedCount === 0) return null;
 
     return await appointmentRepository.findOne(businessId, locationId, appointmentId);

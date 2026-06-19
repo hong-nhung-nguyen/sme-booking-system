@@ -14,6 +14,15 @@ app.use(express.urlencoded({ extended: true }));
 
 apiV1(app);
 
+// 404 routes handler
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Route not found: ${req.method} ${req.originalUrl}`
+    });
+});
+// end 404 route handler
+
 // Global error handler
 app.use((err, req, res, next) => {
     res.status(500).json({
@@ -23,8 +32,21 @@ app.use((err, req, res, next) => {
 });
 // End global error handler
 
-app.listen(port, () => {
-    console.log(`App listening on port ${port}`);
-})
+const startServer = async () => {
+    try {
+        await database.connect();
+
+        app.listen(port, () => {
+            console.log(`App listening on port ${port}`);
+        })
+    } catch (error) {
+        console.error("Failed to start server: ", error.message);
+        process.exit(1);
+    }
+};
+
+startServer();
+
+
 
 
