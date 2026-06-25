@@ -476,8 +476,6 @@ statusHistory keeps audit trail.
 
 Possible future improvements:
 
-- Add central `AuditLog` collection
-- Add soft delete fields
 - Add tenant-level subscription/plan limits
 - Add stronger role/permission model
 - Add migration scripts
@@ -486,30 +484,3 @@ Possible future improvements:
 - Add service-layer availability tests
 - Add appointment overlap tests
 
----
-
-## 15. Open Questions
-
-Use this section for unresolved design questions.
-
-- Should `Client` have `businessId`, or be shared across businesses?
-- Should `Location.phone` be unique or not?
-- Should `AppointmentQueue` always create an `Appointment` first?
-- Should `OpeningHours` store one document per day/date or grouped rules?
-- Should change history be embedded or moved to a separate `AuditLog` collection later?
-
----
-
-## 16. Changelog
-
-### v__
-
-- Added/changed:
-- Removed:
-- Reason:
-
-### v__
-
-- Added/changed:
-- Removed:
-- Reason:
