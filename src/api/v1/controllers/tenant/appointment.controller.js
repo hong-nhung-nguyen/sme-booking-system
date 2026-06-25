@@ -4,24 +4,9 @@ const appointmentRepository = require("../../../../repository/appointment.reposi
 // [GET] api/v1/business/:businessId/locations/:locationId/appointments
 module.exports.index = async (req, res, next) => {
     try {
-        const { businessId, locationId } = req.params;
-
-        const requiredParams = ["businessId", "locationId"];
-
         let find = {
             deleted: false,
         };
-
-        // Validate required parameters
-        for (const param of requiredParams) {
-            if (!req.params[param]) {
-                return res.status(400).json({
-                    message: `${param} is missing`
-                })
-            };
-            find[param] = req.params[param];
-        }
-        // End validate parameters
 
         // Filter GET with query
 
@@ -58,17 +43,6 @@ module.exports.detail = async (req, res, next) => {
     try {
         const { businessId, locationId, appointmentId } = req.params;
 
-        const requiredParams = ["businessId", "locationId", "appointmentId"];
-
-
-        for (const param of requiredParams) {
-            if (!req.params[param]) {
-                return res.status(400).json({
-                    message: `${param} is missing`
-                })
-            }
-        };
-
         const record = await appointmentRepository.findOne(businessId, locationId, appointmentId);
 
         if (record) {
@@ -96,17 +70,6 @@ module.exports.create = async (req, res, next) => {
             return res.status(400).json({
                 message: "Missing request body"
             });
-        }
-
-        const requiredParams = ["businessId", "locationId"];
-
-        for (const param of requiredParams) {
-            if (!req.params[param]) {
-                return res.status(400).json({
-                    message: `${param} is missing`
-                })
-            }
-            req.body[param] = req.params[param];
         }
 
         try {
@@ -171,17 +134,6 @@ module.exports.delete = async (req, res, next) => {
     try {
         const { businessId, locationId, appointmentId } = req.params;
 
-        const requiredParams = ["businessId", "locationId", "appointmentId"];
-
-        for (const param of requiredParams) {
-            if (!req.params[param]) {
-                return res.status(400).json({
-                    success: false,
-                    message: `${param} is missing`
-                })
-            }
-        };
-
         if (!req.body) {
             return res.status(400).json({
                 success: false,
@@ -217,17 +169,6 @@ module.exports.changeStatus = async (req, res, next) => {
     try {
         const { businessId, locationId, status, appointmentId } = req.params;
 
-        const requiredParams = ["businessId", "locationId", "status", "appointmentId"];
-
-        for (const param of requiredParams) {
-            if (!req.params[param]) {
-                return res.status(400).json({
-                    success: false,
-                    message: `${param} is missing`
-                })
-            };
-        };
-
         const updatedStatusAppointment = await appointmentService.changeStatus(
             businessId, 
             locationId, 
@@ -258,17 +199,6 @@ module.exports.changeStatus = async (req, res, next) => {
 module.exports.statusHistory = async (req, res, next) => {
     try {
         const { businessId, locationId, appointmentId } = req.params;
-
-        const requiredParams = ["businessId", "locationId", "appointmentId"];
-
-        for (const param of requiredParams) {
-            if (!req.params[param]) {
-                return res.status(400).json({
-                    success: false,
-                    message: `${param} is missing`
-                })
-            };
-        };
 
         const appointmentStatusHistory = await appointmentService.statusHistory(businessId, locationId, appointmentId);
 
