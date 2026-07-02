@@ -8,6 +8,8 @@ router.post("/login", controller.login);
 
 router.post("/refresh", controller.refreshAccessToken);
 
+router.post("/logout", controller.logout);
+
 router.get("/me", authMiddleware, controller.me);
 
 module.exports = router;

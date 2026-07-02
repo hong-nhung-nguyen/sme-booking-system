@@ -7,7 +7,7 @@ const User = require("../../../../models/User.model");
 let refreshTokens = [];
 
 const generateAccessToken = (user) => {
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' });
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1m' });
 };
 
 // refresh token is just a random token - no signed
@@ -118,6 +118,38 @@ module.exports.refreshAccessToken = async (req, res) => {
     res.status(200).json({
         success: true,
         accessToken
+    });
+};
+
+module.exports.logout = async (req, res) => {
+    const refreshToken = req.body?.token;
+
+    if (!refreshToken) {
+        return res.status(400).json({
+            success: false,
+            message: "Refresh token required"
+        });
+    }
+
+    const result = await RefreshToken.updateOne({
+        tokenHash: hashToken(refreshToken),
+        revoked: false
+    }, {
+        revoked: true,
+        revokedAt: new Date(),
+        revokedByIp: req.ip
+    });
+
+    if (result.matchedCount === 0) {
+        return res.status(400).json({
+            success: false,
+            message: "Refresh token not found or already revoked"
+        })
+    };
+
+    res.status(200).json({
+        success: true,
+        message: "Logged out successfully"
     });
 }
 
