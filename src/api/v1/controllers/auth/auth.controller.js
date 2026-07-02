@@ -20,6 +20,12 @@ const hashToken = (token) => {
 }
 
 module.exports.login = async (req, res) => {
+    /**
+     * 1) find user
+     * 2) check password
+     * 3) generate accessToken and refreshToken 
+     */
+
     // Authenticate user 
     const { email, password } = req.body;
 
@@ -63,15 +69,33 @@ module.exports.login = async (req, res) => {
     const accessToken = generateAccessToken(signedUser);
     // End generating access token
 
+    // Set Cookie
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: false, // true in production
+        sameSite: "lax",
+        maxAge: 1 * 60 * 1000
+    });
 
-    res.json({
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+    // End setting cookie
+
+
+    res.status(200).json({
+        success: true,
+        message: "Login successful",
         accessToken: accessToken,
         refreshToken: refreshToken
     })
 };
 
 module.exports.refreshAccessToken = async (req, res) => {
-    const refreshToken = req.body.token;
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
         return res.status(401).json({
@@ -122,7 +146,7 @@ module.exports.refreshAccessToken = async (req, res) => {
 };
 
 module.exports.logout = async (req, res) => {
-    const refreshToken = req.body?.token;
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
         return res.status(400).json({
@@ -146,6 +170,11 @@ module.exports.logout = async (req, res) => {
             message: "Refresh token not found or already revoked"
         })
     };
+
+    // Delete cookies
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    // End deleting cookies
 
     res.status(200).json({
         success: true,

@@ -12,6 +12,9 @@ const apiV1 = require("./src/api/v1/routes/index.route");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
 apiV1(app);
 
 // 404 routes handler

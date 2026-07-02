@@ -21,6 +21,7 @@
     "test:watch": "jest --watch --config ./config/jest.config.js"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.7",
     "crypto": "^1.0.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
