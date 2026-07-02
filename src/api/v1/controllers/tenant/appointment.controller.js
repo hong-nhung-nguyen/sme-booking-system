@@ -5,6 +5,8 @@ const appointmentRepository = require("../../../../repository/appointment.reposi
 module.exports.index = async (req, res, next) => {
     try {
         let find = {
+            businessId: req.user.businessId,
+            locationId: { $in: req.user.locationIds },
             deleted: false,
         };
 
