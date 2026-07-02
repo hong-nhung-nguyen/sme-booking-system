@@ -1,12 +1,26 @@
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
+const RefreshToken = require("../../../../models/RefreshToken.schema");
 const User = require("../../../../models/User.model");
 
-const generateTokens = require("../../../../utils/generateTokens");
+let refreshTokens = [];
+
+const generateAccessToken = (user) => {
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' });
+};
+
+// refresh token is just a random token - no signed
+const generateRefreshToken = () => {
+    return crypto.randomBytes(64).toString("hex");
+};
+
+const hashToken = (token) => {
+    return crypto.createHash("sha256").update(token).digest("hex");
+}
 
 module.exports.login = async (req, res) => {
     // Authenticate user 
-
     const { email, password } = req.body;
 
     const user = await User.findOne({
@@ -21,6 +35,75 @@ module.exports.login = async (req, res) => {
             message: "Invalid email or password"
         })
     };
+    // End authenticating user
+
+
+    // Generate refresh token
+    const refreshToken = generateRefreshToken();
+
+    await RefreshToken.create({
+        userId: user._id,
+        tokenHash: hashToken(refreshToken),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7days
+        createdByIp: req.ip,
+        userAgent: req.headers["user-agent"]
+    });
+    // End generating refresh token
+
+
+    // Generate access token
+    const signedUser = {
+        userId: user._id,
+        businessId: user.businessId,
+        locationIds: user.locationIds,
+        accessAllLocations: user.accessAllLocations,
+        role: user.role
+    };
+
+    const accessToken = generateAccessToken(signedUser);
+    // End generating access token
+
+
+    res.json({
+        accessToken: accessToken,
+        refreshToken: refreshToken
+    })
+};
+
+module.exports.refreshAccessToken = async (req, res) => {
+    const refreshToken = req.body.token;
+
+    if (!refreshToken) {
+        return res.status(401).json({
+            success: false,
+            message: "Refresh token required"
+        });
+    }
+
+    const storedToken = await RefreshToken.findOne({
+        tokenHash: hashToken(refreshToken),
+        revoked: false,
+        expiresAt: { $gt: new Date() }
+    });
+
+    if (!storedToken) {
+        return res.status(403).json({
+            success: false,
+            message: "Invalid or expired refresh token"
+        });
+    };
+
+    const user = await User.findOne({
+        _id: storedToken.userId,
+        status: "active",
+    });
+
+    if (!user) {
+        return res.status(403).json({
+            success: false,
+            message: "User is not active"
+        })
+    }
 
     const signedUser = {
         userId: user._id,
@@ -30,12 +113,13 @@ module.exports.login = async (req, res) => {
         role: user.role
     };
 
-    const accessToken = generateTokens.generateAccessToken(signedUser);
+    const accessToken = generateAccessToken(signedUser);
 
-    res.json({
-        accessToken: accessToken,
-    })
-};
+    res.status(200).json({
+        success: true,
+        accessToken
+    });
+}
 
 module.exports.me = async (req, res) => {
     const user = await User.findOne({
