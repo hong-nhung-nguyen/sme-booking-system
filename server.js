@@ -1,4 +1,5 @@
 const express = require("express");
+const helmet = require("helmet");
 require("dotenv").config();
 
 const app = express();
@@ -6,6 +7,11 @@ const port = process.env.PORT;
 
 const database = require("./src/config/database");
 database.connect();
+
+// Security headers
+// automatically sets multiple http response headers to secure web applications against 
+// common vulnerabilities (XSS, clickjacking,..)
+app.use(helmet());
 
 const apiV1 = require("./src/api/v1/routes/index.route");
 
