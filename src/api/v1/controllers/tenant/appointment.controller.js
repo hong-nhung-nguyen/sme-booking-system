@@ -1,7 +1,7 @@
 const appointmentService = require("../../../../services/tenant/appointment.service");
 const appointmentRepository = require("../../../../repository/appointment.repository");
 
-// [GET] api/v1/business/:businessId/locations/:locationId/appointments
+// [GET] api/v1/business/appointments
 module.exports.index = async (req, res, next) => {
     try {
         let find = {
@@ -40,10 +40,13 @@ module.exports.index = async (req, res, next) => {
     }
 };
 
-// [GET] api/v1/businesses/:businessId/locations/:locationId/appointments/detail/:appointmentId
+// [GET] api/v1/business/appointments/detail/:appointmentId
 module.exports.detail = async (req, res, next) => {
     try {
-        const { businessId, locationId, appointmentId } = req.params;
+        // const { businessId, locationId, appointmentId } = req.params;
+        const businessId = req.user.businessId;
+        const locationId = { $in: req.user.locationIds };
+        const appointmentId = req.params.appointmentId;
 
         const record = await appointmentRepository.findOne(businessId, locationId, appointmentId);
 
@@ -63,10 +66,11 @@ module.exports.detail = async (req, res, next) => {
     }
 };
 
-// [POST] api/v1/businesses/:businessId/locations/:locationId/appointments/create
+// [POST] api/v1/business/appointments/create
 module.exports.create = async (req, res, next) => {
     try {
-        const { businessId, locationId } = req.params;
+        // const { businessId, locationId } = req.params;
+        const businessId = req.user.businessId;
 
         if (!req.body) {
             return res.status(400).json({
@@ -74,29 +78,63 @@ module.exports.create = async (req, res, next) => {
             });
         }
 
-        try {
-            const newAppointment = await appointmentService.create(req.body);
+        const {
+            locationId,
+            clientId,
+            serviceId,
+            date,
+            startTime,
+            partySize,
+            channel,
+            createdBy
+        } = req.body;
 
-            return res.status(201).json({
-                success: true,
-                data: newAppointment
-            })
-
-        } catch(error) {
+        if (!locationId) {
             return res.status(400).json({
                 success: false,
-                message: error.message
-            })
+                message: "locationId is required"
+            });
         }
+
+        const hasAccess = 
+            req.user.accessAllLocations || req.user.locationIds.some(id => id.toString() === locationId);
+        
+        if (!hasAccess) {
+            return res.status(403).json({
+                success: false,
+                message: "You do not have access to this location"
+            });
+        }
+
+        const newAppointment = await appointmentService.create({
+            businessId,
+            locationId,
+            clientId,
+            serviceId,
+            date,
+            startTime,
+            partySize,
+            channel,
+            createdBy
+        });
+
+        return res.status(201).json({
+            success: true,
+            data: newAppointment
+        });
+        
     } catch(error) {
         next(error)
     }
 };
 
-// [PATCH] api/v1/businesses/:businessId/locations/:locationId/appointments/edit/:appointmentId
+// [PATCH] api/v1/business/appointments/edit/:appointmentId
 module.exports.edit = async (req, res, next) => {
     try {   
-        const { businessId, locationId, appointmentId } = req.params;
+        // const { businessId, locationId, appointmentId } = req.params;
+        const businessId = req.user.businessId;
+        const locationId = { $in: req.user.locationIds };
+        const appointmentId = req.params.appointmentId;
 
         if(!req.body) {
             return res.status(400).json({
@@ -131,10 +169,13 @@ module.exports.edit = async (req, res, next) => {
     }
 };
 
-// [DELETE] api/v1/businesses/:businessId/locations/:locationId/appointments/delete/:appointmentId
+// [DELETE] api/v1/business/appointments/delete/:appointmentId
 module.exports.delete = async (req, res, next) => {
     try {
-        const { businessId, locationId, appointmentId } = req.params;
+        // const { businessId, locationId, appointmentId } = req.params;
+        const businessId = req.user.businessId;
+        const locationId = { $in: req.user.locationIds };
+        const appointmentId = req.params.appointmentId;
 
         if (!req.body) {
             return res.status(400).json({
@@ -143,33 +184,31 @@ module.exports.delete = async (req, res, next) => {
             })
         };
 
-        try {
-            const deleted = await appointmentService.delete(businessId, locationId, appointmentId, req.body);
+        const deleted = await appointmentService.delete(businessId, locationId, appointmentId, req.body);
 
-            if (deleted === null) {
-                return res.status(404).json({
-                    success: false,
-                    message: "No matching appointment found"
-                })
-            };
+        if (deleted === null) {
+            return res.status(404).json({
+                success: false,
+                message: "No matching appointment found"
+            })
+        };
 
-            return res.status(200).json({
-                success: true,
-                message: "Delete appointment successfully"
-            });
+        return res.status(200).json({
+            success: true,
+            message: "Delete appointment successfully"
+        });
             
-        } catch(error) {
-            next(error);
-        }
     } catch(error) {
         next(error);
     }
 };
 
-// [PATCH] api/v1/businesses/:businessId/locations/:locationId/appointments/change-status/:status/:appointmentId
+// [PATCH] api/v1/business/appointments/change-status/:status/:appointmentId
 module.exports.changeStatus = async (req, res, next) => {
     try {
-        const { businessId, locationId, status, appointmentId } = req.params;
+        const businessId = req.user.businessId;
+        const locationId = { $in: req.user.locationIds };
+        const { status, appointmentId } = req.params;
 
         const updatedStatusAppointment = await appointmentService.changeStatus(
             businessId, 
@@ -197,10 +236,13 @@ module.exports.changeStatus = async (req, res, next) => {
     }
 };
 
-// [GET] api/v1/businesses/:businessId/locations/:locationId/appointments/status-history/:appointmentId
+// [GET] api/v1/business/appointments/status-history/:appointmentId
 module.exports.statusHistory = async (req, res, next) => {
     try {
-        const { businessId, locationId, appointmentId } = req.params;
+        // const { businessId, locationId, appointmentId } = req.params;
+        const businessId = req.user.businessId;
+        const locationId = { $in: req.user.locationIds };
+        const appointmentId = req.params.appointmentId;
 
         const appointmentStatusHistory = await appointmentService.statusHistory(businessId, locationId, appointmentId);
 

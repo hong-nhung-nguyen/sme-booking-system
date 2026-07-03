@@ -7,7 +7,7 @@ const User = require("../../../../models/User.model");
 let refreshTokens = [];
 
 const generateAccessToken = (user) => {
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1m' });
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '5m' });
 };
 
 // refresh token is just a random token - no signed
@@ -74,7 +74,7 @@ module.exports.login = async (req, res) => {
         httpOnly: true,
         secure: false, // true in production
         sameSite: "lax",
-        maxAge: 1 * 60 * 1000
+        maxAge: 5 * 60 * 1000
     });
 
     res.cookie("refreshToken", refreshToken, {
@@ -138,6 +138,13 @@ module.exports.refreshAccessToken = async (req, res) => {
     };
 
     const accessToken = generateAccessToken(signedUser);
+
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: false, // true in production
+        sameSite: "lax",
+        maxAge: 1 * 60 * 1000
+    });
 
     res.status(200).json({
         success: true,

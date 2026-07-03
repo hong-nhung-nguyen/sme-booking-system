@@ -6,9 +6,6 @@ const appointmentValidation = require("../../validations/tenant/appointment.vali
 const validateMiddleware = require("../../../../middlewares/validateRequest.middleware");
 // End Joi validation
 
-// Authenticate and Authorize
-const authenticateToken = require("../../../../middlewares/authenticateToken.middleware");
-
 const controller = require("../../controllers/tenant/appointment.controller");
 const { validate } = require("../../../../models/Appointment.model");
 
@@ -16,7 +13,6 @@ const { validate } = require("../../../../models/Appointment.model");
 router.get(
     "/", 
     validateMiddleware(appointmentValidation.findAppointmentsSchema),
-    authenticateToken,
     controller.index
 );
 
