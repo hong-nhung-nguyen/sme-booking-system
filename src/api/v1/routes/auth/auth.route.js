@@ -4,9 +4,12 @@ const router = express.Router();
 const authMiddleware = require("../../../../middlewares/authenticateToken.middleware");
 const controller = require("../../controllers/auth/auth.controller");
 
-router.post("/login", controller.login);
+// Rate limit
+const authRateLimit = require("../../../../middlewares/authRateLimit.middleware");
 
-router.post("/refresh", controller.refreshAccessToken);
+router.post("/login", authRateLimit ,controller.login);
+
+router.post("/refresh", authRateLimit, controller.refreshAccessToken);
 
 router.post("/logout", controller.logout);
 
