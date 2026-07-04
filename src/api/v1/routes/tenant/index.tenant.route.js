@@ -11,7 +11,7 @@ const appointmentRoutes = require("./appointment.route");
 const serviceRoutes = require("./service.route");
 // end import sub-routes
 
-router.use(PATH_LOCATION + "/appointments", appointmentRoutes);
+router.use("/appointments", appointmentRoutes);
 
 router.use(PATH_LOCATION + "/services", serviceRoutes);
 

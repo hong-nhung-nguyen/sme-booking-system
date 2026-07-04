@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router({ mergeParams: true });
 
 // Joi validation
-const appointmentValidation = require("../../../../validations/tenant/appointment.validation");
+const appointmentValidation = require("../../validations/tenant/appointment.validation");
 const validateMiddleware = require("../../../../middlewares/validateRequest.middleware");
 // End Joi validation
 
