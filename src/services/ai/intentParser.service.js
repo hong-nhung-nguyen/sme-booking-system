@@ -57,6 +57,8 @@ Note:
 - If the customer gives a genertic time like "morning", "afternoon", or "evening", set the preferredTime to null.
 - If the customer gives a generic date like "tomorrow", "next week", or "this Friday", use the current date
 from when the message was sent to determine the actual date. If the date cannot be determined, set preferredDate to null. 
+- If the customer gives a generic date like "friday" or "saturday" without specifying a week (e.g: "this friday" or "next saturday"), 
+assume the current week and recalculate the confidence rate. 
 
 Customer message: 
 "${message}"
