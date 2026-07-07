@@ -78,7 +78,7 @@ const IncomingMessageSchema = new mongoose.Schema({
     },
     processingStatus: {
         type: String,
-        enum: ["pending", "processed", "failed"],
+        enum: ["pending", "processed", "failed", "needs_review"],
         index: true,
         required: true,
         default: "pending"
