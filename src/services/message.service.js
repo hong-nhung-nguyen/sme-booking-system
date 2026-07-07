@@ -25,18 +25,29 @@ module.exports.createMessageRecord = async (businessId, original) => {
 module.exports.process = async (businessId, messageId, parsedIntent) => {
     let update = {
         parsedIntent: parsedIntent,
-        processingStatus: "processed",
     };
 
     let clientContact = null;
     let clientId = null;
     let date = null;
 
+    if (parsedIntent.confidence) {
+        const confidence = parsedIntent.confidence;
+
+        if (confidence >= 8.0) {
+            // safe to continue normal automated flow
+            update.processingStatus = "processed";
+        } else {
+            update.processingStatus = "needs_review";
+            // continue with follow-up questions
+        }
+    }
+
     if (parsedIntent.preferredDate) date = parsedIntent.preferredDate;
     if (parsedIntent.preferredTime) time = new Date(parsedIntent.preferredTime);
 
     // finding the client 
-    if (parsedIntent.clientContact) {
+    if (parsedIntent.clientContact && parsedIntent.clientContact !== null) {
         clientContact = parsedIntent.clientContact;
 
         let find = {
@@ -63,10 +74,10 @@ module.exports.process = async (businessId, messageId, parsedIntent) => {
         let find = {
             businessId: businessId,
             clientId: clientId,
-            ...(clientContact.includes("@") && {
+            ...((clientContact !== null && clientContact.includes("@")) && {
                 clientEmail: clientContact
             }),
-            ...(!clientContact.includes("@") && {
+            ...((clientContact !== null && !clientContact.includes("@")) && {
                 clientPhone: clientContact
             }),
             ...(date !== null && {

@@ -9,17 +9,14 @@ Return ONLY valid JSON. Do not include explanations, markdown, or extra text.
 Current context:
 - Current date: ${currentDate} 
 
-Note: 
-- The customer message may contain typos, slang, or informal language. Based on this to recalculate
-the confidence rate (later introduced)
-
 Rules:
 1. action:
-   - Use one of: "book", "cancel", "reschedule", "check availability", "general inquiry", "undefined".
+   - Use one of: "book", "cancel", "reschedule", "check_availability", "general_inquiry", "undefined".
    - If the customer wants to make a booking, use "book".
    - If the customer wants to change an existing booking, use "reschedule".
    - If the customer wants to cancel, use "cancel".
-   - If the message is only asking a question, use "general inquiry".
+   - If the message is only asking a question, use "general_inquiry".
+   - If the customer wants to ask about available slots, use "check_availability".
    - If unclear, use "undefined".
 
 2. service:
@@ -64,6 +61,14 @@ Rules:
    - Return a number between 0 and 1.
    - Higher confidence means the message clearly gives booking intent.
    - Lower confidence means the message is vague or missing important details.
+
+Note: 
+- The customer message may contain typos, slang, or informal language. Based on this to recalculate
+the confidence rate
+- For "book" action, all fields should be provided, or else, lower the confidence rate.
+- For "cancel" and "reschedule" actions, clientName, clientContact, preferredDate, and preferredTime
+should be provided, especially clientContact and preferredDate or else, lower the confidate rate. 
+- Always keep the confidence rate low for action: "undefined"
 
 Return JSON in exactly this structure:
 

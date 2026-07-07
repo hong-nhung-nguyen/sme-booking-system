@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const ParsedIntentSchema = new mongoose.Schema({
     action: {
         type: String,
-        enum: ["book", "cancel", "reschedule", "check availability", "general inquiry"],
+        enum: ["book", "cancel", "reschedule", "check_availability", "general_inquiry", "undefined"],
         default: null
     },
     confidence: {
