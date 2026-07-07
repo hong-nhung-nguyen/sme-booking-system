@@ -4,6 +4,7 @@ const platformRoutes = require("./platform/index.platform.route");
 const tenantRoutes = require("./tenant/index.tenant.route");
 const userRoutes = require("./user/user.route");
 const authRoutes = require("./auth/auth.route");
+const messageRoutes = require("./message/message.route");
 
 const authenticateToken = require("../../../middlewares/authenticateToken.middleware");
 
@@ -13,6 +14,7 @@ module.exports = (app) => {
     const PATH_BUSINESS = systemConfig.prefixTenant;
     const PATH_AUTH = systemConfig.prefixAuth;
     const PATH_USER = systemConfig.prefixUser;
+    const PATH_MESSAGE = systemConfig.prefixMessage;
 
     app.use(version + PATH_AUTH, authRoutes);
 
@@ -22,4 +24,5 @@ module.exports = (app) => {
 
     app.use(version + PATH_USER, userRoutes);
 
+    app.use(version + PATH_MESSAGE, authenticateToken, messageRoutes);
 }

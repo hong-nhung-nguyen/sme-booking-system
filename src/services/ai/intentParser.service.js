@@ -84,7 +84,7 @@ Return JSON in this exact format:
         return defaultParsedIntent;
     }
 
-    console.log("Parsed intent:", parsed);
+    // console.log("Parsed intent:", parsed);
 
     return {
         action: parsed.action || null,
@@ -97,5 +97,5 @@ Return JSON in this exact format:
     };
 };
 
-parseMessageIntent(mockMessages.messages[0]);
+module.exports = parseMessageIntent;
 
