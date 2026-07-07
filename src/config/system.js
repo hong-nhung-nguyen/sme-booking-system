@@ -3,11 +3,13 @@ const PATH_TENANT = "/business";
 const PATH_LOCATION = "/locations/:locationId";
 const PATH_AUTH = "/auth";
 const PATH_USER = "/user";
+const PATH_MESSAGE = "/message";
 
 module.exports = {
     prefixPlatform: PATH_PLATFORM,
     prefixTenant: PATH_TENANT,
     prefixLocation: PATH_LOCATION,
     prefixAuth: PATH_AUTH,
-    prefixUser: PATH_USER
+    prefixUser: PATH_USER,
+    prefixMessage: PATH_MESSAGE
 }

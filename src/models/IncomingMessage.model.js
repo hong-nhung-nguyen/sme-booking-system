@@ -19,51 +19,51 @@ const IncomingMessageSchema = new mongoose.Schema({
     },
     channel: {
         type: String,
-        enum: ["sms", "email", "other"],
+        enum: ["sms", "email", "web-chat", "other"],
         required: true,
-        default: "other"
+        default: "web-chat"
     },
-    from: {
-        type: String,
-        required: true,
-        validate: {
-            validator: function(value) {
-                if (this.channel == "email") {
-                    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-                }
+    // from: {
+    //     type: String,
+    //     required: true,
+    //     validate: {
+    //         validator: function(value) {
+    //             if (this.channel == "email") {
+    //                 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    //             }
 
-                if (this.channel == "sms") {
-                    return /^\+?[0-9\s-]{8,20}$/.test(value);
-                }
+    //             if (this.channel == "sms") {
+    //                 return /^\+?[0-9\s-]{8,20}$/.test(value);
+    //             }
 
-                return true;
-            },
-            message: "from must match the selected channel format"
-        }
-    },
-    to: {
-        type: String,
-        required: true,
-        validate: {
-            validator: function(value) {
-                if (this.channel == "email") {
-                    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-                }
+    //             return true;
+    //         },
+    //         message: "from must match the selected channel format"
+    //     }
+    // },
+    // to: {
+    //     type: String,
+    //     required: true,
+    //     validate: {
+    //         validator: function(value) {
+    //             if (this.channel == "email") {
+    //                 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    //             }
 
-                if (this.channel == "sms") {
-                    return /^\+?[0-9\s-]{8,20}$/.test(value);
-                }
+    //             if (this.channel == "sms") {
+    //                 return /^\+?[0-9\s-]{8,20}$/.test(value);
+    //             }
 
-                return true;
-            },
-            message: "to must match the selected channel format"
-        }
-    },
-    subject: {
-        type: String,
-        default: null
-    },
-    body: {
+    //             return true;
+    //         },
+    //         message: "to must match the selected channel format"
+    //     }
+    // },
+    // subject: {
+    //     type: String,
+    //     default: null
+    // },
+    originalBody: {
         type: String,
         required: true,
         maxLength: 5000
@@ -74,7 +74,7 @@ const IncomingMessageSchema = new mongoose.Schema({
     },
     parsedIntent: {
         type: ParsedIntentSchema,
-        required: true
+        // required: true
     },
     processingStatus: {
         type: String,
@@ -83,6 +83,9 @@ const IncomingMessageSchema = new mongoose.Schema({
         required: true,
         default: "pending"
     },
+    // pending: message received, but AI processing it
+    // proccessed: AI parsing the intent 
+    // failed: something unexpected during the process
     processingError: String,
 }, {
     timestamps: true

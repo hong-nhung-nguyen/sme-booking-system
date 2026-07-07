@@ -23,6 +23,10 @@ module.exports.findOne = async (businessId, locationId, appointmentId) => {
     });
 };
 
+module.exports.findOneWithObject = async (find) => {
+    return await Appointment.findOne(find);
+}
+
 module.exports.create = async (data) => {
     return await Appointment.create(data);
 };
@@ -31,6 +35,14 @@ module.exports.editOne = async (appointment) => {
     await appointment.save();
     return appointment;
 };
+
+module.exports.editFields = async (appointmentId, updateObject) => {
+    return await Appointment.updateOne(
+        { _id: appointmntId },
+        { $set: updateObject },
+        { new: true }
+    )
+}
 
 module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo) => {
     return await Appointment.updateOne({

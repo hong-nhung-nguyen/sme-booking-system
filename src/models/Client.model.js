@@ -3,6 +3,12 @@ const mongoose = require("mongoose");
 const ChangeHistorySchema = require("./ChangeHistory.schema");
 
 const clientSchema = new mongoose.Schema({
+    businessId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Business",
+        required: true,
+        index: true
+    },
     firstName: {
         type: String,
         required: true,
@@ -21,12 +27,14 @@ const clientSchema = new mongoose.Schema({
         trim: true,
         lowercase: true,
         unique: true,
+        index: true,
         match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     },
     phone: {
         type: String,
         trim: true,
         unique: true,
+        index: true,
         match: /^\+?[0-9\s-]{8,20}$/
     },
     notes: {
@@ -39,8 +47,8 @@ const clientSchema = new mongoose.Schema({
     timestamps: true
 })
 
-clientSchema.index({ email: 1 }, { unique: true, sparse: true });
-clientSchema.index({ phone: 1 }, { unique: true, sparse: true });
+// clientSchema.index({ email: 1 }, { unique: true, sparse: true });
+// clientSchema.index({ phone: 1 }, { unique: true, sparse: true });
 
 const Client = mongoose.model("Client", clientSchema, "clients");
 
