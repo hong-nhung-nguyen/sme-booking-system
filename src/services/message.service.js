@@ -33,7 +33,7 @@ module.exports.process = async (businessId, messageId, parsedIntent) => {
     let date = null;
 
     if (parsedIntent.preferredDate) date = parsedIntent.preferredDate;
-    if (parsedIntent.preferredTime) time = parsedIntent.preferredTime;
+    if (parsedIntent.preferredTime) time = new Date(parsedIntent.preferredTime);
 
     // finding the client 
     if (parsedIntent.clientContact) {
