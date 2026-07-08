@@ -34,7 +34,7 @@ module.exports.process = async (businessId, messageId, parsedIntent) => {
     if (parsedIntent.confidence) {
         const confidence = parsedIntent.confidence;
 
-        if (confidence >= 8.0) {
+        if (confidence >= 0.8) {
             // safe to continue normal automated flow
             update.processingStatus = "processed";
         } else {
