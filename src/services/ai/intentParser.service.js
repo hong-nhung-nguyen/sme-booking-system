@@ -20,6 +20,24 @@ const defaultParsedIntent = {
     confidence: 0
 };
 
+const validateParsedIntent = (data) => {
+    // safeParse(): zod method that validates data without crashing the app 
+    /**
+     * {
+     *      success: true,
+     *      data: validatedData 
+     * }
+     */
+    const result = intentSchemaZod.safeParse(data);
+
+    if (!result.success) {
+        console.log("Invalid JSON output: ", result.error.flatten());
+        return defaultParsedIntent;
+    }
+    
+    return result.data;
+}
+
 // Returns { action, service, preferredDate, preferredTime, clientName, clientContact, confidence 
 
 const parseMessageIntent = async (message) => {
@@ -27,15 +45,15 @@ const parseMessageIntent = async (message) => {
         return defaultParsedIntent;
     }
 
-    const input = parseMessagePrompt(new Date(), message);
-    if (!input || typeof input !== "string") {
+    const prompt = parseMessagePrompt(new Date(), message);
+    if (!prompt || typeof prompt !== "string") {
         return defaultParsedIntent;
     }
 
     try {
         const response = await client.responses.parse({
             model: "gpt-5.5",
-            input: input,
+            input: prompt,
             text: {
                 format: zodTextFormat(intentSchemaZod, "intent_extraction"),
             }
@@ -45,7 +63,7 @@ const parseMessageIntent = async (message) => {
 
         if (!parsedIntent || parsedIntent === null) return defaultParsedIntent;
         
-        return parsedIntent;
+        return validateParsedIntent(parsedIntent);
 
     } catch (error) {
         console.error("OpenAI intent parsing failed: ", error.message);
