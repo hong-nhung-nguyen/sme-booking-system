@@ -183,7 +183,15 @@ module.exports.disconnect = async (req, res, next) => {
      */
 
     try {
-        const business = await Business.findById(req.user.businessId);
+        const businessId = req.user?.businessId;
+
+        if (!businessId) {
+            return res.status(401).json({
+                success: false,
+                message: "Authenticated user does not have businessId"
+            });
+        }
+        const business = await Business.findById(businessId);
 
         if (!business) {
             return res.status(404).json({
@@ -195,13 +203,18 @@ module.exports.disconnect = async (req, res, next) => {
         const refreshToken = business.googleCalendar?.refreshToken;
 
         if (refreshToken) {
+            const oauth2Client = createOAuthClient();
+
             await oauth2Client.revokeToken(refreshToken);
         }
 
         business.googleCalendar = {
+            ...business.googleCalendar,
             connected: false,
             accessToken: null,
             refreshToken: null,
+            tokenType: null,
+            scope: null,
             expiryDate: null,
             calendarId: null
         };
