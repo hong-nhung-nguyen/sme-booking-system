@@ -13,8 +13,22 @@ const createOAuthClient = () => {
 // [GET] api/v1/google-calendar/auth
 module.exports.auth = async (req, res, next) => {
     try {
+        const businessId = req.user?.businessId?.toString();
+
+        if (!businessId) {
+            return res.status(401).json({
+                success: false,
+                message: "Authenticated user does not have a businessId"
+            });
+        };
+
+        const oauth2Client = createOAuthClient();
+
         const state = jwt.sign(
-            { businessId: req.user.businessId },
+            { 
+                businessId,
+                purpose: "google-calendar"
+            },
             process.env.GOOGLE_OAUTH_STATE_SECRET,
             { expiresIn: "10m" }
         );
@@ -27,12 +41,18 @@ module.exports.auth = async (req, res, next) => {
              * 
              * Refresh tokens should be stored securely 
              */
-            scope:"https://www.googleapis.com/auth/calendar.events",
+
+            prompt: "consent", // forces the consent screen 
+
+            include_granted_scopes: true,
+
+            scope: [GOOGLE_CALENDAR_SCOPE],
             // events: can create, update, and cancel appointment events
             // readonly: only permits reading 
+            
             state
         });
-        res.redirect(url);
+        return res.redirect(url);
     } catch (error) {
         next(error);
     }
