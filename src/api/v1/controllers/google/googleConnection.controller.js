@@ -49,7 +49,7 @@ module.exports.auth = async (req, res, next) => {
             scope: [GOOGLE_CALENDAR_SCOPE],
             // events: can create, update, and cancel appointment events
             // readonly: only permits reading 
-            
+
             state
         });
         return res.redirect(url);
@@ -84,22 +84,37 @@ module.exports.callback = async (req, res, next) => {
             });
         }
 
-        /*
-         * Validate state before trusting it.
-         * It should securely identify the business that started OAuth.
-         */
-        const decoded = jwt.verify(state, process.env.GOOGLE_OAUTH_STATE_SECRET);
-        const businessId = decoded.businessId;
-
-        if (!businessId) {
+        if (!state) {
             return res.status(400).json({
                 success: false,
                 message: "OAuth state is missing"
             });
         }
 
-        const { tokens } = await oauth2Client.getToken(code);
+    
+        let decoded;
 
+        try {
+            decoded = jwt.verify(state, process.env.GOOGLE_OAUTH_STATE_SECRET);
+        } catch(error) {
+            return res.status(400).json({
+                success: false,
+                message: "OAuth state is invalid or expired"
+            });
+        }
+
+        if (
+            !decoded.businessId || 
+            decoded.purpose !== "google-calendar"
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "OAuth state is invalid"
+            });
+        }
+
+
+        const businessId = decoded.businessId;
         const business = await Business.findById(businessId);
 
         if (!business) {
@@ -109,6 +124,11 @@ module.exports.callback = async (req, res, next) => {
             });
         }
 
+        const oauth2Client = createOAuthClient();
+
+        const { tokens } = await oauth2Client.getToken(code);
+
+
         business.googleCalendar = {
             ...business.googleCalendar,
 
@@ -117,10 +137,28 @@ module.exports.callback = async (req, res, next) => {
                 tokens.refresh_token ||
                 business.googleCalendar?.refreshToken,
 
-            accessToken: tokens.access_token,
-            tokenType: tokens.token_type,
-            scope: tokens.scope,
-            expiryDate: tokens.expiry_date,
+            accessToken: 
+                tokens.access_token ||
+                business.googleCalendar?.accessToken,
+
+            tokenType: 
+                tokens.token_type ||
+                business.googleCalendar?.tokenType,
+
+            scope: 
+                tokens.scope ||
+                business.googleCalendar.scope,
+
+            expiryDate: 
+                tokens.expiry_date ||
+                business.googleCalendar?.expiryDate,
+
+            // primary" means the primary calendar of the
+            // Google account that completed OAuth.
+            calendarId:
+                business.googleCalendar?.calendarId ||
+                "primary",
+
             connected: true
         };
 
