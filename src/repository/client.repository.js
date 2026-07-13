@@ -1,9 +1,12 @@
 const Client = require("../models/Client.model");
 
-module.exports.find = async (find) => {
-    return await Client.find(find);
-}
+module.exports.findMany = async (query) => {
+    return await Client.find(query);
+};
 
-module.exports.findOne = async (find) => {
-    return await Client.findOne(find)
-}
+module.exports.findOneByQuery = async (query) => {
+    return await Client.findOne(query);
+};
+
+module.exports.find = module.exports.findMany;
+module.exports.findOne = module.exports.findOneByQuery;

@@ -50,7 +50,7 @@ module.exports.process = async (businessId, messageId, parsedIntent) => {
     if (parsedIntent.clientContact && parsedIntent.clientContact !== null) {
         clientContact = parsedIntent.clientContact;
 
-        let find = {
+        const clientQuery = {
             businessId: businessId,
             ...(clientContact.includes("@") && {
                 email: clientContact
@@ -60,7 +60,7 @@ module.exports.process = async (businessId, messageId, parsedIntent) => {
             })
         };
 
-        const client = await clientRepository.findOne(find);
+        const client = await clientRepository.findOneByQuery(clientQuery);
         if (client) {
             clientId = client._id;
             update.clientId = clientId;
@@ -71,7 +71,7 @@ module.exports.process = async (businessId, messageId, parsedIntent) => {
 
     // find the appointment if action is about mainupulating the appointment 
     if (parsedIntent.action === "reschedule" || parsedIntent.action === "cancel") {
-        let find = {
+        const appointmentQuery = {
             businessId: businessId,
             clientId: clientId,
             ...((clientContact !== null && clientContact.includes("@")) && {
@@ -85,7 +85,7 @@ module.exports.process = async (businessId, messageId, parsedIntent) => {
             })
         }
 
-        const appointment = await appointmentRepository.findOneWithObject(find);
+        const appointment = await appointmentRepository.findOneByQuery(appointmentQuery);
         
         if (appointment) {
             update.appointmentId = appointment._id;

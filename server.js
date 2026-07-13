@@ -6,7 +6,6 @@ const app = express();
 const port = process.env.PORT;
 
 const database = require("./src/config/database");
-database.connect();
 
 // Security headers
 // automatically sets multiple http response headers to secure web applications against 
