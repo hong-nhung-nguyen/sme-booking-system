@@ -7,3 +7,7 @@
 .env.test.local
 .env.production.local
 .env
+client_secret_*.json
+*.apps.googleusercontent.com.json
+google-service-account.json
+src/config/*.json
