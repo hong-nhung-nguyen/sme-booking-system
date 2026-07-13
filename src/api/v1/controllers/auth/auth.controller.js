@@ -1,23 +1,44 @@
-const jwt = require("jsonwebtoken");
-const crypto = require("crypto");
-
+const bcrypt = require("bcrypt");
 const RefreshToken = require("../../../../models/RefreshToken.schema");
 const User = require("../../../../models/User.model");
+const {
+    generateAccessToken,
+    generateRefreshToken,
+    hashToken
+} = require("../../../../utils/generateTokens");
 
-let refreshTokens = [];
+const ACCESS_TOKEN_EXPIRES_IN = "5m";
+const ACCESS_TOKEN_COOKIE_MAX_AGE = 5 * 60 * 1000;
+const REFRESH_TOKEN_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+const REFRESH_TOKEN_EXPIRES_IN_MS = 7 * 24 * 60 * 60 * 1000;
 
-const generateAccessToken = (user) => {
-    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '5m' });
+const buildSignedUser = (user) => {
+    return {
+        userId: user._id,
+        businessId: user.businessId,
+        locationIds: user.locationIds,
+        accessAllLocations: user.accessAllLocations,
+        role: user.role
+    };
 };
 
-// refresh token is just a random token - no signed
-const generateRefreshToken = () => {
-    return crypto.randomBytes(64).toString("hex");
+const setAccessTokenCookie = (res, accessToken, maxAge = ACCESS_TOKEN_COOKIE_MAX_AGE) => {
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: false, // true in production
+        sameSite: "lax",
+        maxAge
+    });
 };
 
-const hashToken = (token) => {
-    return crypto.createHash("sha256").update(token).digest("hex");
-}
+const setRefreshTokenCookie = (res, refreshToken) => {
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE
+    });
+};
 
 module.exports.login = async (req, res) => {
     /**
@@ -29,13 +50,28 @@ module.exports.login = async (req, res) => {
     // Authenticate user 
     const { email, password } = req.body;
 
+    if (!email || !password) {
+        return res.status(400).json({
+            success: false,
+            message: "Email and password are required"
+        })
+    };
+
     const user = await User.findOne({
         email: email,
-        passwordHash: password,
         status: { $ne: "deleted" }
     });
 
     if (!user) {
+        return res.status(401).json({
+            success: false,
+            message: "Invalid email or password"
+        })
+    };
+
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isMatch) {
         return res.status(401).json({
             success: false,
             message: "Invalid email or password"
@@ -50,7 +86,7 @@ module.exports.login = async (req, res) => {
     await RefreshToken.create({
         userId: user._id,
         tokenHash: hashToken(refreshToken),
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7days
+        expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRES_IN_MS), // 7days
         createdByIp: req.ip,
         userAgent: req.headers["user-agent"]
     });
@@ -58,31 +94,13 @@ module.exports.login = async (req, res) => {
 
 
     // Generate access token
-    const signedUser = {
-        userId: user._id,
-        businessId: user.businessId,
-        locationIds: user.locationIds,
-        accessAllLocations: user.accessAllLocations,
-        role: user.role
-    };
-
-    const accessToken = generateAccessToken(signedUser);
+    const signedUser = buildSignedUser(user);
+    const accessToken = generateAccessToken(signedUser, ACCESS_TOKEN_EXPIRES_IN);
     // End generating access token
 
     // Set Cookie
-    res.cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: false, // true in production
-        sameSite: "lax",
-        maxAge: 5 * 60 * 1000
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    })
+    setAccessTokenCookie(res, accessToken);
+    setRefreshTokenCookie(res, refreshToken);
     // End setting cookie
 
 
@@ -129,22 +147,10 @@ module.exports.refreshAccessToken = async (req, res) => {
         })
     }
 
-    const signedUser = {
-        userId: user._id,
-        businessId: user.businessId,
-        locationIds: user.locationIds,
-        accessAllLocations: user.accessAllLocations,
-        role: user.role
-    };
+    const signedUser = buildSignedUser(user);
+    const accessToken = generateAccessToken(signedUser, ACCESS_TOKEN_EXPIRES_IN);
 
-    const accessToken = generateAccessToken(signedUser);
-
-    res.cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: false, // true in production
-        sameSite: "lax",
-        maxAge: 1 * 60 * 1000
-    });
+    setAccessTokenCookie(res, accessToken, 1 * 60 * 1000);
 
     res.status(200).json({
         success: true,
