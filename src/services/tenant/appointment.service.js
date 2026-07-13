@@ -1,9 +1,47 @@
 const appointmentRepository = require("../../repository/appointment.repository");
 
-module.exports.find = async (find) => {
-    const appointments = await appointmentRepository.find(find);
+const allowedAppointmentFilters = ["serviceId", "clientId", "status", "date"];
+
+const buildTenantScopeQuery = (user) => {
+    return {
+        businessId: user.businessId,
+        locationId: { $in: user.locationIds },
+        deleted: false,
+    };
+};
+
+const buildAppointmentListQuery = (user, filters = {}) => {
+    const query = buildTenantScopeQuery(user);
+
+    allowedAppointmentFilters.forEach((filter) => {
+        if (filters[filter]) {
+            query[filter] = filters[filter];
+        }
+    });
+
+    return query;
+};
+
+module.exports.findMany = async (query) => {
+    const appointments = await appointmentRepository.findMany(query);
 
     return appointments;
+};
+
+module.exports.findForUser = async (user, filters) => {
+    const query = buildAppointmentListQuery(user, filters);
+
+    return await module.exports.findMany(query);
+};
+
+module.exports.findOneForUser = async (user, appointmentId) => {
+    const query = buildTenantScopeQuery(user);
+
+    return await appointmentRepository.findByTenantScopeAndId(
+        query.businessId,
+        query.locationId,
+        appointmentId
+    );
 };
 
 module.exports.create = async (data) => {
@@ -58,7 +96,7 @@ const isSameValue = (oldValue, newValue) => {
 };
 
 module.exports.edit = async (businessId, locationId, appointmentId, newData) => {
-    const appointment = await appointmentRepository.findOne(businessId, locationId, appointmentId);
+    const appointment = await appointmentRepository.findByTenantScopeAndId(businessId, locationId, appointmentId);
 
     if (appointment) {
         const changes = [];
@@ -104,7 +142,7 @@ module.exports.edit = async (businessId, locationId, appointmentId, newData) => 
 } ;
 
 module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo) => {
-    const appointment = await appointmentRepository.findOne(businessId, locationId, appointmentId);
+    const appointment = await appointmentRepository.findByTenantScopeAndId(businessId, locationId, appointmentId);
 
     if (appointment === null) return null;
 
@@ -121,7 +159,10 @@ module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo
 };
 
 module.exports.changeStatus = async (businessId, locationId, appointmentId, status, changeInfo) => {
-    const appointment = await appointmentRepository.findOne(businessId, locationId, appointmentId);
+    const appointment = await appointmentRepository.findByTenantScopeAndId(businessId, locationId, appointmentId);
+
+    if (!appointment) return null;
+
     // if status is still the same then just return, no change is made
     if (appointment.status === status) return appointment;
 
@@ -137,12 +178,12 @@ module.exports.changeStatus = async (businessId, locationId, appointmentId, stat
     
     if (updatedAppointment.matchedCount === 0) return null;
 
-    return await appointmentRepository.findOne(businessId, locationId, appointmentId);
+    return await appointmentRepository.findByTenantScopeAndId(businessId, locationId, appointmentId);
 
 };
 
 module.exports.statusHistory = async (businessId, locationId, appointmentId) => {
-    const appointment = await appointmentRepository.findOne(businessId, locationId, appointmentId);
+    const appointment = await appointmentRepository.findByTenantScopeAndId(businessId, locationId, appointmentId);
 
     if (!appointment) return null;
     

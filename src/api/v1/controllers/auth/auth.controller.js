@@ -137,13 +137,13 @@ module.exports.refreshAccessToken = async (req, res) => {
 
     const user = await User.findOne({
         _id: storedToken.userId,
-        status: "active",
+        status: { $ne: "deleted" },
     });
 
     if (!user) {
         return res.status(403).json({
             success: false,
-            message: "User is not active"
+            message: "User is not available"
         })
     }
 

@@ -1,31 +1,29 @@
 const Appointment = require("../models/Appointment.model");
 
-module.exports.find = async (find) => {
-    const appointments = await Appointment.find(find);
-
-// update all the records to have `deleted` field
-    // const changeAll = await Promise.all(
-    //     appointments.map((appointment) => {
-    //         appointment.deleted = false;
-    //         return appointment.save();
-    //     })
-    // )
-
-    return appointments;
-};
-
-module.exports.findOne = async (businessId, locationId, appointmentId) => {
-    return await Appointment.findOne({
+const buildScopedAppointmentQuery = (businessId, locationId, appointmentId) => {
+    return {
         _id: appointmentId,
         businessId: businessId,
         locationId: locationId,
         deleted: false
-    });
+    };
 };
 
-module.exports.findOneWithObject = async (find) => {
-    return await Appointment.findOne(find);
-}
+module.exports.findMany = async (query) => {
+    const appointments = await Appointment.find(query);
+
+    return appointments;
+};
+
+module.exports.findByTenantScopeAndId = async (businessId, locationId, appointmentId) => {
+    return await Appointment.findOne(
+        buildScopedAppointmentQuery(businessId, locationId, appointmentId)
+    );
+};
+
+module.exports.findOneByQuery = async (query) => {
+    return await Appointment.findOne(query);
+};
 
 module.exports.create = async (data) => {
     return await Appointment.create(data);
@@ -38,7 +36,7 @@ module.exports.editOne = async (appointment) => {
 
 module.exports.editFields = async (appointmentId, updateObject) => {
     return await Appointment.updateOne(
-        { _id: appointmntId },
+        { _id: appointmentId },
         { $set: updateObject },
         { new: true }
     )

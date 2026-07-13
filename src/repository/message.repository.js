@@ -1,9 +1,14 @@
 const IncomingMessage = require("../models/IncomingMessage.model");
-const parseIntent = require("../models/ParsedIntent.schema");
 
-module.exports.findOne = async (findObject) => {
-    return await IncomingMessage.findOne(findObject);
-}
+module.exports.findOneByQuery = async (query) => {
+    return await IncomingMessage.findOne(query);
+};
+
+module.exports.findById = async (messageId) => {
+    return await module.exports.findOneByQuery({ _id: messageId });
+};
+
+module.exports.findOne = module.exports.findOneByQuery;
 
 module.exports.create = async (record) => {
     return await IncomingMessage.create(record);
@@ -15,5 +20,5 @@ module.exports.process = async (messageId, updateData) => {
         { $set: updateData },
     )
 
-    return await module.exports.findOne({ _id: messageId });
-}
+    return await module.exports.findById(messageId);
+};
