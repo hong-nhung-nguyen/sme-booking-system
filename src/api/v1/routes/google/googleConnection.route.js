@@ -15,4 +15,7 @@ router.get("/callback", controller.callback);
 // Revokes or removes stored Google tokens
 router.delete("/disconnect", controller.disconnect);
 
+// List events from a calendar (testing/development)
+router.get("/events", controller.event);
+
 module.exports = router;

@@ -1,8 +1,14 @@
-const oauthConfig = require("../../../../config/googleOAuth");
-const oauth2Client = oauthConfig.createGoogleOAuthClient();
+const { google } = require("googleapis");
 const jwt = require("jsonwebtoken");
 
+const oauthConfig = require("../../../../config/googleOAuth");
 const Business = require("../../../../models/Business.model");
+
+const GOOGLE_CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events";
+
+const createOAuthClient = () => {
+    return oauthConfig.createGoogleOAuthClient();
+}
 
 // [GET] api/v1/google-calendar/auth
 module.exports.auth = async (req, res, next) => {
@@ -111,6 +117,7 @@ module.exports.callback = async (req, res, next) => {
 
 // module.exports.status = async (req, res, next) => {};
 
+// [DELETE] /api/v1/google-calendar/disconnect
 module.exports.disconnect = async (req, res, next) => {
     /**
      * 1. Revokes the Google OAuth token
@@ -152,3 +159,69 @@ module.exports.disconnect = async (req, res, next) => {
         next(error);
     }
 };
+
+// [GET] api/v1/google-calendar/events
+module.exports.events = async (req, res, next) => {
+    try {
+        const businessId = req.user?.businessId;
+
+        if (!businessId) {
+            return res.status(401).json({
+                success: false,
+                message: "Authenticated user does not have a businessId"
+            });
+        };
+
+        const business = await Business.findById(businessId);
+
+        if (!business) {
+            return res.status(404).json({
+                success: false,
+                message: "Business not found"
+            });
+        };
+
+        if (
+            !business.googleCalendar?.connected ||
+            !business.googleCalendar?.refreshToken
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Google Calendar is not connected"
+            });
+        };
+
+        const oauth2Client = createOAuthClient();
+
+        oauth2Client.setCredentials({
+            refresh_token: business.googleCalendar.refreshToken,
+            access_token: business.googleCalendar.accessToken || undefined,
+            expiry_date: business.googleCalendar.expiryDate || undefined
+        });
+
+        const calendar = google.calendar({
+            version: "v3",
+            auth: oauth2Client
+        });
+
+        const calendarId = business.googleCalendar.calendarId || "primary";
+
+        const { data } = await calendar.events.list({
+            calendarId,
+            timeMin: new Date().toISOString(),
+            maxResults: 15,
+            singleEvents: true,
+            orderBy: "startTime"
+        });
+
+        return res.status(200).json({
+            success: true,
+            count: data.items?.length || 0,
+            events: data.items || [],
+            nextPageToken: data.nextPageToken || null
+        });
+
+    } catch(error) {
+        next(error);
+    }
+}
