@@ -16,6 +16,6 @@ router.get("/callback", controller.callback);
 router.delete("/disconnect", controller.disconnect);
 
 // List events from a calendar (testing/development)
-router.get("/events", controller.event);
+router.get("/events", controller.events);
 
 module.exports = router;

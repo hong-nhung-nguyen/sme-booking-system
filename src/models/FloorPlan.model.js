@@ -19,7 +19,6 @@ const FloorPlanSchema = new mongoose.Schema({
         enum: ["active", "inactive"],
         default: "active"
     },
-    sections: [SectionSchema],
     updatedBy: [
         {
             account_id: {

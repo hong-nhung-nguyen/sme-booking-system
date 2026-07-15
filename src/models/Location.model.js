@@ -40,11 +40,6 @@ const locationSchema = new mongoose.Schema({
         default: null,
         min: 1
     },
-    openingHours: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "OpeningHours",
-        required: true,
-    },
     services: {
         type: [{
             serviceId: {
