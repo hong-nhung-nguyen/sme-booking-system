@@ -83,7 +83,8 @@ const AppointmentSchema = new mongoose.Schema({
     },
     resourceId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Resource"
+        ref: "Resource",
+        default: null,
     },
     timezone: {
         type: String,

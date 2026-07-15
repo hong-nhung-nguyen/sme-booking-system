@@ -1,4 +1,7 @@
 const appointmentRepository = require("../../repository/appointment.repository");
+const resourceRepository = require("../../repository/resource.repository");
+
+const resourceService = require("../../services/tenant/resource.service");
 
 const allowedAppointmentFilters = ["serviceId", "clientId", "status", "date"];
 
@@ -47,8 +50,26 @@ module.exports.findOneForUser = async (user, appointmentId) => {
 module.exports.create = async (data) => {
     const initialStatus = "pending";
 
+    let resourceId = null;
+
+    if (data.partySize !== null) {
+        const businessId = data.businessId;
+        const locationId = data.locationId;
+        const requestedData = {
+            partySize: data.partySize,
+            date: data.date,
+            startTime: data.startTime,
+            durationMins: data.durationMins
+        };
+
+        const availableResources = await module.exports.getAvailableResources(businessId, locationId, requestedData);
+        resourceId = availableResources[0]?._id;
+    }
+
+
     const createData = {
         ...data,
+        resourceId: resourceId,
         status: initialStatus,
         statusHistory: [
             {
@@ -98,48 +119,55 @@ const isSameValue = (oldValue, newValue) => {
 module.exports.edit = async (businessId, locationId, appointmentId, newData) => {
     const appointment = await appointmentRepository.findByTenantScopeAndId(businessId, locationId, appointmentId);
 
-    if (appointment) {
-        const changes = [];
+    if (!appointment) return null;
 
-        for (const field in newData) {
-            /**
-             * endTime is re-calculated everytime before validation (check model)
-             * --> everytime the record is updated, endTime also be updated --> stored in changeLog although the value didnt change
-             * --> skip endTime 
-             */
-            if (field === "updatedBy" || field === "endTime") continue;
+    const changes = [];
 
-            const oldValue = appointment[field];
-            const newValue = newData[field];
+    for (const field in newData) {
+        /**
+         * endTime is re-calculated everytime before validation (check model)
+         * --> everytime the record is updated, endTime also be updated --> stored in changeLog although the value didnt change
+         * --> skip endTime 
+         */
+        if (field === "updatedBy" || field === "endTime") continue;
 
-            if(!isSameValue(oldValue, newValue)) {
-                changes.push({
-                    field: field,
-                    oldValue: oldValue,
-                    newValue: newValue
-                });
+        const oldValue = appointment[field];
+        const newValue = newData[field];
 
-                appointment[field] = newValue;
-            };
-
-        };
-
-        if (changes.length > 0) {
-            appointment.changeHistory.push({
-                changes,
-                updatedBy: newData.updatedBy,
-                updatedAt: new Date()
+        if(!isSameValue(oldValue, newValue)) {
+            changes.push({
+                field: field,
+                oldValue: oldValue,
+                newValue: newValue
             });
 
-            appointment.updatedBy = newData.updatedBy;
-            
-            const editedAppointment = await appointmentRepository.editOne(appointment);
+            appointment[field] = newValue;
+        };
 
-            return editedAppointment;
-        } 
     };
-    return null;
-} ;
+
+    if (changes.length > 0) {
+        appointment.changeHistory.push({
+            changes,
+            updatedBy: newData.updatedBy,
+            updatedAt: new Date()
+        });
+
+        appointment.updatedBy = newData.updatedBy;
+        
+        const editedAppointment = await appointmentRepository.editOne(appointment);
+
+        return {
+            appointment: editedAppointment,
+            changed: true
+        };
+    }
+
+    return {
+        appointment,
+        changed: false
+    };
+};
 
 module.exports.delete = async (businessId, locationId, appointmentId, deleteInfo) => {
     const appointment = await appointmentRepository.findByTenantScopeAndId(businessId, locationId, appointmentId);
@@ -188,4 +216,51 @@ module.exports.statusHistory = async (businessId, locationId, appointmentId) => 
     if (!appointment) return null;
     
     return appointment.statusHistory;
+};
+
+module.exports.getAvailableResources = async (businessId, locationId, requestedData) => {
+    const { partySize, date, startTime, durationMins } = requestedData;
+
+    const activeResources = await resourceService.findResources(businessId, locationId, partySize);
+    const availableResources = [];
+
+    const requestedStartTime = new Date(startTime);
+    const requestedEndTime = new Date(requestedStartTime.getTime() + durationMins * 60 * 1000);
+
+    for (const resource of activeResources) {
+        const bookingsOnRequestedDate = await module.exports.findMany({
+            businessId: businessId,
+            locationId: locationId,
+            date: date,
+            resourceId: resource._id,
+            // status: { $ne: "cancelled" }
+        });
+
+        // A Resource is available if it has no bookings
+        if (bookingsOnRequestedDate.length < 1) {
+            availableResources.push(resource);
+            continue;
+        };
+
+        /**
+         * If has bookings -> check overlapping
+         * Overlap happens when (requestedStart < bookedEnd && requestedEnd > bookedStart)
+         */
+
+        const hasOverlap = bookingsOnRequestedDate.some((booking) => {
+            const bookedStartTime = new Date(booking.startTime);
+            const bookedEndTime = new Date(booking.endTime);
+
+            return (
+                requestedStartTime < bookedEndTime &&
+                requestedEndTime > bookedStartTime
+            )
+        });
+
+        if (!hasOverlap) {
+            availableResources.push(resource);
+        }
+    }
+
+    return availableResources.slice(0, 5);
 }
