@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from 'react';
 import { getCurrentUser, login } from '../../api/authApi';
 import Spinner from '../../components/Spinner/index';
@@ -26,6 +27,8 @@ function validateForm(form) {
 };
 
 export default function LoginPage() {
+    const navigate = useNavigate();
+
     const [form, setForm] = useState(initialForm);
     const [errors, setErrors] = useState({});
     const [serverError, setServerError] = useState('');
@@ -79,7 +82,9 @@ export default function LoginPage() {
              * 
              *      similar to window.location.href
              */
-            window.location.assign("/schedule-calendar")
+            // window.location.assign("/schedule-calendar")
+
+            navigate("/schedule-calendar");
         } catch (error) {
             if (error.status === 401) {
                 setServerError("The email address or password is incorrect.");
