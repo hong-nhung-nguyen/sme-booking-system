@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import LoginPage from './pages/login/LoginPage';
+import ScheduleCalendar from './pages/schedule/ScheduleCalendar';
 
 export default function App() {
   return (
@@ -10,7 +11,7 @@ export default function App() {
         {/* Temporary destination after login */}
         <Route
           path="/schedule-calendar"
-          element={<h1>Schedule Calendar</h1>}
+          element={<ScheduleCalendar />}
         />
 
         {/* Redirect the home page to login */}
