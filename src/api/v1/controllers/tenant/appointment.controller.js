@@ -63,6 +63,7 @@ module.exports.create = async (req, res, next) => {
             serviceId,
             date,
             startTime,
+            durationMins,
             partySize,
             channel,
             createdBy
@@ -92,7 +93,8 @@ module.exports.create = async (req, res, next) => {
             serviceId,
             date,
             startTime,
-            partySize,
+            durationMins,
+            partySize: partySize || null,
             channel,
             createdBy
         });
@@ -123,13 +125,17 @@ module.exports.edit = async (req, res, next) => {
         };
 
         try {
-            const editedAppointment = await appointmentService.edit(businessId, locationId, appointmentId, req.body);
+            const result = await appointmentService.edit(businessId, locationId, appointmentId, req.body);
 
-            if (editedAppointment !== null) {
+            if (result !== null) {
+                const message = result.changed === false
+                    ? "No changes detected"
+                    : "Update successfully";
+
                 return res.status(200).json({
                     success: true,
-                    message: "Update successfully",
-                    data: editedAppointment
+                    message,
+                    data: result.appointment
                 });
             };
             
@@ -248,7 +254,8 @@ module.exports.statusHistory = async (req, res, next) => {
     } catch(error) {
         next(error);
     }
-}
+};
+
 
 
 
