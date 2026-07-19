@@ -13,8 +13,9 @@ module.exports.index = async (req, res, next) => {
             })
         };
 
-        return res.status(404).json({
-            message: "No booking found"
+        return res.status(200).json({
+            message: "No booking found",
+            "appointments": [],
         });
 
     } catch(error) {

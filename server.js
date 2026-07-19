@@ -1,9 +1,16 @@
+const dns = require("node:dns");
 const express = require("express");
 const helmet = require("helmet");
 require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT;
+
+dns.setServers([
+    "10.199.158.188",
+    "1.1.1.1",
+    "8.8.8.8"
+]);
 
 const database = require("./src/config/database");
 

@@ -24,8 +24,17 @@ const AppointmentSchema = new mongoose.Schema({
     clientId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Client",
-        required: true,
         index: true
+    },
+    clientFirtName: {
+        type: String,
+        trim: true,
+        required: true,
+        minLength: 1
+    },
+    clientLastName: {
+        type: String,
+        trim: true,
     },
     clientPhone: {
         type: String,
@@ -96,11 +105,13 @@ const AppointmentSchema = new mongoose.Schema({
         type: String,
         index: true,
         enum: [
+            "walkIn",
             "pending", 
             "unconfirmed", 
             "confirmed", 
             "rescheduled", 
-            "cancelled", 
+            "cancelled",
+            "seated", 
             "completed", 
             "noShow", 
             "queued",
