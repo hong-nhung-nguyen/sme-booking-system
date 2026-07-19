@@ -1,5 +1,8 @@
 # dependencies
-/node_modules
+node_modules/
+
+# generated frontend builds
+dist/
 
 .DS_Store
 .env.local
@@ -7,3 +10,7 @@
 .env.test.local
 .env.production.local
 .env
+
+# Google credentials
+src/config/google-service-account.json
+
