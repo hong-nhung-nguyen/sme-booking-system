@@ -7,8 +7,8 @@ const {
     hashToken
 } = require("../../../../utils/generateTokens");
 
-const ACCESS_TOKEN_EXPIRES_IN = "5m";
-const ACCESS_TOKEN_COOKIE_MAX_AGE = 5 * 60 * 1000;
+const ACCESS_TOKEN_EXPIRES_IN = "15m";
+const ACCESS_TOKEN_COOKIE_MAX_AGE = 2 * 60 * 1000;
 const REFRESH_TOKEN_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 const REFRESH_TOKEN_EXPIRES_IN_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -150,7 +150,7 @@ module.exports.refreshAccessToken = async (req, res) => {
     const signedUser = buildSignedUser(user);
     const accessToken = generateAccessToken(signedUser, ACCESS_TOKEN_EXPIRES_IN);
 
-    setAccessTokenCookie(res, accessToken, 1 * 60 * 1000);
+    setAccessTokenCookie(res, accessToken, ACCESS_TOKEN_COOKIE_MAX_AGE);
 
     res.status(200).json({
         success: true,

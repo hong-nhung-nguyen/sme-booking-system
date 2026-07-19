@@ -8,14 +8,22 @@ module.exports = (req, res, next) => {
 
     const token = req.cookies.accessToken;
 
-    if (token == null) return res.sendStatus(401);
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: "Access token required"
+        });
+    }
 
     // checks if the JWT is real, unchanged, and not expired
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) {
-            console.log(err);
-            return res.sendStatus(403);
+            return res.status(401).json({
+                success: false,
+                message: "Access token expired or invalid"
+            });
         }
+        
         req.user = user;
         next();
     })

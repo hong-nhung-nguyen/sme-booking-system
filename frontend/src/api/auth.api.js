@@ -17,11 +17,17 @@ export function getCurrentUser() {
 export function refreshSession() {
     return apiRequest('/auth/refresh', {
         method: "POST",
+        /**
+         * Mark authentication operations so they cannot 
+         * recursively trigger refresh
+         */
+        skipAuthRefresh: true
     });
 };
 
 export function logout() {
     return apiRequest('/auth/logout', {
-        method: "POST"
+        method: "POST",
+        skipAuthRefresh: false
     })
 }
