@@ -1,16 +1,18 @@
-const Business = require("../../../../models/Business.model");
 const Location = require("../../../../models/Location.model");
 const Service = require("../../../../models/Service.model");
 
 // [GET] api/v1/tenants/:tenantId/locations/:locationId/services
 module.exports.index = async (req, res) => {
-    const { tenantId, locationId } = req.params;
+    const businessId = req.user.businessId;
+    const { locationId } = req.params;
 
     try {
-        const location = await Location.findOne({
-            businessId: tenantId,
+        const locationQuery = {
+            businessId: businessId,
             _id: locationId
-        })
+        };
+
+        const location = await Location.findOne(locationQuery);
 
         if (!location) {
             return res.status(404).json({ message: "location not found" });
@@ -18,10 +20,12 @@ module.exports.index = async (req, res) => {
 
         const services = await Promise.all(
             location.services.map(async service => {
-                const foundService = await Service.findOne({
-                    businessId: tenantId,
+                const serviceQuery = {
+                    businessId: businessId,
                     _id: service.serviceId
-                });
+                };
+
+                const foundService = await Service.findOne(serviceQuery);
 
                 return foundService.name;
             })

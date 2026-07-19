@@ -1,28 +1,10 @@
 const appointmentService = require("../../../../services/tenant/appointment.service");
-const appointmentRepository = require("../../../../repository/appointment.repository");
 
 // [GET] api/v1/business/appointments
 module.exports.index = async (req, res, next) => {
     try {
-        let find = {
-            businessId: req.user.businessId,
-            locationId: { $in: req.user.locationIds },
-            deleted: false,
-        };
-
-        // Filter GET with query
-
-        const allowedFilters = ["serviceId", "clientId", "status", "date"];
-
-        allowedFilters.forEach((filter) => {
-            if(req.query[filter]) {
-                find[filter] = req.query[filter];
-            }
-        })
-        // End filter GET with query
-
         // Find all appointments 
-        const appointments = await appointmentService.find(find);
+        const appointments = await appointmentService.findForUser(req.user, req.query);
 
         if (appointments.length > 0) {
             return res.status(200).json({
@@ -31,8 +13,9 @@ module.exports.index = async (req, res, next) => {
             })
         };
 
-        return res.status(404).json({
-            message: "No booking found"
+        return res.status(200).json({
+            message: "No booking found",
+            "appointments": [],
         });
 
     } catch(error) {
@@ -43,12 +26,9 @@ module.exports.index = async (req, res, next) => {
 // [GET] api/v1/business/appointments/detail/:appointmentId
 module.exports.detail = async (req, res, next) => {
     try {
-        // const { businessId, locationId, appointmentId } = req.params;
-        const businessId = req.user.businessId;
-        const locationId = { $in: req.user.locationIds };
         const appointmentId = req.params.appointmentId;
 
-        const record = await appointmentRepository.findOne(businessId, locationId, appointmentId);
+        const record = await appointmentService.findOneForUser(req.user, appointmentId);
 
         if (record) {
             return res.status(200).json({
@@ -84,6 +64,7 @@ module.exports.create = async (req, res, next) => {
             serviceId,
             date,
             startTime,
+            durationMins,
             partySize,
             channel,
             createdBy
@@ -113,7 +94,8 @@ module.exports.create = async (req, res, next) => {
             serviceId,
             date,
             startTime,
-            partySize,
+            durationMins,
+            partySize: partySize || null,
             channel,
             createdBy
         });
@@ -144,13 +126,17 @@ module.exports.edit = async (req, res, next) => {
         };
 
         try {
-            const editedAppointment = await appointmentService.edit(businessId, locationId, appointmentId, req.body);
+            const result = await appointmentService.edit(businessId, locationId, appointmentId, req.body);
 
-            if (editedAppointment !== null) {
+            if (result !== null) {
+                const message = result.changed === false
+                    ? "No changes detected"
+                    : "Update successfully";
+
                 return res.status(200).json({
                     success: true,
-                    message: "Update successfully",
-                    data: editedAppointment
+                    message,
+                    data: result.appointment
                 });
             };
             
@@ -269,7 +255,8 @@ module.exports.statusHistory = async (req, res, next) => {
     } catch(error) {
         next(error);
     }
-}
+};
+
 
 
 

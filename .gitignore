@@ -13,4 +13,7 @@ dist/
 
 # Google credentials
 src/config/google-service-account.json
-
+client_secret_*.json
+*.apps.googleusercontent.com.json
+google-service-account.json
+src/config/*.json
