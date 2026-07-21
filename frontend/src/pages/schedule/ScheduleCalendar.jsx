@@ -289,6 +289,10 @@ export default function ScheduleCalendar() {
         setSelectedDate(toDateInputValue(nextDate));
     };
 
+    function connectGoogleCalendar() {
+        window.location.assign("/api/v1/google-calendar/auth")
+    }
+
     return (
         <main className="schedule-page">
             <aside className="schedule-sidebar">
@@ -316,6 +320,10 @@ export default function ScheduleCalendar() {
                         className="main-navigation"
                         aria-label="Main navigation"
                     >
+                        <button onClick={connectGoogleCalendar}>
+                            Connect Google Calendar
+                        </button>
+                        
                         {navigationItems.map(([icon, label]) => (
                             <a
                                 href="#"

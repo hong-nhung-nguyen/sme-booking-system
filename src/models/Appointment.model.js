@@ -26,14 +26,15 @@ const AppointmentSchema = new mongoose.Schema({
         ref: "Client",
         index: true
     },
-    clientFirtName: {
+    clientFirstName: {
         type: String,
+        set: (value) => value.toUpperCase(),
         trim: true,
-        required: true,
         minLength: 1
     },
     clientLastName: {
         type: String,
+        set: (value) => value.toUpperCase(),
         trim: true,
     },
     clientPhone: {
@@ -119,6 +120,22 @@ const AppointmentSchema = new mongoose.Schema({
         ],
         required: true,
     },
+    // Google Calendar
+    googleCalendarEventId: {
+        type: String,
+        default: null,
+        index: true
+    },
+    googleCalendarSyncStatus: {
+        type: String,
+        enum: ["not_synced", "synced", "failed"],
+        default: "not_synced"
+    },
+    googleCalendarSyncError: {
+        type: String,
+        default: null
+    },
+    // -- 
     statusHistory: [AppointmentStatusHistorySchema],
     channel: {
         type: String,

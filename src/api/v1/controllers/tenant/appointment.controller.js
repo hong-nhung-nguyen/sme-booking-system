@@ -1,4 +1,5 @@
 const appointmentService = require("../../../../services/tenant/appointment.service");
+const googleCalendarService = require("../../../../services/googleCalendar.service");
 
 // [GET] api/v1/business/appointments
 module.exports.index = async (req, res, next) => {
@@ -61,10 +62,13 @@ module.exports.create = async (req, res, next) => {
         const {
             locationId,
             clientId,
+            clientFirstName,
+            clientEmail,
             serviceId,
             date,
             startTime,
             durationMins,
+            resourceId,
             partySize,
             channel,
             createdBy
@@ -91,18 +95,36 @@ module.exports.create = async (req, res, next) => {
             businessId,
             locationId,
             clientId,
+            clientFirstName,
+            clientEmail,
             serviceId,
             date,
             startTime,
             durationMins,
+            resourceId,
             partySize: partySize || null,
             channel,
             createdBy
         });
 
+        let googleCalendarSync = {
+            synced: false,
+        };
+
+        try {
+            googleCalendarSync = await googleCalendarService.createEventForAppointment(newAppointment);
+        } catch(error) {
+            console.log("Google Calendar sync failed: ", error.message);
+        }
+
+        /*
+        * Do not delete or fail the booking just because Google
+        * Calendar is temporarily unavailable.
+        */
+
         return res.status(201).json({
             success: true,
-            data: newAppointment
+            googleCalendarSync,
         });
         
     } catch(error) {

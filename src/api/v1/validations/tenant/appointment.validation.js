@@ -43,6 +43,7 @@ const createAppointmentSchema = Joi.object({
     body: Joi.object({
         locationId: objectId.required(),
         clientId: objectId.required(),
+        clientFirstName: Joi.string().trim(),
         serviceId: objectId.required(),
         date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required(),
         startTime: Joi.date().required(),

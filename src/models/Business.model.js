@@ -33,6 +33,36 @@ const businessSchema = new mongoose.Schema({
         default: "pending",
         required: true
     },
+    googleCalendar: {
+        connected: {
+            type: Boolean,
+            default: false,
+        },
+        refreshToken: {
+            type: String,
+            default: null
+        },
+        accessToken: {
+            type: String,
+            default: null
+        },
+        tokenType: {
+            type: String,
+            default: null
+        },
+        scope: {
+            type: String,
+            default: null
+        },
+        expiryDate: {
+            type: Number,
+            default: null
+        },
+        calendarId: {
+            type: String,
+            default: "primary"
+        }
+    },
     changeHistory: [ChangeHistorySchema]
 }, {
     timestamps: true

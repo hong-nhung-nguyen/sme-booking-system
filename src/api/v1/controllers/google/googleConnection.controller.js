@@ -147,7 +147,7 @@ module.exports.callback = async (req, res, next) => {
 
             scope: 
                 tokens.scope ||
-                business.googleCalendar.scope,
+                business.googleCalendar?.scope,
 
             expiryDate: 
                 tokens.expiry_date ||

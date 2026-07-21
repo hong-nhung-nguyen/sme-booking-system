@@ -69,6 +69,7 @@ module.exports.create = async (data) => {
 
     const createData = {
         ...data,
+        durationMinutes: data.durationMins,
         resourceId: resourceId,
         status: initialStatus,
         statusHistory: [
