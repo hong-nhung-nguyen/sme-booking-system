@@ -1,8 +1,15 @@
+// module.exports = {
+//     rootDir: "../../",
+//     testEnvironment: "node",
+//     // run files ending in .test.js inside the tests/ folder
+//     testMatch: ["**/tests/**/*.test.js"],
+//     // to run test just for a file: npm test -- tests/models/floorPlan.model.test.js
+//     clearMocks: true
+// };
+
 module.exports = {
-    rootDir: "../../",
-    testEnvironment: "node",
-    // run files ending in .test.js inside the tests/ folder
-    testMatch: ["**/tests/**/*.test.js"],
-    // to run test just for a file: npm test -- tests/models/floorPlan.model.test.js
-    clearMocks: true
-};
+  testEnvironment: 'node',
+  coverageThreshold: { global: { lines: 70, functions: 70, branches: 60 } },
+  testMatch: ['**/tests/**/*.test.js'],
+  setupFilesAfterFramework: ['../../tests/setup.js']
+}
