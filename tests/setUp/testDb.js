@@ -1,34 +1,40 @@
-const mongoose = require("mongoose");
-const { MongoMemoryServer } = require("mongodb-memory-server");
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
 let mongoServer;
 
 const connectTestDb = async () => {
-    // create a temporary fake database
-    mongoServer = await MongoMemoryServer.create();
+  mongoServer = await MongoMemoryServer.create();
+
+  try {
     await mongoose.connect(mongoServer.getUri());
+  } catch (error) {
+    await mongoServer.stop();
+    mongoServer = undefined;
+    throw error;
+  }
 };
 
 const clearTestDb = async () => {
-    const collections = mongoose.connection.collections;
+  if (mongoose.connection.readyState !== 1) return;
 
-    for (const key in collections) {
-        // for afterEach(): clearing all documents after every test
-        // so the next test start with an empty database 
-        await collections[key].deleteMany({});
-    }
+  for (const collection of Object.values(mongoose.connection.collections)) {
+    await collection.deleteMany({});
+  }
 };
 
 const closeTestDb = async () => {
-    // delete the whole test db (all collections & documents)
-    await mongoose.connection.dropDatabase();
-    // close the connection with mongodb
-    await mongoose.connection.close();
-
-    if (mongoServer) {
-        // stop the fake mongodb server
-        await mongoServer.stop();
+  try {
+    // `0` means disconnected: do not call dropDatabase in that state.
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
     }
+  } finally {
+    if (mongoServer) {
+      await mongoServer.stop();
+      mongoServer = undefined;
+    }
+  }
 };
 
 module.exports = { connectTestDb, clearTestDb, closeTestDb };

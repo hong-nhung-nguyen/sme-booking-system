@@ -1,8 +1,19 @@
 module.exports = {
-    rootDir: "../../",
-    testEnvironment: "node",
-    // run files ending in .test.js inside the tests/ folder
-    testMatch: ["**/tests/**/*.test.js"],
-    // to run test just for a file: npm test -- tests/models/floorPlan.model.test.js
-    clearMocks: true
+    rootDir: '../..',
+
+    testEnvironment: 'node',
+    testMatch: ['**/tests/**/*.test.js'],
+    setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+
+    collectCoverageFrom: [
+    '<rootDir>/src/services/ai/intentParser.service.js',
+    ],
+
+    coverageThreshold: {
+    global: {
+        lines: 85,
+        functions: 70,
+        branches: 60,
+    },
+    },
 };
