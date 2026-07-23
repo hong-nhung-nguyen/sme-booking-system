@@ -17,9 +17,8 @@
   "scripts": {
     "start": "nodemon --inspect server.js",
     "dev": "nodemon --inspect server.js",
-    "test": "jest",
-    "test:coverage": "jest --coverage"
-  },
+    "test": "jest --config ./src/config/jest.config.js",
+    "test:coverage": "jest --coverage --config ./src/config/jest.config.js"  },
   "dependencies": {
     "@google-cloud/local-auth": "^2.1.0",
     "bcrypt": "^6.0.0",

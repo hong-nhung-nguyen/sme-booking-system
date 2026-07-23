@@ -4,14 +4,20 @@ const {
     closeTestDb
 } = require("./setUp/testDb");
 
-beforeAll(async () => {
-    await connectTestDb();
-});
+// The MongoDB lifecycle is needed by model tests only. Unit tests (such as
+// intentParser.service.test.js) must not start a MongoDB process.
+const isModelTest = expect.getState().testPath.includes("\\tests\\models\\");
 
-afterEach(async () => {
-    await clearTestDb();
-});
+if (isModelTest) {
+    beforeAll(async () => {
+        await connectTestDb();
+    });
 
-afterAll(async () => {
-    await closeTestDb();
-});
+    afterEach(async () => {
+        await clearTestDb();
+    });
+
+    afterAll(async () => {
+        await closeTestDb();
+    });
+}
