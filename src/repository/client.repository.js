@@ -4,9 +4,10 @@ module.exports.findMany = async (query) => {
     return await Client.find(query);
 };
 
-module.exports.findOneByQuery = async (query) => {
+module.exports.findOne = async (query) => {
     return await Client.findOne(query);
 };
 
-module.exports.find = module.exports.findMany;
-module.exports.findOne = module.exports.findOneByQuery;
+module.exports.createOne = async (createObject) => {
+    return await Client.create(createObject);
+}

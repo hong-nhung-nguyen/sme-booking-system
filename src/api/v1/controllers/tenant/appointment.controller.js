@@ -1,5 +1,7 @@
 const appointmentService = require("../../../../services/tenant/appointment.service");
 const googleCalendarService = require("../../../../services/googleCalendar.service");
+const clientService = require("../../../../services/client/client.service");
+const { listenerCount } = require("../../../../models/AppointmentStatusHistory.schema");
 
 // [GET] api/v1/business/appointments
 module.exports.index = async (req, res, next) => {
@@ -61,9 +63,10 @@ module.exports.create = async (req, res, next) => {
 
         const {
             locationId,
-            clientId,
             clientFirstName,
-            clientEmail,
+            clientLastName = "",
+            clientPhone = "",
+            clientEmail = "",
             serviceId,
             date,
             startTime,
@@ -73,6 +76,26 @@ module.exports.create = async (req, res, next) => {
             channel,
             createdBy
         } = req.body;
+
+        // find existing client >< otherwise, create a new client
+
+        const clientObject = {
+            businessId: businessId,
+            firstName: clientFirstName,
+            ...(clientLastName && { lastName: clientLastName }),
+            ...(clientEmail && { email: clientEmail }),
+            ...(clientPhone && { phone: clientPhone })
+        };
+
+        let client;
+
+        const existingClient = await clientService.findOne(clientObject);
+
+        if (existingClient) {
+            client = existingClient;
+        } else {
+            client = await clientService.createOne(clientObject);
+        }
 
         if (!locationId) {
             return res.status(400).json({
@@ -94,9 +117,7 @@ module.exports.create = async (req, res, next) => {
         const newAppointment = await appointmentService.create({
             businessId,
             locationId,
-            clientId,
-            clientFirstName,
-            clientEmail,
+            clientId: client._id,
             serviceId,
             date,
             startTime,

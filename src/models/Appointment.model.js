@@ -24,32 +24,33 @@ const AppointmentSchema = new mongoose.Schema({
     clientId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Client",
-        index: true
+        index: true,
+        required: true
     },
-    clientFirstName: {
-        type: String,
-        set: (value) => value.toUpperCase(),
-        trim: true,
-        minLength: 1
-    },
-    clientLastName: {
-        type: String,
-        set: (value) => value.toUpperCase(),
-        trim: true,
-    },
-    clientPhone: {
-        type: String,
-        trim: true,
-        match: /^\+?[0-9\s-]{8,20}$/,
-        default: null
-    },
-    clientEmail: {
-        type: String,
-        trim: true,
-        lowercase: true,
-        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        default: null
-    },
+    // clientFirstName: {
+    //     type: String,
+    //     set: (value) => value.toUpperCase(),
+    //     trim: true,
+    //     minLength: 1
+    // },
+    // clientLastName: {
+    //     type: String,
+    //     set: (value) => value.toUpperCase(),
+    //     trim: true,
+    // },
+    // clientPhone: {
+    //     type: String,
+    //     trim: true,
+    //     match: /^\+?[0-9\s-]{8,20}$/,
+    //     default: null
+    // },
+    // clientEmail: {
+    //     type: String,
+    //     trim: true,
+    //     lowercase: true,
+    //     match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    //     default: null
+    // },
     serviceId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Service",

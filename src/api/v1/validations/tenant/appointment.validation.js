@@ -42,8 +42,8 @@ const createAppointmentSchema = Joi.object({
     // what fields are allowed to be sent (req.body)
     body: Joi.object({
         locationId: objectId.required(),
-        clientId: objectId.required(),
-        clientFirstName: Joi.string().trim(),
+        clientFirstName: Joi.string().trim().required(),
+        clientLastName: Joi.string().trim(),
         serviceId: objectId.required(),
         date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).required(),
         startTime: Joi.date().required(),

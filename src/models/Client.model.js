@@ -28,14 +28,20 @@ const clientSchema = new mongoose.Schema({
         lowercase: true,
         unique: true,
         index: true,
-        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        required() {
+            return !this.phone;
+        }
     },
     phone: {
         type: String,
         trim: true,
         unique: true,
         index: true,
-        match: /^\+?[0-9\s-]{8,20}$/
+        match: /^\+?[0-9\s-]{8,20}$/,
+        required() {
+            return !this.email;
+        }
     },
     notes: {
         type: String,
