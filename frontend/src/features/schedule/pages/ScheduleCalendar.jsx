@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getAppointmentsByDate } from "../api/appointment.api";
-import BookingCard from '../components/BookingCard';
+import { getCurrentUser } from '../../auth/api/auth.api';
+import { getAppointmentsByDate, getServicesByLocation } from '../api/appointment.api';import BookingCard from '../components/BookingCard';
 import MetricCard from '../components/MetricCard';
 import { END_HOUR, formatDate, formatTime, getPosition, getResourceName, getWidth, START_HOUR, toDateInputValue } from '../schedule.utils';
 import './ScheduleCalendar.css';
+import NewBookingModal from '../components/NewBookingModal';
+
 
 const navigationItems = [
     ['▦', 'Dashboard'],
@@ -18,6 +20,9 @@ const navigationItems = [
 export default function ScheduleCalendar() {
     const [selectedDate, setSelectedDate] = useState(toDateInputValue(new Date()));
 
+    const [locationId, setLocationId] = useState('');
+    const [services, setServices] = useState([]);
+    const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
     const [appointments, setAppointments] = useState([]);
     const [navigationOpen, setNavigationOpen] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -64,6 +69,31 @@ export default function ScheduleCalendar() {
          */
         return () => window.clearInterval(timer); 
     }, []);
+
+    useEffect(() => {
+    async function loadBookingFormData() {
+        try {
+            const response = await getCurrentUser();
+
+            const firstLocationId = response.user.locationIds?.[0];
+
+            if (!firstLocationId) {
+                return;
+            }
+
+            setLocationId(String(firstLocationId));
+
+            const locationServices = await getServicesByLocation(
+                String(firstLocationId)
+            );
+
+            setServices(locationServices);
+        } catch (error) {
+            console.error('Unable to load booking form data:', error);
+        }
+    }
+    loadBookingFormData();
+    }, []); 
 
     const appointmentsByResource = useMemo(() => {
         const groups = new Map();
@@ -414,12 +444,23 @@ export default function ScheduleCalendar() {
                         className="add-button"
                         type="button"
                         aria-label="New reservation"
+                        onClick={() => setBookingDialogOpen(true)}
                     >
                         ＋
                     </button>
                 </div>
 
             </section>
+
+            <NewBookingModal
+                open={bookingDialogOpen}
+                onClose={() => setBookingDialogOpen(false)}
+                onSaved={loadAppointments}
+                selectedDate={selectedDate}
+                locationId={locationId}
+                services={services}
+            />
+
         </main>
     )
 }

@@ -27,7 +27,11 @@ module.exports.index = async (req, res) => {
 
                 const foundService = await Service.findOne(serviceQuery);
 
-                return foundService.name;
+                return {
+                    id: foundService._id,
+                    name: foundService.name,
+                    defaultDurationMinutes: foundService.defaultDurationMinutes,
+                };
             })
         )
 

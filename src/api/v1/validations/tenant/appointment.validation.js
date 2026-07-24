@@ -54,7 +54,8 @@ const createAppointmentSchema = Joi.object({
         clientEmail: Joi.string().trim().email().optional(),
         channel: Joi.string().valid("online", "sms", "manual", "email", "other").optional(),
         note: Joi.string().trim().max(1000).allow("", null),
-        timezone: Joi.string().optional()
+        timezone: Joi.string().optional(),
+        createdBy: Joi.string().trim().min(1).max(100).required(),
     }),
 });
 

@@ -66,6 +66,7 @@ module.exports.create = async (data) => {
         resourceId = availableResources[0]?._id;
     }
 
+    const actor = data.createdBy || 'SYSTEM';
 
     const createData = {
         ...data,
@@ -76,7 +77,7 @@ module.exports.create = async (data) => {
             {
                 "status": initialStatus,
                 "updatedAt": new Date(),
-                "updatedBy": "SYSTEM"
+                "updatedBy": actor
             }
         ],
         changeHistory: [
@@ -87,7 +88,7 @@ module.exports.create = async (data) => {
                         "newValue": initialStatus
                     },
                 ],
-                "updatedBy": "SYSTEM",
+                "updatedBy": actor,
                 "updatedAt": new Date()
             }
         ],

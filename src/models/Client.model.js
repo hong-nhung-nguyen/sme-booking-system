@@ -26,7 +26,6 @@ const clientSchema = new mongoose.Schema({
         type: String,
         trim: true,
         lowercase: true,
-        unique: true,
         index: true,
         match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         required() {
@@ -36,7 +35,6 @@ const clientSchema = new mongoose.Schema({
     phone: {
         type: String,
         trim: true,
-        unique: true,
         index: true,
         match: /^\+?[0-9\s-]{8,20}$/,
         required() {
@@ -55,6 +53,27 @@ const clientSchema = new mongoose.Schema({
 
 // clientSchema.index({ email: 1 }, { unique: true, sparse: true });
 // clientSchema.index({ phone: 1 }, { unique: true, sparse: true });
+
+clientSchema.index(
+  { businessId: 1, email: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      email: { $type: 'string' },
+    },
+  }
+);
+
+clientSchema.index(
+  { businessId: 1, phone: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      phone: { $type: 'string' },
+    },
+  }
+);
+
 
 const Client = mongoose.model("Client", clientSchema, "clients");
 

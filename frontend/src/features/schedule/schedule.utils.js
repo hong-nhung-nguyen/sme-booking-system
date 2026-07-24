@@ -25,8 +25,26 @@ function getId(value) { return typeof value === 'object' ? value?._id : value; }
 function shortId(value) { const id = getId(value); return id ? String(id).slice(-4).toUpperCase() : '-'; }
 
 export function getGuestName(appointment) {
-  const fullName = [appointment.clientFirstName, appointment.clientLastName].filter(Boolean).join(' ');
-  return fullName || appointment.clientEmail || appointment.clientPhone || `Guest ${appointment.clientId && shortId(appointment.clientId)}`;
+  const client =
+    appointment.clientId && typeof appointment.clientId === 'object'
+      ? appointment.clientId
+      : null;
+
+  const fullName = [
+    appointment.clientFirstName || client?.firstName,
+    appointment.clientLastName || client?.lastName,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return (
+    fullName ||
+    appointment.clientEmail ||
+    client?.email ||
+    appointment.clientPhone ||
+    client?.phone ||
+    `Guest ${appointment.clientId?._id || appointment.clientId || '-'}`
+  );
 }
 
 export function getResourceName(appointment) {
