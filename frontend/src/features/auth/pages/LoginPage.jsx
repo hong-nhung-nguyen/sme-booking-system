@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from 'react';
-import { getCurrentUser, login } from '../../api/auth.api';
-import Spinner from '../../components/Spinner/index';
+import { getCurrentUser, login } from '../api/auth.api';
+import Spinner from '../../../shared/ui/Spinner';
 import './LoginPage.css';
 
 const initialForm = {
@@ -103,7 +103,7 @@ export default function LoginPage() {
 
     return (
         <main className="login-page">
-            <section className="login-portal" aria-labelledBy="login-title">
+            <section className="login-portal" aria-labelledby="login-title">
                 <header className="login-header">
                     <h1 id="login-title">Welcome Back</h1>
                     <p>Sign in to manage your business</p>
@@ -203,12 +203,12 @@ export default function LoginPage() {
                 <footer className="login-footer">
                     <p>
                         Don&apos;t have an account?{' '}
-                        <a href="/sign-up" onClick={(event) => preventDefault()}>
+                        <a href="/sign-up" onClick={(event) => event.preventDefault()}>
                             Sign Up
                         </a>
                     </p>
 
-                    <nav className="footer-links" aria-labels="Legal and support">
+                    <nav className="footer-links" aria-label="Legal and support">
                         <a href="/privacy">Privacy Policy</a>
                         <span aria-hidden="true">.</span>
                         <a href="/terms">Terms of Service</a>

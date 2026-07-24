@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getAppointmentsByDate } from "../../api/appointment.api";
+import { getAppointmentsByDate } from "../api/appointment.api";
+import BookingCard from '../components/BookingCard';
+import MetricCard from '../components/MetricCard';
+import { END_HOUR, formatDate, formatTime, getPosition, getResourceName, getWidth, START_HOUR, toDateInputValue } from '../schedule.utils';
 import './ScheduleCalendar.css';
-
-const START_HOUR = 8;
-const END_HOUR = 22;
-const TOTAL_MINUTES = (END_HOUR - START_HOUR) * 60;
 
 const navigationItems = [
     ['▦', 'Dashboard'],
@@ -15,170 +14,6 @@ const navigationItems = [
     ['⚒', 'Service Management'],
 ];
 
-// Receives a Date object
-function toDateInputValue(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-};
-
-// value's format should be YYYY-MM-DD
-// output = Thu, 16 Jul 2026
-function formatDate(value) {
-    // turn into a readable Australian-style date 
-    return new Intl.DateTimeFormat('en-AU', {
-        weekday: "short", // Monday -> Mon
-        day: "2-digit",
-        month: "2-digit", // Janurary -> Jan
-        year: "numeric"
-    }).format(new Date(`${value}T12:00:00`));
-    /**
-     * Using T12:00:00 helps prevent the date unexpectedly moving to the previous
-     * or next day because of timezone conversion (12 at noon)
-     */
-};
-
-/**
- * converts a date/time value into 24-hour format (e.g 08:30 / 19:45)
- * value = ISO string (e.g '2026-07-16T08:30:00.000Z')
- */
-function formatTime(value) {
-    return new Intl.DateTimeFormat('en-AU', {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false, // use 24-hour instead of AM/PM
-    }).format(new Date(value));
-};
-
-function getId(value) {
-    return typeof value === "object" ? value._id : value;
-};
-
-/**
- * value = object
- * 6878ab1234567890abcd12ef -> 12EF
- */
-function shortId(value) {
-    const id = getId(value);
-
-    return id ? String(id).slice(-4).toUpperCase() : "-";
-};
-
-function getGuestName(appointment) {
-    const fullName = [appointment.clientFirstName, appointment.clientLastName]
-        .filter(Boolean)
-        .join(" ");
-
-    return fullName || appointment.clientEmail || appointment.clientPhone 
-    || `Guest ${appointment.clientId && shortId(appointment.clientId)}`;
-};
-
-function getResourceName(appointment) {
-    const resource = appointment.resourceId;
-
-    if (resource && typeof resource === "object") {
-        return resource.number ? resource.number : "Unassigned"
-    }
-
-    return resource ? `${shortId(resource)}` : "Unassigned";
-};
-
-/**
- * value = ISO string 
- * minutes after the calendar begins at 8AM
- */
-function minutesFromStart(value) {
-    const date = new Date(value);
-
-    return (
-        date.getHours() * 60 + 
-        date.getMinutes() - 
-        START_HOUR * 60 
-    )
-};
-
-/**
- * value = ISO string
- */
-function getPosition(value) {
-    const percentage = (minutesFromStart(value) / TOTAL_MINUTES) * 100;
-
-    /**
-     * Math.max = preventing the result from going below 0 (before openingHour)
-     * Math.min = preventing the result from going above 100 (after closingHour)
-     */
-    return Math.max(0, Math.min(100, percentage));
-};
-
-/**
- * converts an appointmen's duration in minutes into a percentage of the
- * complete calendar width 
- */
-function getWidth(appointment) {
-    const duration = appointment.durationMinutes || 90;
-    const percentage = (duration / TOTAL_MINUTES) * 100;
-
-    /**
-     * The min 4% ensures short bookings remain visible
-     * The max 100% prevents one booking from being wider than the entire calendar
-     */
-    return (Math.max(4, Math.min(100, percentage)));
-};
-
-// --------------------------------------------------------
-
-function MetricCard({ label, value, className = '' }) {
-    return (
-        <>
-            <article className="metric-card">
-                <span>{label}</span>
-                <strong className={className}>{value}</strong>
-            </article>
-        </>
-    )
-}
-
-// --------------------------------------------------------
-
-function BookingCard({ appointment, sidebar = false }) {
-    return (
-        <>
-            <article
-                className={[
-                    'booking-card',
-                    `status-${appointment.status}`,
-                    sidebar ? 'sidebar-booking' : ''
-                ].join(" ")}
-            >
-                <span 
-                    className="status-dot"
-                    title={appointment.status}
-                    arial-label={`Status: ${appointment.status}`}
-                />
-
-                <div className="booking-details">
-                    <strong>{getGuestName(appointment)}</strong>
-
-                    <small>
-                        {formatTime(appointment.startTime)}
-                        {' - '}
-                        {formatTime(appointment.endTime)}
-                    </small>
-                </div>
-
-                <span className="party-size">
-                    P{appointment.partySize || 1}
-                </span>
-
-                
-            </article>
-        </>
-    )
-}
-
-// --------------------------------------------------------
 
 export default function ScheduleCalendar() {
     const [selectedDate, setSelectedDate] = useState(toDateInputValue(new Date()));
@@ -406,7 +241,7 @@ export default function ScheduleCalendar() {
                         <input 
                             type="date"
                             value={selectedDate}
-                            araia-label="Schedule date"
+                            aria-label="Schedule date"
                             onChange={(event) => setSelectedDate(event.target.value)}
                         />
 

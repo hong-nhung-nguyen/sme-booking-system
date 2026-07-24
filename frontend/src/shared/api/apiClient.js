@@ -79,7 +79,7 @@ export async function apiRequest(path, options = {}) {
              * on the login page.
             */
 
-            if (window.location.pathname !== "/loging") {
+            if (window.location.pathname !== "/login") {
                 window.location.assign("/login");
             }
 

@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import LoginPage from './pages/login/LoginPage';
-import ScheduleCalendar from './pages/schedule/ScheduleCalendar';
+import LoginPage from '../features/auth/pages/LoginPage';
+import ScheduleCalendar from '../features/schedule/pages/ScheduleCalendar';
 
 export default function App() {
   return (

@@ -1,4 +1,4 @@
-import { apiRequest } from './apiClient';
+import { apiRequest } from '../../../shared/api/apiClient';
 
 export function login({ email, password }) {
     return apiRequest('/auth/login', {
