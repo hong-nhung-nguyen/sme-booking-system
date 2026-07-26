@@ -1,7 +1,8 @@
+const path = require("node:path");
 const dns = require("node:dns");
 const express = require("express");
 const helmet = require("helmet");
-require("dotenv").config();
+require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 
 const app = express();
 const port = process.env.PORT;

@@ -1,43 +1,21 @@
 {
   "name": "sme-booking-system",
   "version": "1.0.0",
-  "description": "A simple booking system for small and medium-sized businesses. Customers can reserve time slots, while the system helps prevent overbooking by managing capacity and queue limits.",
-  "homepage": "https://github.com/hong-nhung-nguyen/sme-booking-system#readme",
-  "bugs": {
-    "url": "https://github.com/hong-nhung-nguyen/sme-booking-system/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hong-nhung-nguyen/sme-booking-system.git"
-  },
-  "license": "ISC",
-  "author": "Rose Nguyen",
-  "type": "commonjs",
-  "main": "index.js",
+  "private": true,
+  "description": "Frontend and backend workspace for the SME booking system",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
-    "start": "nodemon --inspect server.js",
-    "dev": "nodemon --inspect server.js",
-    "test": "jest --config ./src/config/jest.config.js",
-    "test:coverage": "jest --coverage --config ./src/config/jest.config.js"  },
-  "dependencies": {
-    "@google-cloud/local-auth": "^2.1.0",
-    "bcrypt": "^6.0.0",
-    "cookie-parser": "^1.4.7",
-    "crypto": "^1.0.1",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.5.2",
-    "googleapis": "^105.0.0",
-    "helmet": "^8.2.0",
-    "joi": "^18.2.3",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.6.3",
-    "nodemon": "^3.1.14",
-    "openai": "^6.45.0",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
-    "jest": "^30.4.2",
-    "mongodb-memory-server": "^11.2.0"
+    "start": "npm --prefix backend run start",
+    "dev": "npm --prefix backend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "install:backend": "npm --prefix backend install",
+    "install:frontend": "npm --prefix frontend install",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "test": "npm --prefix backend run test",
+    "test:coverage": "npm --prefix backend run test:coverage"
   }
 }
