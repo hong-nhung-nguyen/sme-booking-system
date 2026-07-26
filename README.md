@@ -46,60 +46,31 @@ It can be adapted for different industries, such as:
 
 ---
 
-## Planned Project Structure
+## Current Project Structure
 
 ```text
 sme-booking-system/
-│
-├── src/
-│   ├── config/
-│   │   ├── database.js
-│   │   ├── system.js    -- project constants
-│   │   └── env.js       -- stores/exports environmental configuration values
-│   │
-│   ├── controllers/
-│   │   ├── admin/
-│   │   └── client/
-│   │
-│   ├── routes/
-│   │   ├── admin/
-│   │   └── client/
-│   │
-│   ├── services/
-│   │   ├── admin/
-│   │   |    ├── css
-│   │   |    └── js
-│   │   └── client/
-│   │
-│   ├── models/
-│   │
-│   ├── middlewares/
-│   │   ├── admin/
-│   │   └── client/
-│   │
-│   ├── utils/
-│   │
-│   ├── validations/
-│   │   ├── admin/
-│   │   └── client/
-|   |
-│   ├── views/
-│   │   ├── admin/
-│   │   |    ├── pages/
-│   │   |    ├── layouts/
-│   │   |    ├── mixins/
-│   │   |    └── partials
-│   │   └── client/
-│   │
-│   ├── index.js
-│   └── server.js
-│
-├── tests/
-│
-├── .env
-├── .gitignore
+├── backend/
+│   ├── server.js
+│   ├── src/
+│   │   ├── api/
+│   │   ├── config/
+│   │   ├── middlewares/
+│   │   ├── models/
+│   │   ├── prompts/
+│   │   ├── repository/
+│   │   ├── services/
+│   │   └── utils/
+│   ├── tests/
+│   └── package.json
+├── frontend/
+│   ├── index.html
+│   ├── package.json
+│   ├── public/
+│   └── src/
 ├── package.json
-└── README.md
+├── README.md
+└── .env
 ```
 
 ## Project Status
