@@ -1,5 +1,5 @@
 .schedule-page {
-    --sidebar-width: 230px;
+    --sidebar-width: 204px;
     --border: #d6ddea;
     --blue: #0759d5;
     --text: #202632;
@@ -57,7 +57,12 @@
 .booking-sidebar {
     padding: 28px 16px;
     overflow-y: auto;
+    background: #fff;
+    border-right: 1px solid var(--border);
 }
+
+.booking-sidebar-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 16px; }
+.booking-sidebar h2 { margin: 0; font-size: 14px; }
 
 .booking-sidebar .booking-card {
     height: auto;

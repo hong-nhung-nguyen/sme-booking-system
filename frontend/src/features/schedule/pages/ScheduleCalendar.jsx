@@ -4,17 +4,9 @@ import { getAppointmentsByDate, getServicesByLocation } from '../api/appointment
 import MetricCard from '../components/MetricCard';
 import { END_HOUR, formatDate, formatTime, getPosition, getResourceName, getWidth, START_HOUR, toDateInputValue } from '../schedule.utils';
 import './ScheduleCalendar.css';
+import NavSider from '../../../shared/ui/NavSider/NavSider';
 import NewBookingModal from '../components/NewBookingModal';
-
-
-const navigationItems = [
-    ['▦', 'Dashboard'],
-    ['▣', 'Schedule'],
-    ['◷', 'History'],
-    ['✉', 'AI Messaging'],
-    ['◇', 'Floor Plan'],
-    ['⚒', 'Service Management'],
-];
+import ScheduleBookingSidebar from '../components/ScheduleBookingSidebar';
 
 
 export default function ScheduleCalendar() {
@@ -23,8 +15,9 @@ export default function ScheduleCalendar() {
     const [locationId, setLocationId] = useState('');
     const [services, setServices] = useState([]);
     const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+    const [showNavigation, setShowNavigation] = useState(true);
     const [appointments, setAppointments] = useState([]);
-    const [navigationOpen, setNavigationOpen] = useState(false);
+    // const [navigationOpen, setNavigationOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [now, setNow] = useState(new Date())
@@ -160,93 +153,18 @@ export default function ScheduleCalendar() {
 
     return (
         <main className="schedule-page">
-            <aside className="schedule-sidebar">
-                <header className="brand">
-                    <button
-                        className="menu-button"
-                        type="button"
-                        aria-label={
-                            navigationOpen 
-                                ? "Show booking list"
-                                : "Open navigation"
-                        }
-                        onClick={() => setNavigationOpen((current) => !current)}
-                    >
-                        <span />
-                        <span />
-                        <span />
-                    </button>
-
-                    <strong>Sunset Bistro</strong>
-                </header>
-
-                {navigationOpen ? (
-                    <nav
-                        className="main-navigation"
-                        aria-label="Main navigation"
-                    >
-                        <button onClick={connectGoogleCalendar}>
-                            Connect Google Calendar
-                        </button>
-                        
-                        {navigationItems.map(([icon, label]) => (
-                            <a
-                                href="#"
-                                key={label}
-                                className={
-                                    label === 'Schedule' ? "active" : ""
-                                }
-                            >
-                                <span>{icon}</span>
-                                {label}
-                            </a>
-                        ))}
-
-                        <button
-                            className="new-reservation"
-                            type="button"
-                        >
-                            ⊕ New Reservation
-                        </button>
-
-                        <div className="secondary-navigation">
-                            <a href="#">⚙ Settings</a>
-                            <a href="#">? Support</a>
-                        </div>
-                    </nav>
-                ) : (
-                    <section
-                        className="booking-sidebar"
-                        aria-label="Bookings"
-                    >
-                        {loading && (
-                            <p className="sidebar-message">
-                                Loading bookings...
-                            </p>
-                        )}
-
-                        {!loading && appointments.length === 0 && (
-                            <p className="sidebar-message">
-                                No bookings for this date.
-                            </p>
-                        )}
-
-                        {appointments  
-                            .slice()
-                            .sort(
-                                (first, second) => new Date(first.startTime) - new Date(second.startTime)
-                            )
-                            .map((appointment) => (
-                                <BookingCard 
-                                    appointment={appointment}
-                                    sidebar
-                                    key={appointment._id}
-                                />
-                            ))
-                        }
-                    </section>
-                )}
-            </aside>
+            {showNavigation ? (
+                <NavSider
+                    onNewReservation={() => setBookingDialogOpen(true)}
+                    onShowBookings={() => setShowNavigation(false)}
+                />
+            ) : (
+                <ScheduleBookingSidebar
+                    appointments={appointments}
+                    loading={loading}
+                    onShowNavigation={() => setShowNavigation(true)}
+                />
+            )}
 
             <section className="schedule-content">
                 <header className="topbar">
