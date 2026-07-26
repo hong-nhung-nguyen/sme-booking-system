@@ -25,7 +25,7 @@ const buildSignedUser = (user) => {
 const setAccessTokenCookie = (res, accessToken, maxAge = ACCESS_TOKEN_COOKIE_MAX_AGE) => {
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
-        secure: false, // true in production
+        secure: process.env.NODE_ENV === "production", // true in production
         sameSite: "lax",
         maxAge
     });
