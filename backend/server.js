@@ -33,7 +33,7 @@ let databasePromise;
 
 app.use(async (req, res, next) => {
     try {
-        databasePromist ||= database.connect();
+        databasePromise ||= database.connect();
         await databasePromise;
         next();
     } catch (error) {
