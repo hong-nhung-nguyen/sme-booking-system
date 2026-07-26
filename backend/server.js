@@ -28,6 +28,19 @@ app.use(express.urlencoded({ extended: true }));
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
+// ensures the database connection is established before any requests
+let databasePromise;
+
+app.use(async (req, res, next) => {
+    try {
+        databasePromist ||= database.connect();
+        await databasePromise;
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
+
 apiV1(app);
 
 // 404 routes handler
@@ -61,7 +74,11 @@ const startServer = async () => {
     }
 };
 
-startServer();
+if (require.main === module) {
+    startServer();
+}
+
+module.exports = app;
 
 
 
