@@ -107,6 +107,13 @@ export default function LoginPage() {
                 <header className="login-header">
                     <h1 id="login-title">Welcome Back</h1>
                     <p>Sign in to manage your business</p>
+                    <p className="demo-credentials">
+                        <strong>Demo Credentials:</strong> <br />
+                        Email: demo@gmail.com
+                        <br />
+                        Password: demo123
+                        <br />
+                    </p>
                 </header>
 
                 <form
@@ -127,7 +134,7 @@ export default function LoginPage() {
                             type="email"
                             value={form.email}
                             onChange={handleChange}
-                            placeholder='name@business.com'
+                            placeholder='Enter your email'
                             autoComplete="email"
                             disabled={isSubmitting}
                         />
@@ -160,6 +167,7 @@ export default function LoginPage() {
                             onChange={handleChange}
                             autoComplete="current-password"
                             disabled={isSubmitting}
+                            placeholder="Enter your password"
                         />
 
                         {errors.password && (

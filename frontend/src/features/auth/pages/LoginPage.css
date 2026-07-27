@@ -33,6 +33,17 @@
   font-size: 14px;
 }
 
+.login-header .demo-credentials {
+  margin-top: 10px;
+  color: #ffffff;
+  font-size: 10px;
+  background-color: #3BB143;
+  padding: 10px;
+  border-radius: 4px;
+  display: inline-block;
+  width: 200px;
+}
+
 .login-form {
   padding: 34px 31px 30px;
   background: #ffffff;
