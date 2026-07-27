@@ -1,42 +1,49 @@
 const Location = require("../../../../models/Location.model");
 const Service = require("../../../../models/Service.model");
 
-// [GET] api/v1/tenants/:tenantId/locations/:locationId/services
-module.exports.index = async (req, res) => {
+// [GET] api/v1/business/locations/:locationId/services
+module.exports.index = async (req, res, next) => {
     const businessId = req.user.businessId;
     const { locationId } = req.params;
 
     try {
-        const locationQuery = {
+        const location = await Location.findOne({
             businessId: businessId,
             _id: locationId
-        };
-
-        const location = await Location.findOne(locationQuery);
+        });
 
         if (!location) {
             return res.status(404).json({ message: "location not found" });
         }
 
-        const services = await Promise.all(
-            location.services.map(async service => {
-                const serviceQuery = {
-                    businessId: businessId,
-                    _id: service.serviceId
-                };
+        const serviceIds = location.services.map((entry) => entry.serviceId);
 
-                const foundService = await Service.findOne(serviceQuery);
+        const services = await Service.find({
+            businessId: businessId,
+            _id: { $in: serviceIds }
+        }).select("name defaultDurationMinutes price status");
 
-                return {
-                    id: foundService._id,
-                    name: foundService.name,
-                    defaultDurationMinutes: foundService.defaultDurationMinutes,
-                };
-            })
-        )
+        /**
+         * A location can override the price of a service, so prefer the
+         * location's price when one is set.
+         */
+        const priceByServiceId = new Map(
+            location.services.map((entry) => [String(entry.serviceId), entry.price])
+        );
 
-        return res.status(200).json(services);
-    } catch (err) {
-        return res.status(400).json(err);
+        const payload = services.map((service) => ({
+            _id: service._id,
+            name: service.name,
+            defaultDurationMinutes: service.defaultDurationMinutes,
+            price: priceByServiceId.get(String(service._id)) ?? service.price,
+            status: service.status
+        }));
+
+        return res.status(200).json({
+            message: "Services found",
+            services: payload
+        });
+    } catch (error) {
+        next(error);
     }
-}
+};

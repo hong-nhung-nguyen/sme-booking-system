@@ -8,6 +8,24 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Shared palette, lifted out of the page stylesheets so new screens
+     stay visually consistent with the schedule and login pages. */
+  --bg: #f5f7fa;
+  --surface: #fff;
+  --surface-muted: #f4f6f9;
+  --border: #d6ddea;
+  --border-strong: #c8d0df;
+  --text: #202632;
+  --text-muted: #68758a;
+  --blue: #0759d5;
+  --blue-dark: #0754ca;
+  --green: #00a640;
+  --red: #c93c36;
+  --radius: 7px;
+  --radius-sm: 4px;
+  --shadow-card: 0 2px 5px rgb(30 45 70 / 5%);
+  --shadow-raised: 0 8px 18px rgb(31 45 70 / 12%);
 }
 
 *,
@@ -28,6 +46,152 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+/* ---------------------------------------------------------------
+   Status palette
+
+   Every appointment status from the Appointment model gets its own
+   set of custom properties. Applying `status-<value>` to an element
+   exposes them to anything inside it, so booking cards, badges and
+   history rows can all share one definition.
+   --------------------------------------------------------------- */
+
+.status-walkIn {
+  --status-background: #e6f7ee;
+  --status-border: #52b184;
+  --status-dot: #2e9a68;
+  --status-foreground: #1d724c;
+}
+
+.status-pending {
+  --status-background: #fff4cc;
+  --status-border: #e9bf3b;
+  --status-dot: #d59a00;
+  --status-foreground: #7a5700;
+}
+
+.status-unconfirmed {
+  --status-background: #e9f0fa;
+  --status-border: #9aacbf;
+  --status-dot: #788ba1;
+  --status-foreground: #506176;
+}
+
+.status-confirmed {
+  --status-background: #dceaff;
+  --status-border: #2570dc;
+  --status-dot: #1460d2;
+  --status-foreground: #074baf;
+}
+
+.status-rescheduled {
+  --status-background: #eee5ff;
+  --status-border: #9667de;
+  --status-dot: #7a42cc;
+  --status-foreground: #6432ac;
+}
+
+.status-seated {
+  --status-background: #d9f2f0;
+  --status-border: #3fa39c;
+  --status-dot: #1f8b83;
+  --status-foreground: #146b64;
+}
+
+.status-cancelled {
+  --status-background: #ffe1df;
+  --status-border: #dd625d;
+  --status-dot: #c93c36;
+  --status-foreground: #a22621;
+}
+
+.status-completed {
+  --status-background: #dff5e8;
+  --status-border: #4daa71;
+  --status-dot: #239653;
+  --status-foreground: #14733c;
+}
+
+.status-noShow {
+  --status-background: #f2e1e1;
+  --status-border: #a75a5a;
+  --status-dot: #873a3a;
+  --status-foreground: #722e2e;
+}
+
+.status-queued {
+  --status-background: #dff5f7;
+  --status-border: #43a5ad;
+  --status-dot: #228b94;
+  --status-foreground: #176f76;
+}
+
+.status-failed {
+  --status-background: #ffd9d9;
+  --status-border: #da3333;
+  --status-dot: #bd1717;
+  --status-foreground: #9e1111;
+}
+
+/* Shared by the booking cards and the status badge */
+.status-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  background: var(--status-dot);
+  border: 2px solid rgb(255 255 255 / 80%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--status-dot);
+}
+
+/* Fallback so an unrecognised status still renders something readable */
+.status-unknown {
+  --status-background: #eef1f6;
+  --status-border: #b8c2d1;
+  --status-dot: #8b97a9;
+  --status-foreground: #4e5b6e;
+}
+
+/* ---------------------------------------------------------------
+   Small shared pieces
+   --------------------------------------------------------------- */
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  border: 2px solid color-mix(in srgb, currentcolor 30%, transparent);
+  border-top-color: currentcolor;
+  border-radius: 50%;
+  animation: spinner-rotation 700ms linear infinite;
+}
+
+@keyframes spinner-rotation {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Inline error banner used by the schedule and booking pages */
+.schedule-error {
+  margin-top: 14px;
+  padding: 12px;
+  color: #9f1f1f;
+  background: #fff0f0;
+  border: 1px solid #e8aaaa;
+  border-radius: var(--radius-sm);
+}
+
+.page-loader {
+  min-height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
 }

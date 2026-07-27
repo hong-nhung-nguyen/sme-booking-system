@@ -1,0 +1,78 @@
+/* Shell shared by every signed-in page. The sidebar itself is styled by
+   NavSider.css; this file owns the grid and the topbar. */
+
+.app-shell {
+    min-width: 1100px;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 204px 1fr;
+    color: var(--text);
+    background: var(--bg);
+}
+
+.app-content {
+    position: relative;
+    min-width: 0;
+}
+
+.topbar {
+    height: 62px;
+    display: flex;
+    align-items: center;
+    gap: 21px;
+    padding: 0 24px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.topbar-title {
+    margin: 0;
+    margin-right: auto;
+    font-size: 16px;
+}
+
+.topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-name {
+    display: grid;
+    font-size: 13px;
+    text-align: right;
+}
+
+.user-name em {
+    color: var(--text-muted);
+    font-size: 10px;
+    font-style: normal;
+    text-transform: uppercase;
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-content: center;
+    color: #fff;
+    background: #3d5e78;
+    border: 2px solid var(--blue);
+    border-radius: 9px;
+    font-size: 12px;
+}
+
+.logout-button {
+    padding: 8px 12px;
+    color: #526175;
+    background: var(--surface-muted);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    color: var(--red);
+    border-color: var(--red);
+}

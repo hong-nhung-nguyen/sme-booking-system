@@ -146,6 +146,7 @@ module.exports.create = async (req, res, next) => {
         return res.status(201).json({
             success: true,
             googleCalendarSync,
+            data: newAppointment,
         });
         
     } catch(error) {
@@ -158,7 +159,7 @@ module.exports.edit = async (req, res, next) => {
     try {   
         // const { businessId, locationId, appointmentId } = req.params;
         const businessId = req.user.businessId;
-        const locationId = { $in: req.user.locationIds };
+        const locationId = appointmentService.buildLocationScope(req.user);
         const appointmentId = req.params.appointmentId;
 
         if(!req.body) {
@@ -203,7 +204,7 @@ module.exports.delete = async (req, res, next) => {
     try {
         // const { businessId, locationId, appointmentId } = req.params;
         const businessId = req.user.businessId;
-        const locationId = { $in: req.user.locationIds };
+        const locationId = appointmentService.buildLocationScope(req.user);
         const appointmentId = req.params.appointmentId;
 
         if (!req.body) {
@@ -236,7 +237,7 @@ module.exports.delete = async (req, res, next) => {
 module.exports.changeStatus = async (req, res, next) => {
     try {
         const businessId = req.user.businessId;
-        const locationId = { $in: req.user.locationIds };
+        const locationId = appointmentService.buildLocationScope(req.user);
         const { status, appointmentId } = req.params;
 
         const updatedStatusAppointment = await appointmentService.changeStatus(
@@ -270,7 +271,7 @@ module.exports.statusHistory = async (req, res, next) => {
     try {
         // const { businessId, locationId, appointmentId } = req.params;
         const businessId = req.user.businessId;
-        const locationId = { $in: req.user.locationIds };
+        const locationId = appointmentService.buildLocationScope(req.user);
         const appointmentId = req.params.appointmentId;
 
         const appointmentStatusHistory = await appointmentService.statusHistory(businessId, locationId, appointmentId);

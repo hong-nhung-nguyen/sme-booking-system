@@ -5,13 +5,26 @@ const resourceService = require("../../services/tenant/resource.service");
 
 const allowedAppointmentFilters = ["serviceId", "clientId", "status", "date"];
 
+/**
+ * Users with accessAllLocations may reach every location of their business,
+ * everyone else is limited to the locations attached to their account.
+ * Exported so the controllers scope reads and writes the same way.
+ */
+const buildLocationScope = (user) => {
+    return user.accessAllLocations
+        ? { $exists: true }
+        : { $in: user.locationIds || [] };
+};
+
 const buildTenantScopeQuery = (user) => {
     return {
         businessId: user.businessId,
-        locationId: { $in: user.locationIds },
+        locationId: buildLocationScope(user),
         deleted: false,
     };
 };
+
+module.exports.buildLocationScope = buildLocationScope;
 
 const buildAppointmentListQuery = (user, filters = {}) => {
     const query = buildTenantScopeQuery(user);
@@ -92,7 +105,7 @@ module.exports.create = async (data) => {
                 "updatedAt": new Date()
             }
         ],
-        updatedBy: "SYSTEM"
+        updatedBy: actor
     }
 
     const newAppointment = await appointmentRepository.create(createData);
@@ -102,7 +115,7 @@ module.exports.create = async (data) => {
      * the current status will automatically be changed to "unconfirmed"
      * with later version: the queue will be checked first to decide "unconfirm" or "queued"
      */
-    return await module.exports.changeStatus(newAppointment.businessId, newAppointment.locationId, newAppointment.id, "unconfirmed", {updatedBy: "SYSTEM"});
+    return await module.exports.changeStatus(newAppointment.businessId, newAppointment.locationId, newAppointment.id, "unconfirmed", {updatedBy: actor});
 };
 
 /**
