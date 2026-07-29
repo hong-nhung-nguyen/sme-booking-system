@@ -4,7 +4,7 @@ module.exports.getConversation = async (user, conversationId) => {
     /**
      * POSSIBLE ROUTE: GET api/v1/message/conversations/:conversationId
      */
-    
+
     const conversation = await conversationRepository.findOneForBusiness(
         user.businessId,
         conversationId
@@ -23,4 +23,27 @@ module.exports.getConversation = async (user, conversationId) => {
      * - Return 403 (server understands the request but refuses to fulfill it due to lacking
      * proper permission or access right) can reveal that the ID exists
      */
+};
+
+module.exports.findOneOrCreateConversation = async (data) => {
+    let conversation = await conversationRepository.findActiveConversation(data);
+
+    if (conversation) {
+        return {
+            created: false,
+            conversation
+        };
+    }
+
+    conversation = await conversationRepository.create({
+        businessId: data.businessId,
+        clientId: data.clientId,
+        status: "open",
+        unreadCount: 0
+    });
+
+    return {
+        created: true,
+        conversation
+    }
 }

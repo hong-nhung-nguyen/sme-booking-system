@@ -23,7 +23,8 @@ module.exports.findMany = async ({businessId, limit=20, cursor, status}) => {
 
     const query = {
         businessId,
-        ...(status && { status })
+        ...(status && { status }),
+        status: { $ne: "resolved" }
     };
 
     if (cursor) {
@@ -64,5 +65,18 @@ module.exports.findOneForBusiness = async (businessId, conversationId) => {
         _id: conversationId,
         businessId
     }).lean();
+};
+
+module.exports.findActiveConversation = async ({ businessId, clientId }) => {
+    return Conversation.findOne({
+        businessId,
+        clientId,
+        status: { $ne: "resolved" }
+    });
 }
 
+module.exports.create = async (data) => {
+    const newItem = await Conversation.create(data);
+
+    return newItem;
+}
