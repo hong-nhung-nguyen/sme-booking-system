@@ -10,6 +10,10 @@ const Conversation = require("../models/Conversation.model");
  * +) Return only limit conversations 
  * 
  * *** Prefer CURSOR pagination over SKIP() because it remains efficient as the collection grows 
+ * 
+ * POSSIBLE ROUTE: GET /api/v1/message/conversations?limit=20?cursor=...
+ * 
+ * *** Validate and cap `limit` (e.g: between 1 and 100)
  */
 
 module.exports.findMany = async ({businessId, limit=20, cursor, status}) => {
@@ -53,5 +57,12 @@ module.exports.findMany = async ({businessId, limit=20, cursor, status}) => {
         : conversations;
     
     return (items, hasMore);
+};
+
+module.exports.findOneForBusiness = async (businessId, conversationId) => {
+    return Conversation.findOne({
+        _id: conversationId,
+        businessId
+    }).lean();
 }
 
