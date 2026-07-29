@@ -39,6 +39,12 @@ const ConversationSchema = new mongoose.Schema({
     timestamps: true
 });
 
+ConversationSchema.index({
+    businessId: 1,
+    lastMessageAt: -1,
+    _id: -1
+});
+
 const Conversation = mongoose.model("Conversation", "ConversationSchema", "conversations");
 
 module.exports = Conversation;
