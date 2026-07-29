@@ -11,13 +11,14 @@ module.exports.inbound = async (req, res, next) => {
         }
 
         const businessId = req.user.businessId;
+        const clientId = req.body.clientId;
         const originalBody = req.body.message;
-        const inboundMessage = await messageService.createMessageRecord(businessId, originalBody);
+        const { conversation, message } = await messageService.createMessageRecord(businessId, clientId, originalBody);
 
         // parsedIntent and process the message 
         const parsedIntent = await intentParserService(originalBody);
 
-        const messageId = inboundMessage._id;
+        const messageId = message._id;
         const processedMessage = await messageService.process(businessId, messageId, parsedIntent);
         // end parsing and processing 
 

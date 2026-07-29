@@ -32,6 +32,7 @@ const MessageSchema = new mongoose.Schema({
     deliveryStatus: {
         type: String,
         enum: ["pending", "sent", "delivered", "failed"],
+        default: "pending",
         required: true
     },
     parsedIntent: {
@@ -61,7 +62,7 @@ const MessageSchema = new mongoose.Schema({
     timestamps: true
 });
 
-IncomingMessageSchema.index({ 
+MessageSchema.index({ 
     businessId: 1, 
     conversationId: 1, 
     createdAt: -1,

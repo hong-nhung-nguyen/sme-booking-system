@@ -3,6 +3,8 @@ const messageRepository = require("../repository/message.repository");
 const clientRepository = require("../repository/client.repository");
 const appointmentRepository = require("../repository/appointment.repository");
 
+const conversationService = require("./conversation.service");
+
 // should already have the clientId before create a new Message document 
 
 module.exports.createMessageRecord = async (businessId, clientId, original) => {
@@ -25,7 +27,7 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
      */
 
     // 1. Find or create conversation 
-    const conversation = conversationRepository.findActiveConversation({ businessId, clientId });
+    const { created, conversation } = await conversationService.findOneOrCreateConversation({ businessId, clientId });
 
     if (!conversation) {
         const error = new Error("Cannot assign the according Conversation");
@@ -37,7 +39,7 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
     const record = {
         businessId,
         conversationId: conversation._id,
-        senderUserId: clientId,
+        senderUserId: null,
         direction: "inbound",
         senderType: "client",
         body: original,
@@ -66,7 +68,7 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
                 lastMessageAt: message.createdAt,
                 lastMessagePreview: message.body.slice(0, 200),
                 lastMessageDirection: message.direction,
-                lastMessageSenderType = message.senderType
+                lastMessageSenderType: message.senderType
             },
             ...(message.direction === "inbound" && {
                 $inc: {
@@ -138,7 +140,7 @@ module.exports.process = async (businessId, messageId, parsedIntent) => {
         const client = await clientRepository.findOneByQuery(clientQuery);
         if (client) {
             clientId = client._id;
-            update.clientId = clientId;
+            update.senderUserId = clientId;
         } 
 
     }
