@@ -1,8 +1,11 @@
+const conversationRepository = require("../repository/conversation.repository");
 const messageRepository = require("../repository/message.repository");
 const clientRepository = require("../repository/client.repository");
 const appointmentRepository = require("../repository/appointment.repository");
 
-module.exports.createMessageRecord = async (businessId, original) => {
+// should already have the clientId before create a new Message document 
+
+module.exports.createMessageRecord = async (businessId, clientId, original) => {
     /**
     1. Receive web chat message
     2. Save IncomingMessage with original body
@@ -12,14 +15,86 @@ module.exports.createMessageRecord = async (businessId, original) => {
     6. Return structured response
      */
 
-    const record = {
-        businessId: businessId,
-        originalBody: original,
-        receivedAt: new Date()
+    /**
+     * WHEN A CUSTOMER MESSAGE ARRIVES:
+     * 1. Find or create conversation
+     * 2. Save inbound message with readAt = null
+     * 3. Atomically increment conversation.unreadCount
+     * 4. Update latest-message summary
+     * 5. Emit Socket.IO events 
+     */
+
+    // 1. Find or create conversation 
+    const conversation = conversationRepository.findActiveConversation({ businessId, clientId });
+
+    if (!conversation) {
+        const error = new Error("Cannot assign the according Conversation");
+        error.status = 404;
+        throw error;
     }
 
+    // 2. Persist the message 
+    const record = {
+        businessId,
+        conversationId: conversation._id,
+        senderUserId: clientId,
+        direction: "inbound",
+        senderType: "client",
+        body: original,
+        processingStatus: "pending",
+        receivedAt: new Date()
+    }; 
+
     const message = await messageRepository.create(record);
-    return message;
+
+    // 3. Update conversation summary and unread count 
+
+    /**
+     * Store a small denormalized summary on the conversation so the inbox does not need
+     * to query the message collection for every row 
+     */
+
+    const updatedConversation = await conversationRepository.findOneAndUpdate(
+        {
+            _id: conversation._id,
+            businessId,
+        }, 
+        {
+            $set: {
+                status: "open",
+                lastMessageId: message._id,
+                lastMessageAt: message.createdAt,
+                lastMessagePreview: message.body.slice(0, 200),
+                lastMessageDirection: message.direction,
+                lastMessageSenderType = message.senderType
+            },
+            ...(message.direction === "inbound" && {
+                $inc: {
+                    unreadCount: 1
+                }
+            })
+        },
+        {
+            new: true
+        }
+    );
+
+    // 4. Emit only after persistence succeeds
+    /**
+     *  socketEmitter.emitMessageCreated({
+            businessId: input.businessId,
+            conversationId: conversation._id,
+            message,
+            conversation: updatedConversation
+        });
+     */
+
+    // 5. Start AI intent processing
+
+    return {
+        conversation: updatedConversation,
+        message
+    };
 };
 
 module.exports.process = async (businessId, messageId, parsedIntent) => {
