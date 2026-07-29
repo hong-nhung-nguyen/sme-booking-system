@@ -24,6 +24,7 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
      * 5. Emit Socket.IO events 
      */
 
+    // 1. Find or create conversation 
     const conversation = conversationRepository.findActiveConversation({ businessId, clientId });
 
     if (!conversation) {
@@ -32,15 +33,21 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
         throw error;
     }
 
+    // 2. Persist the message 
     const record = {
-        businessId: businessId,
+        businessId,
+        conversationId: conversation._id,
+        senderUserId: clientId,
+        direction: "inbound",
+        senderType: "client",
         body: original,
+        processingStatus: "pending",
         receivedAt: new Date()
-    } 
+    }; 
 
     const message = await messageRepository.create(record);
 
-    // Update unreadCount after a new successful inbound message 
+    // 3. Update conversation summary and unread count 
 
     /**
      * Store a small denormalized summary on the conversation so the inbox does not need
@@ -72,7 +79,22 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
         }
     );
 
-    return message;
+    // 4. Emit only after persistence succeeds
+    /**
+     *  socketEmitter.emitMessageCreated({
+            businessId: input.businessId,
+            conversationId: conversation._id,
+            message,
+            conversation: updatedConversation
+        });
+     */
+
+    // 5. Start AI intent processing
+
+    return {
+        conversation: updatedConversation,
+        message
+    };
 };
 
 module.exports.process = async (businessId, messageId, parsedIntent) => {
