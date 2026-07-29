@@ -32,10 +32,22 @@ const ConversationSchema = new mongoose.Schema({
         trim: true,
         minLength: 1
     },
+    lastMessageId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Message"
+    },
     lastMessageAt: Date,
     lastMessagePreview: {
         type: String,
         maxLength: 200
+    },
+    lastMessageDirection: {
+        type: String,
+        enum: ["inbound", "outbound"]
+    },
+    lastMessageSenderType: {
+        type: String,
+        enum: ["client", "staff", "ai", "system"]
     },
     firstViewedAt: {
         type: Date,

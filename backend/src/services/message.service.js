@@ -41,22 +41,31 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
     const message = await messageRepository.create(record);
 
     // Update unreadCount after a new successful inbound message 
+
+    /**
+     * Store a small denormalized summary on the conversation so the inbox does not need
+     * to query the message collection for every row 
+     */
+
     const updatedConversation = await conversationRepository.findOneAndUpdate(
         {
             _id: conversation._id,
             businessId,
         }, 
         {
-            $inc: {
-                unreadCount: 1
-            },
             $set: {
                 status: "open",
                 lastMessageId: message._id,
                 lastMessageAt: message.createdAt,
                 lastMessagePreview: message.body.slice(0, 200),
-                lastMessageDirection: "inbound"
-            }
+                lastMessageDirection: message.direction,
+                lastMessageSenderType = message.senderType
+            },
+            ...(message.direction === "inbound" && {
+                $inc: {
+                    unreadCount: 1
+                }
+            })
         },
         {
             new: true
