@@ -2,44 +2,36 @@ const Joi = require("joi");
 
 const objectId = Joi.string().hex().length(24);
 
+const APPOINTMENT_STATUSES = [
+    "walkIn",
+    "pending",
+    "unconfirmed",
+    "confirmed",
+    "rescheduled",
+    "cancelled",
+    "seated",
+    "completed",
+    "noShow",
+    "queued",
+    "failed"
+];
+
 const findAppointmentsSchema = Joi.object({
-    // params: Joi.object({
-    //     businessId: objectId.required(),
-    //     locationId: objectId.required()
-    // }),
     query: Joi.object({
         serviceId: objectId,
         clientId: objectId,
-        status: Joi.string().valid(
-            "pending", 
-            "unconfirmed", 
-            "confirmed", 
-            "rescheduled", 
-            "cancelled", 
-            "completed", 
-            "noShow", 
-            "queued",
-            "failed"
-        ),
+        status: Joi.string().valid(...APPOINTMENT_STATUSES),
         date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/)
     })
 });
 
 const findOneAppointmentSchema = Joi.object({
     params: Joi.object({
-        // businessId: objectId.required(),
-        // locationId: objectId.required(),
         appointmentId: objectId.required()
     })
 });
 
 const createAppointmentSchema = Joi.object({
-    // params: Joi.object({
-    //     businessId: objectId.required(),
-    //     locationId: objectId.required()
-    // }),
-
-    // what fields are allowed to be sent (req.body)
     body: Joi.object({
         locationId: objectId.required(),
         clientFirstName: Joi.string().trim().required(),
@@ -61,13 +53,9 @@ const createAppointmentSchema = Joi.object({
 
 const updatedAppointmentSchema = Joi.object({
     params: Joi.object({
-        // businessId: objectId.required(),
-        // locationId: objectId.required(),
         appointmentId: objectId.required(),
     }),
     body: Joi.object({
-        // User can only update these fields
-        // Other extra fields will be stripped
         serviceId: objectId,
         date: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/),
         startTime: Joi.date(),
@@ -83,25 +71,17 @@ const changeStatusSchema = Joi.object({
     params: Joi.object({
         // businessId: objectId.required(),
         // locationId: objectId.required(),
-        status: Joi.string().valid(
-            "pending", 
-            "unconfirmed", 
-            "confirmed", 
-            "rescheduled", 
-            "cancelled", 
-            "completed", 
-            "noShow", 
-            "queued",
-            "failed"
-        ),
+        status: Joi.string().valid(...APPOINTMENT_STATUSES).required(),
         appointmentId: objectId.required()
+    }),
+    body: Joi.object({
+        updatedBy: Joi.string().trim().min(1).max(100),
+        reason: Joi.string().trim().max(500).allow("", null)
     })
 });
 
 const deleteAppointmentSchema = Joi.object({
     params: Joi.object({
-        // businessId: objectId.required(),
-        // locationId: objectId.required(),
         appointmentId: objectId.required()
     }),
     body: Joi.object({
@@ -111,6 +91,7 @@ const deleteAppointmentSchema = Joi.object({
 });
 
 module.exports = {
+    APPOINTMENT_STATUSES,
     createAppointmentSchema,
     updatedAppointmentSchema,
     findAppointmentsSchema,

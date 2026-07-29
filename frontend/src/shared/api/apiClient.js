@@ -1,15 +1,11 @@
-// Reusable helper for sending requests from frontend to backend API
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
+
+export const AUTH_EXPIRED_EVENT = "auth:expired";
 
 let refreshPromise = null;
 
 async function sendRequest(path, options = {}) {
     const response = await fetch(`${API_BASE_URL}${path}`, {
-        /**
-         * Tells fetch() to send cookies with the request and accept cookies returned by the backend
-         * Allows the browser to receive and send the backend's HTTP-only authentication cookies 
-         */
         credentials: "include",
         ...options,
         headers: {
@@ -18,7 +14,6 @@ async function sendRequest(path, options = {}) {
         }
     });
 
-    // const contentType = response.headers.get("Content-type") [HTTP header names are case-insensitive]
     const contentType = response.headers.get('content-type');
 
     const data = contentType?.includes("application/json")
@@ -62,7 +57,7 @@ export async function apiRequest(path, options = {}) {
         ...fetchOptions
     } = options;
 
-    let { response, data } = await sendRequest(path, options);
+    let { response, data } = await sendRequest(path, fetchOptions);
 
     /*
      * A 401 means the access token is missing or expired.
@@ -74,14 +69,7 @@ export async function apiRequest(path, options = {}) {
 
             ({ response, data } = await sendRequest(path, fetchOptions));
         } catch (refreshError) {
-            /*
-             * Avoid redirecting repeatedly if the user is already
-             * on the login page.
-            */
-
-            if (window.location.pathname !== "/login") {
-                window.location.assign("/login");
-            }
+            window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
 
             throw refreshError;
         }

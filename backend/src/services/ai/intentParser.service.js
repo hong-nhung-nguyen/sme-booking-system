@@ -6,9 +6,24 @@ const intentSchemaZod = require("./intent.schema");
 const { zodTextFormat } = require("openai/helpers/zod.js");
 // const mockMessages = require("./mockMessages");
 
-const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
+let client = null;
+
+/**
+ * The client is built on first use rather than at import time, so the whole
+ * server can still boot without an OPENAI_API_KEY — only message parsing
+ * needs one. Returns null when no key is configured.
+ */
+const getClient = () => {
+    if (client) return client;
+
+    if (!process.env.OPENAI_API_KEY) return null;
+
+    client = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    return client;
+};
 
 const defaultParsedIntent = {
     action: null,
@@ -50,8 +65,17 @@ const parseMessageIntent = async (message) => {
         return defaultParsedIntent;
     }
 
+    const openai = getClient();
+
+    if (!openai) {
+        console.warn(
+            "OPENAI_API_KEY is not set — skipping intent parsing."
+        );
+        return defaultParsedIntent;
+    }
+
     try {
-        const response = await client.responses.parse({
+        const response = await openai.responses.parse({
             model: "gpt-5.5",
             input: prompt,
             text: {

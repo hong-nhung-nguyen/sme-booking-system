@@ -9,9 +9,14 @@ const PATH_LOCATION = systemConfig.prefixLocation;
 // import sub-routes
 const appointmentRoutes = require("./appointment.route");
 const serviceRoutes = require("./service.route");
+const locationRoutes = require("./location.route");
 // end import sub-routes
 
 router.use("/appointments", appointmentRoutes);
+
+// Mounted before the parameterised location routes so "/locations" is not
+// swallowed by "/locations/:locationId".
+router.use("/locations", locationRoutes);
 
 router.use(PATH_LOCATION + "/services", serviceRoutes);
 

@@ -1,0 +1,13 @@
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    color: var(--status-foreground);
+    background: var(--status-background);
+    border: 1px solid var(--status-border);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}

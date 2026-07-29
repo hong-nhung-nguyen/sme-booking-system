@@ -1,0 +1,74 @@
+.confirm-dialog {
+    width: min(420px, calc(100vw - 32px));
+    padding: 22px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-raised);
+}
+
+.confirm-dialog::backdrop {
+    background: rgb(20 30 45 / 45%);
+}
+
+.confirm-dialog h2 {
+    margin: 0 0 8px;
+    font-size: 17px;
+}
+
+.confirm-dialog p {
+    margin: 0 0 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.confirm-reason {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 18px;
+    font-size: 12px;
+}
+
+.confirm-reason textarea {
+    padding: 9px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.confirm-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 15px;
+    color: #526175;
+    background: var(--surface-muted);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.confirm-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.confirm-actions .primary {
+    color: #fff;
+    background: var(--blue);
+    border-color: var(--blue);
+}
+
+.confirm-actions .danger {
+    color: #fff;
+    background: var(--red);
+    border-color: var(--red);
+}

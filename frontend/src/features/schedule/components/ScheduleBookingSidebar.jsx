@@ -1,6 +1,6 @@
 import BookingCard from './BookingCard';
 
-export default function ScheduleBookingSidebar({ appointments, loading, onShowNavigation }) {
+export default function ScheduleBookingSidebar({ appointments, loading, onShowNavigation, onOpen }) {
   return (
     <aside className="booking-sidebar" aria-label="Bookings for the selected date">
       <header className="booking-sidebar-header">
@@ -10,7 +10,7 @@ export default function ScheduleBookingSidebar({ appointments, loading, onShowNa
       {loading && <p className="sidebar-message">Loading bookings...</p>}
       {!loading && appointments.length === 0 && <p className="sidebar-message">No bookings for this date.</p>}
       {appointments.slice().sort((first, second) => new Date(first.startTime) - new Date(second.startTime)).map((appointment) => (
-        <BookingCard appointment={appointment} sidebar key={appointment._id} />
+        <BookingCard appointment={appointment} sidebar onOpen={onOpen} key={appointment._id} />
       ))}
     </aside>
   );

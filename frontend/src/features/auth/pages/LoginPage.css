@@ -200,14 +200,7 @@
   opacity: 0.72;
 }
 
-.spinner {
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgb(255 255 255 / 45%);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spinner-rotation 700ms linear infinite;
-}
+
 
 .login-footer {
   padding: 31px 24px 0;
@@ -241,12 +234,6 @@
   color: #7c8493;
   text-decoration: none;
   text-underline-offset: 2px;
-}
-
-@keyframes spinner-rotation {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 @media (max-width: 520px) {

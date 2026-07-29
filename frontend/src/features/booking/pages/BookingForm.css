@@ -1,0 +1,83 @@
+/* Form-specific rules; the page frame and buttons come from booking.css.
+   The class names are prefixed so they cannot collide with the login form,
+   which defines its own global .form-field rules. */
+
+.booking-form {
+    display: grid;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.booking-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.booking-field {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.booking-field > span {
+    color: var(--text-muted);
+}
+
+.booking-field input,
+.booking-field select,
+.booking-field textarea {
+    width: 100%;
+    padding: 9px 11px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    outline: 0;
+}
+
+.booking-field input:focus,
+.booking-field select:focus,
+.booking-field textarea:focus {
+    border-color: var(--blue);
+}
+
+.booking-field textarea {
+    resize: vertical;
+}
+
+.booking-field.invalid input,
+.booking-field.invalid select {
+    border-color: var(--red);
+}
+
+.booking-field small {
+    color: var(--red);
+    font-size: 12px;
+}
+
+.booking-field .hint {
+    color: var(--text-muted);
+}
+
+.booking-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-errors {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.booking-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+@media (max-width: 720px) {
+    .booking-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
