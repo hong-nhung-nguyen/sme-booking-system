@@ -52,6 +52,11 @@ const MessageSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    readAt: Date,
+    readByUserId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }
 }, {
     timestamps: true
 });

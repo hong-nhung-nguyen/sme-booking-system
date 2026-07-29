@@ -67,3 +67,14 @@ module.exports.process = async (messageId, updateData) => {
 
     return await module.exports.findById(messageId);
 };
+//------------------------------------------
+module.exports.updateMany = async (query, updateData) => {
+    return await Message.updateMany(
+        query,
+        updateData
+    );
+}
+//------------------------------------------
+module.exports.countDocuments = async (query) => {
+    return await Message.countDocuments(query);
+}

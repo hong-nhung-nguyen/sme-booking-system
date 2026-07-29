@@ -1,8 +1,11 @@
+const conversationRepository = require("../repository/conversation.repository");
 const messageRepository = require("../repository/message.repository");
 const clientRepository = require("../repository/client.repository");
 const appointmentRepository = require("../repository/appointment.repository");
 
-module.exports.createMessageRecord = async (businessId, original) => {
+// should already have the clientId before create a new Message document 
+
+module.exports.createMessageRecord = async (businessId, clientId, original) => {
     /**
     1. Receive web chat message
     2. Save IncomingMessage with original body
@@ -12,13 +15,54 @@ module.exports.createMessageRecord = async (businessId, original) => {
     6. Return structured response
      */
 
-    const record = {
-        businessId: businessId,
-        originalBody: original,
-        receivedAt: new Date()
+    /**
+     * WHEN A CUSTOMER MESSAGE ARRIVES:
+     * 1. Find or create conversation
+     * 2. Save inbound message with readAt = null
+     * 3. Atomically increment conversation.unreadCount
+     * 4. Update latest-message summary
+     * 5. Emit Socket.IO events 
+     */
+
+    const conversation = conversationRepository.findActiveConversation({ businessId, clientId });
+
+    if (!conversation) {
+        const error = new Error("Cannot assign the according Conversation");
+        error.status = 404;
+        throw error;
     }
 
+    const record = {
+        businessId: businessId,
+        body: original,
+        receivedAt: new Date()
+    } 
+
     const message = await messageRepository.create(record);
+
+    // Update unreadCount after a new successful inbound message 
+    const updatedConversation = await conversationRepository.findOneAndUpdate(
+        {
+            _id: conversation._id,
+            businessId,
+        }, 
+        {
+            $inc: {
+                unreadCount: 1
+            },
+            $set: {
+                status: "open",
+                lastMessageId: message._id,
+                lastMessageAt: message.createdAt,
+                lastMessagePreview: message.body.slice(0, 200),
+                lastMessageDirection: "inbound"
+            }
+        },
+        {
+            new: true
+        }
+    );
+
     return message;
 };
 

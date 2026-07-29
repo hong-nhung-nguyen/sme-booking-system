@@ -33,6 +33,10 @@ const ConversationSchema = new mongoose.Schema({
         minLength: 1
     },
     lastMessageAt: Date,
+    lastMessagePreview: {
+        type: String,
+        maxLength: 200
+    },
     firstViewedAt: {
         type: Date,
         default: null

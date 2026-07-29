@@ -1,4 +1,5 @@
 const conversationRepository = require("../repository/conversation.repository");
+const messageRepository = require("../repository/message.repository");
 
 module.exports.getConversation = async (user, conversationId) => {
     /**
@@ -81,4 +82,62 @@ module.exports.resolveConversatio = async ({businessId, conversationId, resolved
      *      }
      * }
      */
+};
+
+module.exports.markConversationRead = async ({ businessId, conversationId, userId }) => {
+    const conversation = await conversationRepository.findOneForBusiness({
+        _id: conversationId,
+        businessId
+    });
+
+    if (!conversation) {
+        const error = new Error("Conversation not found");
+        error.status = 404;
+        throw error;
+    };
+
+    const viewedAt = new Date();
+
+    await messageRepository.updateMany(
+        {
+            businessId,
+            conversationId,
+            direction: "inbound",
+            readAt: null,
+            createdAt: { $lte: viewedAt }
+        },
+        {
+            $set: {
+                readAt: viewedAt,
+                readByUserId: userId 
+            }
+        }
+    );
+
+    const reamaningUnread = await messageRepository.countDocuments({
+        businessId,
+        conversationId,
+        direction: "inbound",
+        readAt: null
+    });
+
+    const update = {
+        unreadCount: reamaningUnread,
+        lastViewedAt: viewedAt,
+        lastViewedBy: userId,
+    };
+
+    if (!conversation.firstViewedAt) {
+        update.firstViewedAt = viewedAt;
+    };
+
+    return conversationRepository.findOneAndUpdate(
+        {
+            _id: conversationId,
+            businessId
+        }, 
+        {
+            $set: update
+        }
+    )
 }
