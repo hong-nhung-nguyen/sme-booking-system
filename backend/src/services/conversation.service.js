@@ -46,4 +46,39 @@ module.exports.findOneOrCreateConversation = async (data) => {
         created: true,
         conversation
     }
+};
+
+module.exports.resolveConversatio = async ({businessId, conversationId, resolvedBy }) => {
+    const conversation = conversationRepository.findOneAndUpdate(
+        {
+            _id: conversationId,
+            businessId,
+            status: { $ne: "resolved" }
+        }, 
+        {
+            $set: {
+                status: "resolved",
+                resolvedAt: new Date(),
+                resolvedBy: resolvedBy
+            }
+        }
+    );
+
+    if (!conversation) {
+        throw new Error("Conversation not found or already resolved");
+    }
+
+    return conversation;
+
+    /**
+     * WHEN A NEW INBOUND MESSAGE ARRIVES FOR A RESOLVED CONVERSATION: Re-open the existing conversation 
+     * 
+     * {
+     *      $set: {
+     *          status: "open",
+     *          resolvedAt: null,
+     *          resolvedBy: null
+     *      }
+     * }
+     */
 }

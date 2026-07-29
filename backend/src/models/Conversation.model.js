@@ -23,7 +23,14 @@ const ConversationSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["open", "pending", "resolved"]
+        enum: ["open", "pending", "resolved"],
+        default: "open"
+    },
+    resolvedAt: Date,
+    resolvedBy: {
+        type: String,
+        trim: true,
+        minLength: 1
     },
     lastMessageAt: Date,
     firstViewedAt: {

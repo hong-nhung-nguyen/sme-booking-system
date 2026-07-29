@@ -73,10 +73,18 @@ module.exports.findActiveConversation = async ({ businessId, clientId }) => {
         clientId,
         status: { $ne: "resolved" }
     });
-}
+};
 
 module.exports.create = async (data) => {
     const newItem = await Conversation.create(data);
 
     return newItem;
+};
+
+module.exports.findOneAndUpdate = async (query, data) => {
+    return await Conversation.findOneAndUpdate(
+        query,
+        data,
+        { new: true }
+    );
 }
