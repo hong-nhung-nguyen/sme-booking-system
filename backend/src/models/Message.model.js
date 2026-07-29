@@ -54,9 +54,14 @@ const MessageSchema = new mongoose.Schema({
     },
 }, {
     timestamps: true
-})
+});
 
-IncomingMessageSchema.index({ businessId: 1, conversationId: 1, receivedAt: -1 })
+IncomingMessageSchema.index({ 
+    businessId: 1, 
+    conversationId: 1, 
+    createdAt: -1,
+    _id: -1
+});
 
 const Message = mongoose.model("Message", MessageSchema, "messages");
 
