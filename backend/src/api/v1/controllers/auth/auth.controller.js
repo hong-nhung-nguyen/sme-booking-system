@@ -18,7 +18,7 @@ const buildSignedUser = (user) => {
         businessId: user.businessId,
         locationIds: user.locationIds,
         accessAllLocations: user.accessAllLocations,
-        role: user.role
+        accountType: user.role
     };
 };
 

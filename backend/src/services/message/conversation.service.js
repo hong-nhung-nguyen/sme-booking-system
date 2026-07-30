@@ -1,5 +1,5 @@
-const conversationRepository = require("../repository/conversation.repository");
-const messageRepository = require("../repository/message.repository");
+const conversationRepository = require("../../repository/conversation.repository");
+const messageRepository = require("../../repository/message.repository");
 
 module.exports.getManyConversations = async (query) => {
     const conversations = await conversationRepository.findMany(query);

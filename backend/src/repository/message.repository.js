@@ -54,13 +54,14 @@ module.exports.create = async (record) => {
     return await Message.create(record);
 };
 
-module.exports.process = async (messageId, updateData) => {
-    await Message.updateOne(
-        { _id: messageId },
-        { $set: updateData },
-    )
-
-    return await module.exports.findById(messageId);
+module.exports.findOneAndUpdate = async (query, updateData) => {
+    return await Message.findOneAndUpdate(
+        query,
+        updatedData,
+        {
+            new: true
+        }
+    );
 };
 //------------------------------------------
 module.exports.updateMany = async (query, updateData) => {

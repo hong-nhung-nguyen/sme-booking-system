@@ -1,6 +1,8 @@
-const messageService = require("../../../../services/message.service");
-const conversationService = require("../../../../services/conversation.service");
+const messageService = require("../../../../services/message/message.service");
+const conversationService = require("../../../../services/message/conversation.service");
 const intentParserService = require("../../../../services/ai/intentParser.service");
+
+const getMessageSender = require("../../../../utils/getMessageSender");
 
 // [GET] /api/v1/message/conversations
 module.exports.conversations = async (req, res, next) => {
@@ -90,9 +92,11 @@ module.exports.getConversationMessages = async (req, res, next) => {
     }
 };
 
-
-module.exports.inbound = async (req, res, next) => {
+// [POST] /api/v1/message/conversations/:conversationId/messages
+module.exports.sendNewMessage = async (req, res, next) => {
     try {
+        const sender = getMessageSender(req.user);
+
         if (!req.body) {
             return res.status(400).json({
                 success: false,
@@ -100,24 +104,37 @@ module.exports.inbound = async (req, res, next) => {
             })
         }
 
-        const businessId = req.user.businessId;
-        const clientId = req.body.clientId;
-        const originalBody = req.body.message;
-        const { conversation, message } = await messageService.createMessageRecord(businessId, clientId, originalBody);
+        const { conversation, message } = await messageService.createMessageRecord({
+            businessId: req.user.businessId,
+            ...(req.params.conversationId && { conversationId: req.params.conversationId }),
+            body: req.body.message,
+            ...sender,
 
-        // parsedIntent and process the message 
-        const parsedIntent = await intentParserService(originalBody);
-
-        const messageId = message._id;
-        const processedMessage = await messageService.process(businessId, messageId, parsedIntent);
-        // end parsing and processing 
+            deliveryStatus: sender.direction === "inbound"
+                ? "delivered"
+                : "sent",
+            
+            processingStatus: sender.direction === "inbound"
+                ? "pending"
+                : null,
+                    
+            receivedAt: sender.direction === "inbound" 
+                ? new Date()
+                : null,
+            
+            sendAt: 
+                sender.direction === "outbound"
+                    ? new Date()
+                    : null
+        });
 
         return res.status(200).json({
             success: true,
-            processedMessage
-        })
+            conversation, 
+            message
+        });
 
     } catch (error) {
         next(error);
     }
-}
+};

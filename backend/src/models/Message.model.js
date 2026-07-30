@@ -42,17 +42,13 @@ const MessageSchema = new mongoose.Schema({
         type: String,
         enum: ["pending", "processed", "failed", "needs_review"],
         index: true,
-        required: true,
         default: "pending"
     },
     // pending: message received, but AI processing it
     // proccessed: AI parsing the intent 
     // failed: something unexpected during the process
     processingError: String,
-    receivedAt: {
-        type: Date,
-        required: true
-    },
+    receivedAt: Date,
     readAt: Date,
     readByUserId: {
         type: mongoose.Schema.Types.ObjectId,
