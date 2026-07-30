@@ -2,6 +2,7 @@ const messageService = require("../../../../services/message.service");
 const conversationService = require("../../../../services/conversation.service");
 const intentParserService = require("../../../../services/ai/intentParser.service");
 
+// [GET] /api/v1/message/conversations
 module.exports.conversations = async (req, res, next) => {
     try {
         const user = req.user;
@@ -9,7 +10,7 @@ module.exports.conversations = async (req, res, next) => {
         if (!user) {
             return res.status(403).json({
                 success: false,
-                message: "Unauthenticated"
+                message: "Unauthorized"
             })
         };
 
@@ -40,7 +41,26 @@ module.exports.conversations = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+// [GET] /api/v1/message/conversations/:conversationId
+module.exports.findOneConversation = async (req, res, next) => {
+    try {
+        const businessId = req.user.businessId;
+        const conversationId = req.params.conversationId;
+
+        const conversation = await conversationService.getConversation(businessId, conversationId);
+
+        return res.status(200).json({
+            success: true,
+            conversation
+        })
+
+    } catch (error) {
+        next(error);
+    }
 }
+
 
 module.exports.inbound = async (req, res, next) => {
     try {

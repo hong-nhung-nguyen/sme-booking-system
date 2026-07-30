@@ -7,13 +7,13 @@ module.exports.getManyConversations = async (query) => {
     return conversations;
 }
 
-module.exports.getConversation = async (user, conversationId) => {
+module.exports.getConversation = async (businessId, conversationId) => {
     /**
      * POSSIBLE ROUTE: GET api/v1/message/conversations/:conversationId
      */
 
     const conversation = await conversationRepository.findOneForBusiness(
-        user.businessId,
+        businessId,
         conversationId
     );
 

@@ -20,11 +20,6 @@ module.exports.findConversationMessages = async ({ businessId, conversationId, b
      * retrieve the latest 30 messages)
      */
 
-    /**
-     * POSSIBLE ROUTE
-     * GET /api/v1/message/conversations/:conversationId/messages
-     */
-
     const query = {
         businessId,
         conversationId
