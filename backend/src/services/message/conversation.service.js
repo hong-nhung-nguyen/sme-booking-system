@@ -1,13 +1,19 @@
-const conversationRepository = require("../repository/conversation.repository");
-const messageRepository = require("../repository/message.repository");
+const conversationRepository = require("../../repository/conversation.repository");
+const messageRepository = require("../../repository/message.repository");
 
-module.exports.getConversation = async (user, conversationId) => {
+module.exports.getManyConversations = async (query) => {
+    const conversations = await conversationRepository.findMany(query);
+
+    return conversations;
+}
+
+module.exports.getConversation = async (businessId, conversationId) => {
     /**
      * POSSIBLE ROUTE: GET api/v1/message/conversations/:conversationId
      */
 
     const conversation = await conversationRepository.findOneForBusiness(
-        user.businessId,
+        businessId,
         conversationId
     );
 
@@ -140,4 +146,8 @@ module.exports.markConversationRead = async ({ businessId, conversationId, userI
             $set: update
         }
     )
+};
+
+module.exports.editOneConversation = async (query, update) => {
+    return await conversationRepository.findOneAndUpdate(query, update);
 }

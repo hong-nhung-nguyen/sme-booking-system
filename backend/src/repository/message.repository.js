@@ -20,11 +20,6 @@ module.exports.findConversationMessages = async ({ businessId, conversationId, b
      * retrieve the latest 30 messages)
      */
 
-    /**
-     * POSSIBLE ROUTE
-     * GET /api/v1/message/conversations/:conversationId/messages
-     */
-
     const query = {
         businessId,
         conversationId
@@ -59,13 +54,14 @@ module.exports.create = async (record) => {
     return await Message.create(record);
 };
 
-module.exports.process = async (messageId, updateData) => {
-    await Message.updateOne(
-        { _id: messageId },
-        { $set: updateData },
-    )
-
-    return await module.exports.findById(messageId);
+module.exports.findOneAndUpdate = async (query, updateData) => {
+    return await Message.findOneAndUpdate(
+        query,
+        updatedData,
+        {
+            new: true
+        }
+    );
 };
 //------------------------------------------
 module.exports.updateMany = async (query, updateData) => {

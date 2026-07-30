@@ -1,16 +1,19 @@
-const conversationRepository = require("../repository/conversation.repository");
-const messageRepository = require("../repository/message.repository");
-const clientRepository = require("../repository/client.repository");
-const appointmentRepository = require("../repository/appointment.repository");
+const conversationRepository = require("../../repository/conversation.repository");
+const messageRepository = require("../../repository/message.repository");
+const clientRepository = require("../../repository/client.repository");
+const appointmentRepository = require("../../repository/appointment.repository");
+
+const conversationService = require("./conversation.service");
+const aiProcessingService = require("./aiProcessing.service");
 
 // should already have the clientId before create a new Message document 
 
-module.exports.createMessageRecord = async (businessId, clientId, original) => {
+module.exports.createMessageRecord = async (data) => {
     /**
     1. Receive web chat message
     2. Save IncomingMessage with original body
-    3. Use AI to create parsedIntent
-    4. Update the same IncomingMessage with parsedIntent
+    3. Use AI to create parsedIntent (inbound)
+    4. Update the same Message with parsedIntent
     5. Match client / appointment if needed
     6. Return structured response
      */
@@ -21,28 +24,31 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
      * 2. Save inbound message with readAt = null
      * 3. Atomically increment conversation.unreadCount
      * 4. Update latest-message summary
-     * 5. Emit Socket.IO events 
+     * 5. Emit Socket.IO events (emit message:created)
+     * --- If inbound ---
+     * 6. Start AI intent parsing
+     * 7. Update the persisted messages with parsedIntent
+     * 8. Emit message:intent-ready or message:processing-failed
      */
 
-    // 1. Find or create conversation 
-    const conversation = conversationRepository.findActiveConversation({ businessId, clientId });
+    // 1. Find or create conversation for inbound message
+    if (data.direction === "inbound") {
+        const { created, conversation } = await conversationService.findOneOrCreateConversation({ businessId, clientId });
 
-    if (!conversation) {
-        const error = new Error("Cannot assign the according Conversation");
-        error.status = 404;
-        throw error;
+        if (!conversation) {
+            const error = new Error("Cannot assign the according conversation");
+            error.status = 404;
+            throw error;
+        }
     }
+
+    const conversationId = data.conversationId ? data.conversationId : conversation._id;
 
     // 2. Persist the message 
     const record = {
-        businessId,
-        conversationId: conversation._id,
-        senderUserId: clientId,
-        direction: "inbound",
-        senderType: "client",
-        body: original,
-        processingStatus: "pending",
-        receivedAt: new Date()
+        businessId: data.businessId,
+        ...data,
+        conversationId
     }; 
 
     const message = await messageRepository.create(record);
@@ -52,12 +58,12 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
     /**
      * Store a small denormalized summary on the conversation so the inbox does not need
      * to query the message collection for every row 
-     */
+    */
 
     const updatedConversation = await conversationRepository.findOneAndUpdate(
         {
-            _id: conversation._id,
-            businessId,
+            _id: conversationId,
+            businessId: data.businessId,
         }, 
         {
             $set: {
@@ -66,7 +72,7 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
                 lastMessageAt: message.createdAt,
                 lastMessagePreview: message.body.slice(0, 200),
                 lastMessageDirection: message.direction,
-                lastMessageSenderType = message.senderType
+                lastMessageSenderType: message.senderType
             },
             ...(message.direction === "inbound" && {
                 $inc: {
@@ -90,13 +96,25 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
      */
 
     // 5. Start AI intent processing
+    let processedMessage;
+    if (data.direction === "inbound") {
+        processedMessage = await aiProcessingService.processMessageIntent(data.businessId, message._id);
+    }
 
+    // ---------------------- END
     return {
         conversation: updatedConversation,
-        message
+        message: processedMessage || message
     };
 };
 
+module.exports.getConversationMessages = async (query) => {
+    const messages = await messageRepository.findConversationMessages(query);
+
+    return messages;
+}
+
+/** 
 module.exports.process = async (businessId, messageId, parsedIntent) => {
     let update = {
         parsedIntent: parsedIntent,
@@ -138,7 +156,7 @@ module.exports.process = async (businessId, messageId, parsedIntent) => {
         const client = await clientRepository.findOneByQuery(clientQuery);
         if (client) {
             clientId = client._id;
-            update.clientId = clientId;
+            update.senderUserId = clientId;
         } 
 
     }
@@ -171,3 +189,4 @@ module.exports.process = async (businessId, messageId, parsedIntent) => {
     // update the inboud message with sufficient information 
     return await messageRepository.process(messageId, update)
 }
+*/

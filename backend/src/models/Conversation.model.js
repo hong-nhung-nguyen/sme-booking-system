@@ -68,6 +68,6 @@ ConversationSchema.index({
     _id: -1
 });
 
-const Conversation = mongoose.model("Conversation", "ConversationSchema", "conversations");
+const Conversation = mongoose.model("Conversation", ConversationSchema, "conversations");
 
 module.exports = Conversation;

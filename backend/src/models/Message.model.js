@@ -32,6 +32,7 @@ const MessageSchema = new mongoose.Schema({
     deliveryStatus: {
         type: String,
         enum: ["pending", "sent", "delivered", "failed"],
+        default: "pending",
         required: true
     },
     parsedIntent: {
@@ -41,17 +42,13 @@ const MessageSchema = new mongoose.Schema({
         type: String,
         enum: ["pending", "processed", "failed", "needs_review"],
         index: true,
-        required: true,
         default: "pending"
     },
     // pending: message received, but AI processing it
     // proccessed: AI parsing the intent 
     // failed: something unexpected during the process
     processingError: String,
-    receivedAt: {
-        type: Date,
-        required: true
-    },
+    receivedAt: Date,
     readAt: Date,
     readByUserId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -61,7 +58,7 @@ const MessageSchema = new mongoose.Schema({
     timestamps: true
 });
 
-IncomingMessageSchema.index({ 
+MessageSchema.index({ 
     businessId: 1, 
     conversationId: 1, 
     createdAt: -1,
