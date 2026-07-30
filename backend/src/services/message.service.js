@@ -99,6 +99,12 @@ module.exports.createMessageRecord = async (businessId, clientId, original) => {
     };
 };
 
+module.exports.getConversationMessages = async (query) => {
+    const messages = await messageRepository.findConversationMessages(query);
+
+    return messages;
+}
+
 module.exports.process = async (businessId, messageId, parsedIntent) => {
     let update = {
         parsedIntent: parsedIntent,

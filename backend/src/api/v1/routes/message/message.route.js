@@ -9,4 +9,6 @@ router.get("/conversations", controller.conversations);
 
 router.get("/conversations/:conversationId", controller.findOneConversation);
 
+router.get("/conversations/:conversationId/messages", controller.getConversationMessages);
+
 module.exports = router;
