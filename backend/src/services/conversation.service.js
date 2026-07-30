@@ -1,6 +1,12 @@
 const conversationRepository = require("../repository/conversation.repository");
 const messageRepository = require("../repository/message.repository");
 
+module.exports.getManyConversations = async (query) => {
+    const conversations = await conversationRepository.findMany(query);
+
+    return conversations;
+}
+
 module.exports.getConversation = async (user, conversationId) => {
     /**
      * POSSIBLE ROUTE: GET api/v1/message/conversations/:conversationId

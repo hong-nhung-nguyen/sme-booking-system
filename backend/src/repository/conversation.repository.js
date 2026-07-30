@@ -28,11 +28,11 @@ module.exports.findMany = async ({businessId, limit=20, cursor, status}) => {
     };
 
     if (cursor) {
-        query.$or [
+        query.$or = [
             { lastMessageAt: { $lt: cursor.lastMessageAt} },
             {
                 lastMessageAt: cursor.lastMessageAt,
-                _id: { $lt: cursor.id }
+                _id: { $lt: cursor._id }
             }
         ];
     }
@@ -57,7 +57,7 @@ module.exports.findMany = async ({businessId, limit=20, cursor, status}) => {
         ? conversations.slice(0, limit)
         : conversations;
     
-    return (items, hasMore);
+    return { items, hasMore };
 };
 
 module.exports.findOneForBusiness = async (businessId, conversationId) => {
