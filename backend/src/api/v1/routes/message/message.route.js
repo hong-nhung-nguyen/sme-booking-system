@@ -11,4 +11,14 @@ router.get("/conversations/:conversationId/messages", controller.getConversation
 
 router.post("/conversations/:conversationId/messages", controller.sendNewMessage);
 
+router.patch("/conversations/:conversationId", controller.editOneConversation);
+
+/**
+ * FOR IMPORTANT STATE TRANSITIONS, DEDICATED ENDPOINTS CAN BE CLEARER:
+ * 
+    POST /conversations/:conversationId/resolve
+    POST /conversations/:conversationId/reopen
+    POST /conversations/:conversationId/read
+ */
+
 module.exports = router;

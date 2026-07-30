@@ -138,3 +138,41 @@ module.exports.sendNewMessage = async (req, res, next) => {
         next(error);
     }
 };
+
+// [PATCH] /api/v1/message/conversations/:conversationId
+module.exports.editOneConversation = async (req, res, next) => {
+    try {
+        const allowedFields = [
+            "status",
+            "assignedUserId",
+            "appointmentId",
+            "clientId"
+        ];
+
+        const update = {};
+
+        for (const field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                update[field] = req.body[field];
+            }
+        };
+
+        const updatedConversation = await conversationService.editOneConversation(
+            {
+                _id: req.params.conversationId,
+                businessId: req.user.businessId
+            },
+            {
+                $set: update
+            }
+        );
+
+        return res.status(200).json({
+            success: true,
+            conversation: updatedConversation
+        })
+
+    } catch (error) {
+        next(error);
+    }
+}

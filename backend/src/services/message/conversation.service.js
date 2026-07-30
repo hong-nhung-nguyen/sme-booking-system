@@ -146,4 +146,8 @@ module.exports.markConversationRead = async ({ businessId, conversationId, userI
             $set: update
         }
     )
+};
+
+module.exports.editOneConversation = async (query, update) => {
+    return await conversationRepository.findOneAndUpdate(query, update);
 }
