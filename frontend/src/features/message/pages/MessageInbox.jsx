@@ -1,5 +1,6 @@
+import { socket } from "../../../shared/api/socket.js";
 import { NavLink } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import NavSider from '../../../shared/ui/NavSider/NavSider';
 import './MessageInbox.css';
 
@@ -124,6 +125,28 @@ export default function MessageInbox() {
   const [showDraft, setShowDraft] = useState(true);
   const [sentMessages, setSentMessages] = useState([]);
   const [navigationOpen, setNavigationOpen] = useState(true);
+
+  useEffect(() => {
+    socket.connect();
+
+    function handleConnect() {
+      console.log("Socket connected: ", socket.id);
+    }
+
+    function handleNewMessage(message) {
+      console.log("New message: ", message);
+    }
+
+    socket.on("connect", handleConnect);
+    socket.on("message:new", handleNewMessage);
+
+    // runs when MessageInbox unmounts.
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("message:new", handleNewMessage);
+      socket.disconnect();
+    };
+  }, []);
 
   const selectedConversation = useMemo(
     () => conversations.find((conversation) => conversation.id === selectedId),
