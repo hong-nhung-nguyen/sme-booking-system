@@ -32,7 +32,7 @@ module.exports = (socket, next) => {
         };
 
         socket.data.user = {
-            userId: paylpad.userId,
+            userId: payload.userId,
             businessId: payload.businessId,
             role: payload.accountType,
             permittedLocations: payload.locationIds,
