@@ -23,10 +23,12 @@ const buildSignedUser = (user) => {
 };
 
 const setAccessTokenCookie = (res, accessToken, maxAge = ACCESS_TOKEN_COOKIE_MAX_AGE) => {
+    const crossSite = process.env.COOKIE_CROSS_SITE === "true";
+
     res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // true in production
-        sameSite: "lax",
+        sameSite: crossSite ? "none" : "lax",
         maxAge
     });
 };
