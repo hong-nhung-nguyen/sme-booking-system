@@ -8,6 +8,7 @@ const dns = require("node:dns");
 const express = require("express");
 const helmet = require("helmet");
 require("dotenv").config({ path: path.resolve(__dirname, ".env") });
+const authenticateSocket = require("./src/middlewares/authenticateSocket.middleware");
 
 const app = express();
 // Create the server after creating the app
@@ -28,6 +29,9 @@ const io = new Server(httpServer, {
     },
 });
 
+// run authentication for all the attempts to connect a socket ID
+io.use(authenticateSocket);
+
 // Add a minimal connection handler
 /**
  * io represents the whole socket server
@@ -39,7 +43,14 @@ const io = new Server(httpServer, {
  * object and passes it to the callback.
  */
 io.on("connection", (socket) => {
-    console.log(`Socket connected: ${socket.id}`);
+    const {
+        userId,
+        businessId,
+        role,
+        permittedLocations,
+    } = socket.data.user;
+
+    console.log(`Authenticated socket connected: ${socket.id}`);
 
     socket.on("disconnect", (reason) => {
         console.log(`Socket disconnected: ${socket.id} ${reason}`);
