@@ -3,9 +3,9 @@
  * throughout the codebase 
  */
 const roomNames = {
-    business: (businessId) => `business ${businessId}`,
-    conversation: (conversationId) => `conversation: ${conversationId}`,
-    user: (userId) => `user: ${userId}`
+    business: (businessId) => `business:${businessId}`,
+    conversation: (conversationId) => `conversation:${conversationId}`,
+    user: (userId) => `user:${userId}`
 };
 
 module.exports = roomNames;
