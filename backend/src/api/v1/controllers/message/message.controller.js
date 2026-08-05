@@ -113,10 +113,6 @@ module.exports.sendNewMessage = async (req, res, next) => {
             deliveryStatus: sender.direction === "inbound"
                 ? "delivered"
                 : "sent",
-            
-            processingStatus: sender.direction === "inbound"
-                ? "pending"
-                : null,
                     
             receivedAt: sender.direction === "inbound" 
                 ? new Date()

@@ -40,9 +40,14 @@ const MessageSchema = new mongoose.Schema({
     },
     processingStatus: {
         type: String,
-        enum: ["pending", "processed", "failed", "needs_review"],
+        enum: ["not_applicable", "pending", "processed", "failed", "needs_review"],
+        default: function () {
+            return this.direction === "inbound" 
+                ? "pending"
+                : "not_applicable";
+        },
         index: true,
-        default: "pending"
+        required: true
     },
     // pending: message received, but AI processing it
     // proccessed: AI parsing the intent 
