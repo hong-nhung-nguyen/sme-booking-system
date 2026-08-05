@@ -9,8 +9,11 @@ const express = require("express");
 const helmet = require("helmet");
 require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 
+// Socket.IO
 const authenticateSocket = require("./src/middlewares/authenticateSocket.middleware");
 const registerRoomHandler = require("./src/socket/registerRoomHandlers");
+const socketEmitter = require("./src/socket/socketEmitter");
+// End Socket.IO
 
 const app = express();
 // Create the server after creating the app
@@ -30,6 +33,19 @@ const io = new Server(httpServer, {
         credentials: true,
     },
 });
+
+/**
+ * Application starts
+ * -> Socket.IO instance created
+ * -> socketEmitter.initialise(io)
+ * -> socketEmitter stores io
+ * -> Services can emit events through socketEmitter
+ * 
+ * xxx server.js imports routes
+ * xxx Services import server.js
+ * --> Circular dependency
+ */
+socketEmitter.initialise(io);
 
 // run authentication for all the attempts to connect a socket ID
 io.use(authenticateSocket);
