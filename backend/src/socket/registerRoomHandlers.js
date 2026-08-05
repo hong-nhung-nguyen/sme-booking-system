@@ -1,11 +1,8 @@
 const mongoose = require("mongoose");
 const conversationService = require("../services/message/conversation.service");
 const roomNames = require("./roomNames");
-
-const INVALID_CONVERSATIONS = {
-    success: false,
-    message: "Conversation not found"
-};
+const socketEvents = require("./socketEvents");
+const { socketSuccess, socketError } = require("./socketResponses");
 
 module.exports = (socket) => {
     const { userId, businessId } = socket.data.user;
@@ -19,7 +16,7 @@ module.exports = (socket) => {
     socket.join(roomNames.user(userId));
 
     // socket.on = Listen for an event to this socket, then run the callback 
-    socket.on("conversation:join", async (payload = {}, acknowledge) => {
+    socket.on(socketEvents.client.CONVERSATION_JOIN, async (payload = {}, acknowledge) => {
         const respond = typeof acknowledge === "function" 
             ? acknowledge 
             : () => {};
@@ -30,7 +27,12 @@ module.exports = (socket) => {
             !conversationId ||
             !mongoose.isValidObjectId(conversationId)
         ) {
-            return respond(INVALID_CONVERSATIONS);
+            return respond(
+                socketError(
+                    "CONVERSATION_NOT_FOUND",
+                    "Conversation not found"
+                )
+            );
         }
 
         try {
@@ -39,16 +41,19 @@ module.exports = (socket) => {
 
             await socket.join(roomNames.conversation(conversationId));
 
-            return respond({
-                success: true,
-                conversationId
-            });
-        } catch {
-            return respond(INVALID_CONVERSATIONS);
+            return respond(socketSuccess({conversationId}));
+            
+        } catch (error) {
+            return respond(
+                socketError(
+                    "CONVERSATION_NOT_FOUND",
+                    error.message
+                )
+            );
         }
     });
 
-    socket.on("conversation:leave", async (payload = {}, acknowledge) => {
+    socket.on(socketEvents.client.CONVERSATION_LEAVE, async (payload = {}, acknowledge) => {
         const respond = typeof acknowledge === "function"
             ? acknowledge
             : () => {}
@@ -59,14 +64,18 @@ module.exports = (socket) => {
             !conversationId ||
             !mongoose.isValidObjectId(conversationId)
         ) {
-            return respond(INVALID_CONVERSATIONS);
+            return respond(
+                socketError(
+                    "CONVERSATION_NOT_FOUND",
+                    "Conversation not found"
+                )
+            );
         }
 
         await socket.leave(roomNames.conversation(conversationId));
 
-        return respond({
-            success: true,
-            conversationId
-        });
+        return respond(
+            socketSuccess({conversationId})
+        );
     });
 }
