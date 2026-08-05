@@ -1,7 +1,6 @@
 const messageService = require("../../../../services/message/message.service");
 const conversationService = require("../../../../services/message/conversation.service");
 const intentParserService = require("../../../../services/ai/intentParser.service");
-
 const getMessageSender = require("../../../../utils/getMessageSender");
 
 // [GET] /api/v1/message/conversations

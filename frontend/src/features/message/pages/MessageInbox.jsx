@@ -128,23 +128,48 @@ export default function MessageInbox() {
   const [navigationOpen, setNavigationOpen] = useState(true);
 
   useEffect(() => {
+    const handleMessageCreated = ({ message }) => {
+      // Add message to local state
+    };
+
+    const handleIntentReady = ({ message }) => {
+      // Replace the pending message with the proccessed version.
+    };
+
+    const handleProcessingFailed = ({ messageId, processingError }) => {
+      // Mark the matching message as failed.
+    };
+
+    socket.on(
+      SOCKET_EVENTS.MESSAGE_CREATED,
+      handleMessageCreated
+    );
+    socket.on(
+      SOCKET_EVENTS.MESSAGE_INTENT_READY,
+      handleIntentReady
+    );
+    socket.on(
+      SOCKET_EVENTS.MESSAGE_PROCESSING_FAILED,
+      handleProcessingFailed
+    );
+
+    // Because autoConnect is set to false
     socket.connect();
-
-    function handleConnect() {
-      console.log("Socket connected: ", socket.id);
-    }
-
-    function handleNewMessage(message) {
-      console.log("New message: ", message);
-    }
-
-    socket.on("connect", handleConnect);
-    socket.on("message:new", handleNewMessage);
 
     // runs when MessageInbox unmounts.
     return () => {
-      socket.off("connect", handleConnect);
-      socket.off("message:new", handleNewMessage);
+      socket.off(
+        SOCKET_EVENTS.MESSAGE_CREATED,
+        handleMessageCreated
+      );
+      socket.off(
+        SOCKET_EVENTS.MESSAGE_INTENT_READY,
+        handleIntentReady
+      );
+      socket.off(
+        SOCKET_EVENTS.MESSAGE_PROCESSING_FAILED,
+        handleProcessingFailed
+      );
       socket.disconnect();
     };
   }, []);
