@@ -43,11 +43,17 @@ const validateParsedIntent = (data) => {
      *      data: validatedData 
      * }
      */
+
+    /**
+     * Make validation explicit. Throw error instead of returning the
+     * default intent when Zod validation fails 
+     */
     const result = intentSchemaZod.safeParse(data);
 
     if (!result.success) {
-        console.log("Invalid JSON output: ", result.error.flatten());
-        return defaultParsedIntent;
+        const error = new Error("OpenAI returned an invalid intent");
+        error.cause = result.error;
+        throw error;
     }
     
     return result.data;
@@ -68,10 +74,7 @@ const parseMessageIntent = async (message) => {
     const openai = getClient();
 
     if (!openai) {
-        console.warn(
-            "OPENAI_API_KEY is not set — skipping intent parsing."
-        );
-        return defaultParsedIntent;
+        throw new Error("OPEN_API_KEY is not configured");
     }
 
     try {
@@ -83,15 +86,20 @@ const parseMessageIntent = async (message) => {
             }
         });
 
-        const parsedIntent = response.output_parsed;
+        /**
+         * Throw errors for every OpenAI failures instead of 
+         * returning default schema with confidence = 0 
+         */
 
-        if (!parsedIntent || parsedIntent === null) return defaultParsedIntent;
+        if (!response.output_parsed) {
+            throw new Error("OpenAI returned no parsed intent");
+        }
         
-        return validateParsedIntent(parsedIntent);
+        return validateParsedIntent(response.output_parsed);
 
     } catch (error) {
         console.error("OpenAI intent parsing failed: ", error.message);
-        return defaultParsedIntent;
+        throw error;
     }
     
 };
