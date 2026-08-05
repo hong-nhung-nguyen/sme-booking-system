@@ -64,9 +64,18 @@ const validateParsedIntent = (data) => {
 const parseMessageIntent = async (message) => {
     if (!message || typeof message !== "string") {
         return defaultParsedIntent;
-    }
+    };
 
-    const prompt = parseMessagePrompt(new Date(), message);
+    const businessTimezone = "Australia/Sydney";
+
+    const currentDate = new Intl.DateTimeFormat("en-CA", {
+        timeZone: businessTimezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).format(new Date());
+
+    const prompt = parseMessagePrompt(currentDate, businessTimezone, message);
     if (!prompt || typeof prompt !== "string") {
         return defaultParsedIntent;
     }

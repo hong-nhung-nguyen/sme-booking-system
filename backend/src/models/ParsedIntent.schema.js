@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
+const {
+    INTENT_ACTIONS,
+    DATE_PATTERN,
+    TIME_PATTERN
+} = require("../services/ai/intent.schema");
 
 const ParsedIntentSchema = new mongoose.Schema({
     action: {
         type: String,
-        enum: ["book", "cancel", "reschedule", "check_availability", "general_inquiry", "undefined"],
-        default: null
-    },
-    confidence: {
-        type: Number,
-        min: 0,
-        max: 1
+        enum: INTENT_ACTIONS,
+        required: true
     },
     service: {
         type: String,
@@ -18,22 +18,30 @@ const ParsedIntentSchema = new mongoose.Schema({
     },
     preferredDate: {
         type: String,
-        match: /^\d{4}-\d{2}-\d{2}$/,
+        match: DATE_PATTERN,
         default: null
     },
     preferredTime:{
-        type: Date,
+        type: String,
+        match: TIME_PATTERN,
         default: null
     },
     clientName: {
         type: String,
+        trim: true,
         default: null
     },
     clientContact: {
         type: String,
+        trim: true,
         default: null
+    },
+    confidence: {
+        type: Number,
+        min: 0,
+        max: 1,
+        required: true
     }
-    
 }, {
     _id: false
 })
