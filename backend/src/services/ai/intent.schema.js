@@ -3,33 +3,34 @@ const OpenAi = require("openai");
 const zodTextFormat = require("openai/helpers/zod");
 const z = require("zod");
 
+const INTENT_ACTIONS = [
+    "book",
+    "cancel",
+    "reschedule",
+    "check_availability",
+    "general_inquiry",
+    "undefined"
+];
+
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+
 const parsedIntentZod = z
     .object({
-        action: z.enum([
-            "book", 
-            "cancel", 
-            "reschedule", 
-            "check_availability", 
-            "general_inquiry", 
-            "undefined"
-        ]).nullable(),
-
-        service: z.string().nullable(),
-
+        action: z.enum(INTENT_ACTIONS),
+        service: z.string().trim().min(1).nullable(),
         clientName: z.string().trim().min(1).nullable(),
-
-        clientContact: z.string().nullable(),
-
+        clientContact: z.string().trim().min(1).nullable(),
         preferredDate: z
             .string()
+            .regex(DATE_PATTERN, "Expected YYYY-MM-DD")
             .nullable()
             .describe("Date in YYYY-MM-DD format, or null if missing"),
-
         preferredTime: z
             .string()
+            .regex(TIME_PATTERN, "Expected HH:mm")
             .nullable()
-            .describe("If preferredDate exists, return UTC ISO string. If preferredDate is null, return HH:mm local time. If missing, return null."),
-            
+            .describe("return UTC ISO string. If preferredDate is null, return HH:mm local time. If missing, return null."),
         confidence: z.number().min(0).max(1)
     })
     .strict() // reject extra fields that are not defined in the schema 
