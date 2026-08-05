@@ -2,9 +2,9 @@ const conversationRepository = require("../../repository/conversation.repository
 const messageRepository = require("../../repository/message.repository");
 const clientRepository = require("../../repository/client.repository");
 const appointmentRepository = require("../../repository/appointment.repository");
-
 const conversationService = require("./conversation.service");
-const aiProcessingService = require("./aiProcessing.service");
+const messageProcessingDispatcher = require("./messageProcessingDispatcher");
+const socketEmitter = require("../../socket/socketEmitter");
 
 // should already have the clientId before create a new Message document 
 
@@ -63,11 +63,9 @@ module.exports.createMessageRecord = async (data) => {
         ...data,
         conversationId
     }; 
-
     const message = await messageRepository.create(record);
 
     // 3. Update conversation summary and unread count 
-
     /**
      * Store a small denormalized summary on the conversation so the inbox does not need
      * to query the message collection for every row 
@@ -99,25 +97,30 @@ module.exports.createMessageRecord = async (data) => {
     );
 
     // 4. Emit only after persistence succeeds
-    /**
-     *  socketEmitter.emitMessageCreated({
-            businessId: input.businessId,
-            conversationId: conversation._id,
-            message,
-            conversation: updatedConversation
-        });
-     */
+    socketEmitter.emitMessageCreated({
+        businessId: data.businessId,
+        conversationId,
+        message,
+        conversation: updatedConversation
+    });
+    
 
-    // 5. Start AI intent processing
-    let processedMessage;
-    if (data.direction === "inbound") {
-        processedMessage = await aiProcessingService.processMessageIntent(data.businessId, message._id);
+    // 5. Start AI intent processing without awaiting it
+    if (message.direction === "inbound") {
+        messageProcessingDispatcher.enqueue({
+            businessId: data.businessId,
+            messageId: message._id
+        });
     }
 
-    // ---------------------- END
+    // Return the originally saved message ------------- END
+    /**
+    Do not return `processedMessage` because the HTTP response
+    must contain the inital pending state
+     */
     return {
         conversation: updatedConversation,
-        message: processedMessage || message
+        message
     };
 };
 
