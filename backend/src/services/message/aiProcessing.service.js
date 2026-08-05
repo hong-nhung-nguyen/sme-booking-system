@@ -1,6 +1,6 @@
 const intentParserService = require("../ai/intentParser.service");
-
 const messageRepository = require("../../repository/message.repository");
+const socketEmitter = require("../../socket/socketEmitter");
 
 module.exports.processMessageIntent = async (businessId, messageId) => {
     const message = await messageRepository.findOne({
@@ -37,21 +37,24 @@ module.exports.processMessageIntent = async (businessId, messageId) => {
             }
         );
 
-        /*
         socketEmitter.emitIntentReady({
             businessId,
             conversationId: message.conversationId,
             message: processedMessage
         });
-        */
-
+        
         return processingMessage;
 
     } catch (error) {
         const failedMessage = await messageRepository.findOneAndUpdate(
             {
                 _id: messageId,
-                businessId
+                businessId,
+                /**
+                 * Including pending prevents an old retry from
+                 * overwriting a message that has already completed
+                 */
+                processingStatus: "pending"
             },
             {
                 $set: {
@@ -61,14 +64,13 @@ module.exports.processMessageIntent = async (businessId, messageId) => {
             }
         );
 
-        /*
-        socketEmitter.emitIntentFailed({
-            businessId,
-            conversationId: message.conversationId,
-            messageId,
-            error: "Intent processing failed"
-        });
-        */
+        if (failedMessage) {
+            socketEmitter.emitIntentFailed({
+                businessId,
+                conversationId: message.conversationId,
+                message: failedMessage,
+            });
+        }
 
         return failedMessage;
     }
