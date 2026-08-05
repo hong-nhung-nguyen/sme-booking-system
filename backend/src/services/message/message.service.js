@@ -32,8 +32,15 @@ module.exports.createMessageRecord = async (data) => {
      */
 
     // 1. Find or create conversation for inbound message
-    if (data.direction === "inbound") {
-        const { created, conversation } = await conversationService.findOneOrCreateConversation({ businessId, clientId });
+    let conversation = null;
+
+    if (data.direction === "inbound" && !data.conversationId) {
+        const result = await conversationService.findOneOrCreateConversation({ 
+            businessId: data.businessId,
+            clientId: data.clientId
+        });
+
+        conversation = result.conversation;
 
         if (!conversation) {
             const error = new Error("Cannot assign the according conversation");
@@ -42,7 +49,13 @@ module.exports.createMessageRecord = async (data) => {
         }
     }
 
-    const conversationId = data.conversationId ? data.conversationId : conversation._id;
+    const conversationId = data.conversationId ?? conversation?._id;
+
+    if (!conversationId) {
+        const error = new Error("Conversation ID is not found");
+        error.status = 404;
+        throw error;
+    }
 
     // 2. Persist the message 
     const record = {
