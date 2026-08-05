@@ -2,6 +2,7 @@ import { socket } from "../../../shared/api/socket.js";
 import { NavLink } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import NavSider from '../../../shared/ui/NavSider/NavSider';
+import { SOCKET_EVENTS } from "../../../shared/api/socketEvents.js";
 import './MessageInbox.css';
 
 const conversations = [
