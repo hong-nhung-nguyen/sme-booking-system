@@ -8,7 +8,9 @@ const dns = require("node:dns");
 const express = require("express");
 const helmet = require("helmet");
 require("dotenv").config({ path: path.resolve(__dirname, ".env") });
+
 const authenticateSocket = require("./src/middlewares/authenticateSocket.middleware");
+const registerRoomHandler = require("./src/socket/registerRoomHandlers");
 
 const app = express();
 // Create the server after creating the app
@@ -43,12 +45,7 @@ io.use(authenticateSocket);
  * object and passes it to the callback.
  */
 io.on("connection", (socket) => {
-    const {
-        userId,
-        businessId,
-        role,
-        permittedLocations,
-    } = socket.data.user;
+    registerRoomHandler(socket);
 
     console.log(`Authenticated socket connected: ${socket.id}`);
 
