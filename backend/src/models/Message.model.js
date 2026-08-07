@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const ParsedIntentSchema = require("./ParsedIntent.schema");
+const IntentEnrichmentSchema = require("./IntentEnrichment.schema");
 
 const MessageSchema = new mongoose.Schema({
     businessId: {
@@ -37,6 +38,10 @@ const MessageSchema = new mongoose.Schema({
     },
     parsedIntent: {
         type: ParsedIntentSchema,
+    },
+    intentEnrichment: {
+        type: IntentEnrichmentSchema,
+        default: null
     },
     processingStatus: {
         type: String,
