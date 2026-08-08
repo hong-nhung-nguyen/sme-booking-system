@@ -15,33 +15,75 @@ const requireIo = () => {
     return io;
 };
 
+const emitToMessageRooms = ({
+    businessId,
+    conversationId,
+    event,
+    payload
+}) => {
+    if (!businessId || !conversationId) {
+        throw new TypeError("businessId and conversationId are required");
+    }
+
+    requireIo()
+        .to(roomNames.business(String(businessId)))
+        .to(roomNames.conversation(String(conversationId)))
+        .emit(event, payload);
+}
+
 const emitMessageCreated = ({
     businessId,
     conversationId,
     message,
     conversation
 }) => {
-    const payload = { message, conversation };
-    const socketServer = requireIo();
+    emitToMessageRooms({
+        businessId,
+        conversationId,
+        event: socketEvents.server.MESSAGE_CREATED,
+        payload: {
+            messageId: String(message._id),
+            conversationId: String(conversationId),
+            processingStatus: message.processingStatus,
+            message,
+            conversation
+        }
+    });
+};
 
-    socketServer   
-        .to(roomNames.business(businessId))
-        .to(roomNames.conversation(conversationId))
-        .emit(socketEvents.server.MESSAGE_CREATED, payload);
+const emitProcessing = ({
+    businessId,
+    conversationId,
+    messageId
+}) => {
+    emitToMessageRooms({
+        businessId,
+        conversationId,
+        event: socketEvents.server.MESSAGE_PROCESSING,
+        payload: {
+            messageId: String(messageId),
+            conversationId: String(conversationId),
+            processingStatus: "pending"
+        }
+    });
 };
 
 const emitIntentReady = ({
     businessId,
     conversationId,
-    message
+    messageId
 }) => {
-    const payload = { message };
-    const socketServer = requireIo();
-
-    socketServer
-        .to(roomNames.business(businessId))
-        .to(roomNames.conversation(conversationId))
-        .emit(socketEvents.server.MESSAGE_INTENT_READY, payload)
+    emitToMessageRooms({
+        businessId,
+        conversationId,
+        event: socketEvents.server.MESSAGE_INTENT_READY,
+        payload: {
+            messageId: String(messageId),
+            conversationId: String(conversationId),
+            processingStatus: message.processingStatus,
+            message
+        }
+    });
 };
 
 const emitIntentFailed = ({
@@ -49,24 +91,26 @@ const emitIntentFailed = ({
     conversationId,
     message
 }) => {
-    const payload = {
-        message: message._id,
+    emitToMessageRooms({
+        businessId,
         conversationId,
-        processingStatus = message.processingStatus,
-        processingError = message.processingError
-    };
-    const socketServer = requireIo();
-
-    socketServer
-        .to(roomNames.business(businessId))
-        .to(roomNames.conversation(conversationId))
-        .emit(socketEvents.server.MESSAGE_PROCESSING_FAILED, payload);
-
+        event:
+            socketEvents.server.MESSAGE_PROCESSING_FAILED,
+        payload: {
+            messageId: String(message._id),
+            conversationId: String(conversationId),
+            processingStatus: "failed",
+            processingError:
+                message.processingError ??
+                "Intent processing failed"
+        }
+    });
 };
 
 module.exports = {
     initialise,
     emitMessageCreated,
+    emitProcessing,
     emitIntentReady,
     emitIntentFailed
 };

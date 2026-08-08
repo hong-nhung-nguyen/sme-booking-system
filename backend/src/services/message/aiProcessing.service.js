@@ -64,7 +64,7 @@ module.exports.processMessageIntent = async (businessId, messageId) => {
 
         const intentEnrichment = await intentEnrichmentService.enrich({
             businessId,
-            locationId = null,
+            locationId: null,
             knownClientId,
             parsedIntent
         })
