@@ -22,7 +22,7 @@ const determineProcessingStatus = ({
         return "needs_review";
     }
 
-    if (hasAmbiguousMatch) {
+    if (hasAmbiguousMatch(enrichment)) {
         return "needs_review";
     }
 
@@ -57,8 +57,25 @@ module.exports.processMessageIntent = async (businessId, messageId) => {
         throw error;
     };
 
-    const knownClientId = message.conversationId.clientId
+    const conversation = message.conversationId;
 
+    if (!conversation) {
+        const error = new Error("Message Conversation was not found");
+        error.status = 404;
+        throw error;
+    }
+
+    const conversationId = conversation._id;
+    const knownClientId = conversationId.clientId ?? null;
+
+    // Emit message:processing
+    socketEmitter.emitProcessing({
+        businessId,
+        conversationId,
+        messageId: message._id
+    });
+
+    // Processing message
     try {
         const parsedIntent = await intentParserService(message.body);
 
