@@ -36,5 +36,112 @@ const classifyCandidates = (candidates, reasons) => {
         ),
         reason: reasons.ambiguous
     };
+};
+
+const splitContact = (clientContact) => {
+    if (!clientContact) {
+        return {
+            email: null,
+            phone: null
+        }
+    }
+
+    const contact = clientContact.trim();
+
+    if (contact.includes("@")) {
+        return {
+            email: contact.toLowerCase(),
+            phone: null
+        }
+    }
+
+    return {
+        email: null,
+        phone: contact 
+    };
+}
+
+// Client enrichment 
+const matchClient = async ({
+    businessId,
+    parsedIntent,
+    knownClientId
+}) => {
+    if (knownClientId) {
+        const candidates = await clientRepository.findCandidatesById({
+            businessId,
+            clientId: knownClientId
+        });
+
+        return classifyCandidates(candidates, {
+            notFound: "Known client was not found in the business",
+            ambiguous: "Multiple client records matched"
+        });
+    }
+
+    const { email, phone } = splitContact(parsedIntent.clientContact);
+
+    if (!email && !phone) {
+        return notAttempted("The intent contains no customer contact");
+    }
+
+    const candidates = await clientRepository.findCandidatesForIntent({
+        businessId,
+        email,
+        phone
+    });
+
+    return classifyCandidates(candidates, {
+        notFound: "No client matched the supplied contact",
+        ambiguous: "Multiple clients matched the supplied contact"
+    });
+};
+
+// Service enrichment
+const matchService = async ({
+    businessId,
+    parsedIntent
+}) => {
+    if (!parsedIntent.service) {
+        return notAttempted("The intent contains no requested service")
+    };
+
+    const candidates = await serviceRepository.findCandidatesForIntent({
+        businessId,
+        serviceName: parsedIntent.service
+    });
+
+    return classifyCandidates(candidates, {
+        notFound: "No active service matched",
+        ambiguous: "Multiple active services matched"
+    });
+};
+
+// Appointment enrichment
+const matchAppointment = async ({
+    businessId,
+    locationId,
+    parsedIntent,
+    clientMatch,
+    serviceMatch
+}) => {
+    if (clientMatch.status !== "matched") {
+        return notAttempted("A unique client is required");
+    }
+
+    const candidates = await appointmentRepository.findCandidatesForIntent({
+        businessId,
+        locationId,
+        clientId: clientMatch.matchedId,
+        serviceId: serviceMatch.status === "matched"
+            ? serviceMatch.matchedId
+            : null,
+        data: parsedIntent.preferredData
+    });
+
+    return classifyCandidates(candidates, {
+        notFound: "No active appointment matched",
+        ambiguous: "Multiple active appointments matched"
+    })
 }
 

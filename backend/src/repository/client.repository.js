@@ -8,6 +8,25 @@ module.exports.findOne = async (query) => {
     return await Client.findOne(query);
 };
 
+module.exports.findCandidatesById = async ({
+    businessId,
+    clientId
+}) => {
+    if (!businessId) {
+        throw new TypeError("businessId is required");
+    }
+
+    if (!clientId) return [];
+
+    return await Client.find({
+        _id: clientId,
+        businessId
+    })
+        .select("_id")
+        .limit(2)
+        .lean();
+};
+
 module.exports.findCandidatesForIntent = async ({
     businessId, 
     email,
