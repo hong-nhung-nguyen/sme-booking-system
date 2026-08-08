@@ -143,5 +143,47 @@ const matchAppointment = async ({
         notFound: "No active appointment matched",
         ambiguous: "Multiple active appointments matched"
     })
-}
+};
+
+module.exports.enrich = async ({
+    businessId,
+    locationId = null,
+    knownClientId = null,
+    parsedIntent
+}) => {
+    if (!businessId) {
+        throw new TypeError("businessId is required");
+    }
+
+    const client = await matchClient({
+        businessId,
+        parsedIntent,
+        knownClientId
+    });
+
+    const service = await matchService({
+        businessId,
+        parsedIntent
+    });
+
+    const appointment = await matchAppointment({
+        businessId,
+        locationId,
+        parsedIntent,
+        clientMatch: client,
+        serviceMatch: service
+    });
+
+    /**
+     * run sequentially because appointment matching depends on
+     * client and service matchings
+     */
+
+    return {
+        client,
+        appointment,
+        service, 
+        enrichedAt: new Date()
+    };
+};
 

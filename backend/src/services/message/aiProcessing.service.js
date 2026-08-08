@@ -1,36 +1,89 @@
+const intentEnrichmentService = require("./intentEnrichment.service");
 const intentParserService = require("../ai/intentParser.service");
 const messageRepository = require("../../repository/message.repository");
 const socketEmitter = require("../../socket/socketEmitter");
+
+
+// Decide whether review is required 
+const hasAmbiguousMatch = (enrichment) => Object.values(enrichment).some(
+    (match) => match &&
+                typeof match === "object" &&
+                match.status === "ambiguous"
+);
+
+const requiredResolvedAppointment = (action) => 
+    action === "cancel" || action === "reschedule";
+
+const determineProcessingStatus = ({
+    parsedIntent,
+    enrichment
+}) => {
+    if (parsedIntent.confidence < 0.8) {
+        return "needs_review";
+    }
+
+    if (hasAmbiguousMatch) {
+        return "needs_review";
+    }
+
+    if (
+        requiredResolvedAppointment(parsedIntent.action) &&
+        enrichment.appointment.status !== "matched"
+    ) {
+        return "needs_review";
+    }
+
+    if (
+        parsedIntent.action === "book" &&
+        enrichment.service.status !== "matched"
+    ) {
+        return "needs_review";
+    }
+
+    return "processed";
+}
 
 module.exports.processMessageIntent = async (businessId, messageId) => {
     const message = await messageRepository.findOne({
         _id: messageId,
         businessId,
         direction: "inbound"
-    });
+    })
+        .populate("conversationId", "clientId");
 
     if (!message) {
         const error = new Error("Inbound message not found");
         error.status = 404;
         throw error;
-    }
+    };
+
+    const knownClientId = message.conversationId.clientId
 
     try {
         const parsedIntent = await intentParserService(message.body);
 
-        const processingStatus = parsedIntent.confidence >= 0.8 
-            // automation to be soon implemented
-            ? "processed"
-            : "needs_review";
+        const intentEnrichment = await intentEnrichmentService.enrich({
+            businessId,
+            locationId = null,
+            knownClientId,
+            parsedIntent
+        })
+
+        const processingStatus = determineProcessingStatus({
+            parsedIntent,
+            enrichment: intentEnrichment
+        });
         
-        const processingMessage = await messageRepository.findOneAndUpdate(
+        const processedMessage = await messageRepository.findOneAndUpdate(
             {
                 _id: messageId,
-                businessId
+                businessId,
+                processingStatus: "pending"
             }, 
             {
                 $set: {
                     parsedIntent,
+                    intentEnrichment,
                     processingStatus,
                     processingError: null
                 }
@@ -43,7 +96,7 @@ module.exports.processMessageIntent = async (businessId, messageId) => {
             message: processedMessage
         });
         
-        return processingMessage;
+        return processedMessage;
 
     } catch (error) {
         const failedMessage = await messageRepository.findOneAndUpdate(
