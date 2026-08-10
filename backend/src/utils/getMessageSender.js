@@ -1,5 +1,5 @@
 module.exports = (authenticatedActor) => {
-    if (authenticatedActor === "client") {
+    if (authenticatedActor === "client" && authenticatedActor.clientId) {
         return {
             direction: "inbound",
             senderType: "client",
@@ -20,5 +20,7 @@ module.exports = (authenticatedActor) => {
         };
     }
 
-    throw new Error("Unsupported message sender");
-}
+    const error = new Error("Unsupported message sender");
+    error.status = 403;
+    throw error;
+};

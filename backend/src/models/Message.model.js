@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const ParsedIntentSchema = require("./ParsedIntent.schema");
+const IntentEnrichmentSchema = require("./IntentEnrichment.schema");
 
 const MessageSchema = new mongoose.Schema({
     businessId: {
@@ -38,11 +39,20 @@ const MessageSchema = new mongoose.Schema({
     parsedIntent: {
         type: ParsedIntentSchema,
     },
+    intentEnrichment: {
+        type: IntentEnrichmentSchema,
+        default: null
+    },
     processingStatus: {
         type: String,
-        enum: ["pending", "processed", "failed", "needs_review"],
+        enum: ["not_applicable", "pending", "processed", "failed", "needs_review"],
+        default: function () {
+            return this.direction === "inbound" 
+                ? "pending"
+                : "not_applicable";
+        },
         index: true,
-        default: "pending"
+        required: true
     },
     // pending: message received, but AI processing it
     // proccessed: AI parsing the intent 

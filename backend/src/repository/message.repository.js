@@ -54,7 +54,7 @@ module.exports.create = async (record) => {
     return await Message.create(record);
 };
 
-module.exports.findOneAndUpdate = async (query, updateData) => {
+module.exports.findOneAndUpdate = async (query, updatedData) => {
     return await Message.findOneAndUpdate(
         query,
         updatedData,

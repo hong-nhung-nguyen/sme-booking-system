@@ -32,6 +32,35 @@ module.exports.findOneByQuery = async (query) => {
         .populate("serviceId", "name");
 };
 
+module.exports.findCandidatesForIntent = async ({
+    businessId,
+    locationId,
+    clientId,
+    serviceId,
+    date
+}) => {
+    if (!businessId) {
+        throw new TypeError("businessId is required");
+    }
+
+    if (!clientId) return [];
+
+    return await Appointment.find({
+        businessId,
+        clientId,
+        status: {
+            $nin: ["failed"]
+        },
+        ...(locationId && { locationId }),
+        ...(serviceId && { serviceId }),
+        ...(date && { date })
+    })
+        .select("_id")
+        .sort({ startTime: 1, _id: -1})
+        .limit(2)
+        .lean();
+};
+
 module.exports.create = async (data) => {
     return await Appointment.create(data);
 };

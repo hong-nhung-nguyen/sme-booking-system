@@ -1,4 +1,4 @@
-module.exports = (currentDate, message) => {
+module.exports = (currentDate, businessTimezone, message) => {
 return `
 You are helping a booking system extract structured data from customer messages.
 
@@ -7,11 +7,13 @@ Extract the customer's booking intent from the message.
 Return ONLY valid JSON. Do not include explanations, markdown, or extra text.
 
 Current context:
-- Current date: ${currentDate} 
+- Current local date: ${currentDate} 
+- Business timezone: ${businessTimezone}
 
 Rules:
 1. action:
    - Use one of: "book", "cancel", "reschedule", "check_availability", "general_inquiry", "undefined".
+   - Use "undefined" only when the customer's intent cannot be identified.
    - If the customer wants to make a booking, use "book".
    - If the customer wants to change an existing booking, use "reschedule".
    - If the customer wants to cancel, use "cancel".
@@ -24,7 +26,7 @@ Rules:
    - If not mentioned, use null.
 
 3. preferredDate:
-   - Convert any date mentioned by the customer into YYYY-MM-DD format.
+   - preferredDate must be YYYY-MM-DD in the business's local calendar.
    - The format must match this regex: /^\\d{4}-\\d{2}-\\d{2}$/.
    - Examples:
      - "tomorrow" should be converted using the current date.
@@ -34,18 +36,11 @@ Rules:
 
 4. preferredTime:
    - Extract the preferred time if mentioned.
-   - If preferredDate is present, convert preferredTime into UTC ISO datetime format.
-   - Use the business timezone to convert the local date and time into UTC.
+   - Do not convert preferredTime to UTC.
    - Example:
-     - preferredDate: "2026-07-14"
      - customer says: "2pm"
      - business timezone: "Australia/Melbourne"
-     - preferredTime should be like: "2026-07-14T04:00:00.000Z"
-   - If preferredDate is null but time is mentioned, return preferredTime in 24-hour HH:mm format.
-   - Example:
-     - customer says: "at 2pm"
-     - preferredDate: null
-     - preferredTime: "14:00"
+     - preferredTime should be like: "14:00"
    - If no time is mentioned, use null.
 
 5. clientName:
@@ -83,6 +78,6 @@ Return JSON in exactly this structure:
 }
 
 Customer message:
-"${message}"
+${message}
 `
 } 

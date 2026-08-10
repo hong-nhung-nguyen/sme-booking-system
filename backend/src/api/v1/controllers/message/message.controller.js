@@ -1,7 +1,6 @@
 const messageService = require("../../../../services/message/message.service");
 const conversationService = require("../../../../services/message/conversation.service");
 const intentParserService = require("../../../../services/ai/intentParser.service");
-
 const getMessageSender = require("../../../../utils/getMessageSender");
 
 // [GET] /api/v1/message/conversations
@@ -113,10 +112,6 @@ module.exports.sendNewMessage = async (req, res, next) => {
             deliveryStatus: sender.direction === "inbound"
                 ? "delivered"
                 : "sent",
-            
-            processingStatus: sender.direction === "inbound"
-                ? "pending"
-                : null,
                     
             receivedAt: sender.direction === "inbound" 
                 ? new Date()
