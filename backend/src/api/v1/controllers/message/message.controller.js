@@ -193,4 +193,43 @@ module.exports.editOneConversation = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+// [POST] /api/v1/message/conversations/:conversationId/resolve
+module.exports.resolveConversation = async (req, res, next) => {
+    try {
+        const conversation = await conversationService.resolveConversation({
+            businessId: req.params.businessId,
+            conversationId: req.params.conversationId,
+            resolvedBy: req.body.resolvedBy
+        });
+
+        return res.status(200).json({
+            success: true,
+            conversation
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// [POST] /api/v1/message/conversations/:conversationId/read
+module.exports.markConversationRead = async (req, res, next) => {
+    try {
+
+        const conversation = await conversationService.markConversationRead({
+            businessId: req.params.businessId,
+            conversationId: req.params.conversationId,
+            userId: req.user.userId
+        });
+
+        return res.status(200).json({
+            success: true,
+            conversation
+        });
+
+    } catch (error) {
+        next(error);
+    }
 }
