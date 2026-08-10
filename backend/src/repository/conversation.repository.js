@@ -23,8 +23,10 @@ module.exports.findMany = async ({businessId, limit=20, cursor, status}) => {
 
     const query = {
         businessId,
-        ...(status && { status }),
-        status: { $ne: "resolved" }
+        ...(status
+            ? { status }
+            : { status: { $ne: "resolved" } }
+        ),
     };
 
     if (cursor) {
