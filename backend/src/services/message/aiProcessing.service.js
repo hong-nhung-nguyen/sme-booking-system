@@ -107,6 +107,9 @@ module.exports.processMessageIntent = async (businessId, messageId) => {
             }
         );
 
+        // Only emit success when processedMessage exists
+        if (!processedMessage) return null;
+
         socketEmitter.emitIntentReady({
             businessId,
             conversationId: message.conversationId,

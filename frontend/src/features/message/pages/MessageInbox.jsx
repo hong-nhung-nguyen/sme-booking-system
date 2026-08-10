@@ -121,28 +121,93 @@ const navItems = [
 ];
 
 export default function MessageInbox() {
+  const [liveMessages, setLiveMessages] = useState([]);
   const [selectedId, setSelectedId] = useState('sarah');
   const [reply, setReply] = useState('');
   const [showDraft, setShowDraft] = useState(true);
   const [sentMessages, setSentMessages] = useState([]);
   const [navigationOpen, setNavigationOpen] = useState(true);
 
+  const upsertMessage = (incomingMessage) => {
+    const incomingId = String(incomingMessage._id);
+
+    setLiveMessages((currentMessages) => {
+      const existingIndex = currentMessages.findIndex(
+        (message) => String(message._id) === incomingId
+      );
+
+      // check if the incoming message is a new message
+      // or already exists and needs updating 
+      if (existingIndex === -1) {
+        return [...currentMessages, incomingMessage];
+      }
+
+      return currentMessages.map((message, index) => 
+        index === existingIndex 
+          /**
+           * Start with the old message, then overwrite 
+           * any matching properties with the new values.
+           */
+          ? {
+            ...message,
+            ...incomingMessage
+          }
+          // Keep the original message 
+          : messageId  
+      );
+    });
+  };
+
+  // Status-only events
+  const updateMessageStatus = (messageId, processingStatus, extra = {}) => {
+    setLiveMessages((currentMessages) => currentMessages.map(
+      (message) => String(message._id) === String(messageId)
+        ? {
+          ...message,
+          processingStatus,
+          ...extra
+        }
+        : message
+    ));
+  };
+
+  // Implement frontend event handlers
+  /**
+   * subscribe when mounted
+   * unsubscribe when unmounted
+   */
   useEffect(() => {
-    const handleMessageCreated = ({ message }) => {
-      // Add message to local state
+    const handleMessageCreated = ({ messageId, message }) => {
+      if (String(messageId) !== String(message._id)) return;
+
+      upsertMessage(message);
     };
 
-    const handleIntentReady = ({ message }) => {
-      // Replace the pending message with the proccessed version.
+    const handleProcessing = ({ messageId, processingStatus }) => {
+      updateMessageStatus(messageId, processingStatus);
+    }
+
+    const handleIntentReady = ({ messageId, message }) => {
+      if (String(messageId) !== String(message._id)) return;
+
+      upsertMessage(message);
     };
 
-    const handleProcessingFailed = ({ messageId, processingError }) => {
-      // Mark the matching message as failed.
+    const handleProcessingFailed = ({ messageId, processingStatus, processingError }) => {
+      updateMessageStatus(
+        messageId,
+        processingStatus,
+        { processingError }
+      );
     };
 
     socket.on(
       SOCKET_EVENTS.MESSAGE_CREATED,
       handleMessageCreated
+    );
+    socket.on(
+      SOCKET_EVENTS.MESSAGE_PROCESSING,
+      handleProcessing
     );
     socket.on(
       SOCKET_EVENTS.MESSAGE_INTENT_READY,
@@ -163,6 +228,10 @@ export default function MessageInbox() {
         handleMessageCreated
       );
       socket.off(
+        SOCKET_EVENTS.MESSAGE_PROCESSING,
+        handleProcessing
+      );
+      socket.off(
         SOCKET_EVENTS.MESSAGE_INTENT_READY,
         handleIntentReady
       );
@@ -173,6 +242,34 @@ export default function MessageInbox() {
       socket.disconnect();
     };
   }, []);
+
+  // Join the selected conversation room
+  useEffect(() => {
+    if (!socket.connected || !selectedId) {
+      return;
+    }
+
+    socket.emit(
+      SOCKET_EVENTS.CONVERSATION_JOIN,
+      {
+        conversationId: selectedId
+      },
+      (response) => {
+        if (!response.success) {
+          console.error("Could not join conversation");
+        }
+      }
+    );
+
+    return () => {
+      socket.emit(
+        SOCKET_EVENTS.CONVERSATION_LEAVE,
+        {
+          conversationId: selectedId
+        }
+      );
+    };
+  }, [selectedId]);
 
   const selectedConversation = useMemo(
     () => conversations.find((conversation) => conversation.id === selectedId),
