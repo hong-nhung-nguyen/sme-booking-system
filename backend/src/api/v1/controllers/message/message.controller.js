@@ -199,7 +199,7 @@ module.exports.editOneConversation = async (req, res, next) => {
 module.exports.resolveConversation = async (req, res, next) => {
     try {
         const conversation = await conversationService.resolveConversation({
-            businessId: req.params.businessId,
+            businessId: req.user.businessId,
             conversationId: req.params.conversationId,
             resolvedBy: req.body.resolvedBy
         });
@@ -219,7 +219,7 @@ module.exports.markConversationRead = async (req, res, next) => {
     try {
 
         const conversation = await conversationService.markConversationRead({
-            businessId: req.params.businessId,
+            businessId: req.user.businessId,
             conversationId: req.params.conversationId,
             userId: req.user.userId
         });
