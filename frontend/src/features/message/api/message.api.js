@@ -70,7 +70,7 @@ export function getConversationMessages(conversationId, options={}) {
     );
 };
 
-export function sendConversationMessage(conversationId, message) {
+export function sendConversationMessag(conversationId, message) {
     return apiRequest(
         `${MESSAGE_PATH}/conversations/` + 
         `${encodeURIComponent(conversationId)}/messages`,
