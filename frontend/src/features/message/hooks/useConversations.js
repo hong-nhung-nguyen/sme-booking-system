@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { getConversations, resolveConverstion } from "../api/message.api";
+import { getConversations } from "../api/message.api";
 import { classifyMessageError } from "../lib/messageError";
 
 export function useConversations({ status } = {}) {
     const [conversations, setConversations] = useState([]);
 
-    const [selectedConversationId, setSelectedConversationId] = useState([]);
+    // const [selectedConversationId, setSelectedConversationId] = useState([]);
 
     const [pagination, setPagination] = useState({
         hasMore: false,
@@ -116,6 +116,7 @@ export function useConversations({ status } = {}) {
         );
     }, []);
 
+    /*
     const handleSelectConversation = (conversationId) => {
         setSelectedConversationId(conversationId);
     }
@@ -132,6 +133,7 @@ export function useConversations({ status } = {}) {
             setError(requestError);
         };
     }
+    */
 
     useEffect(() => {
         loadInitial();
@@ -139,7 +141,6 @@ export function useConversations({ status } = {}) {
 
     return {
         conversations,
-        selectedConversationId,
         isLoading,
         isLoadingMore,
         error,

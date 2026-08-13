@@ -2,8 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
     getConversationMessages,
     markConversationRead,
-    sendConversationMessag,
-    sendConversationMessage
+    sendConversationMessage,
 } from "../api/message.api";
 import { classifyMessageError } from "../lib/messageError";
 
@@ -34,7 +33,7 @@ export function useConversationMessages(conversationId) {
         setError(null);
 
         try {
-            const data = await getConversationMessage(conversationId, { limit: 30 });
+            const data = await getConversationMessages(conversationId, { limit: 30 });
 
             setMessages(data.messages ?? []);
 
@@ -94,6 +93,40 @@ export function useConversationMessages(conversationId) {
         pagination
     ]);
 
+    const markRead = useCallback(async () => {
+        if (!conversationId) return;
+
+        await markConversationRead(conversationId);
+    }, [conversationId]);
+
+    const upsertMessage = useCallback((incomingMessage) => {
+        if (!incomingMessage._id) return;
+
+        const incomingId = String(incomingMessage._id);
+
+        setMessages((previousMessages) => {
+            const exist = previousMessages.some(
+                (message) => String(message._id) === incomingId
+            );
+
+            if (!exist) {
+                return [
+                    ...previousMessages,
+                    incomingMessage
+                ]
+            }
+
+            return previousMessages.map(
+                (message) => String(message._id) === incomingId 
+                    ? {
+                        ...message,
+                        ...incomingMessage
+                    }
+                    : message
+            );
+        });
+    }, []);
+
     const sendMessage = useCallback(async (body) => {
         const trimmedBody = body.trim();
 
@@ -116,40 +149,6 @@ export function useConversationMessages(conversationId) {
         }
     }, [conversationId]);
 
-    const markRead = useCallback(async () => {
-        if (!conversationId) return;
-
-        await markConversationRead(conversationId);
-    }, [conversationId]);
-
-    const upsertMessage = useCallback((incomingMessage) => {
-        if (!incomingMessage._id) return;
-
-        const incomingId = String(incomingMessage._id);
-
-        setMessage((previousMessages) => {
-            const exist = previousMessages.some(
-                (message) => message._id === incomingId
-            );
-
-            if (!exist) {
-                return [
-                    ...previousMessages,
-                    incomingMessage
-                ]
-            }
-
-            return previousMessages.map(
-                (message) => String(message._id) === incomingId 
-                    ? {
-                        ...message,
-                        ...incomingMessage
-                    }
-                    : message
-            );
-        });
-    }, []);
-
     const updateMessageStatus = useCallback(
         (
             messageId,
@@ -162,7 +161,7 @@ export function useConversationMessages(conversationId) {
                         ? {
                             ...message,
                             processingStatus,
-                            extra
+                            ...extra
                         }
                         : message
                 )

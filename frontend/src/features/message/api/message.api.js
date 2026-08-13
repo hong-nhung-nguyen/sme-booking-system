@@ -70,7 +70,7 @@ export function getConversationMessages(conversationId, options={}) {
     );
 };
 
-export function sendConversationMessag(conversationId, message) {
+export function sendConversationMessage(conversationId, message) {
     return apiRequest(
         `${MESSAGE_PATH}/conversations/` + 
         `${encodeURIComponent(conversationId)}/messages`,
@@ -92,9 +92,9 @@ export function updateConversation(conversationId, update) {
     );
 };
 
-export function resolveConverstion(conversationId) {
+export function resolveConversation(conversationId) {
     return apiRequest(
-        `${MESSAGE_PATH}/conversations` +
+        `${MESSAGE_PATH}/conversations/` +
         `${encodeURIComponent(conversationId)}/resolve`,
         {
             method: "POST"
@@ -104,7 +104,7 @@ export function resolveConverstion(conversationId) {
 
 export function markConversationRead(conversationId) {
     return apiRequest(
-        `${MESSAGE_PATH}/conversations` +
+        `${MESSAGE_PATH}/conversations/` +
         `${encodeURIComponent(conversationId)}/read`,
         {
             method: "POST"

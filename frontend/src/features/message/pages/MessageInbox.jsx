@@ -1,175 +1,103 @@
 import { socket } from "../../../shared/api/socket.js";
-import { NavLink } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
-import NavSider from '../../../shared/ui/NavSider/NavSider';
 import { SOCKET_EVENTS } from "../../../shared/api/socketEvents.js";
 import './MessageInbox.css';
+import { useConversations } from "../hooks/useConversations.js";
+import { useConversationMessages } from "../hooks/useConversationMessages.js";
 
-const conversations = [
-  {
-    id: 'sarah',
-    name: 'Sarah Jenkins',
-    initials: 'SJ',
-    time: '2m ago',
-    preview: 'Is it possible to move my table for 6 to the terrace area?',
-    label: 'Booking request',
-    labelType: 'booking',
-    urgent: true,
-    booking: {
-      code: '#RES-98211',
-      date: 'Tonight',
-      time: '7:30 PM',
-      guests: '6 people',
-      area: 'Main Room',
-      status: 'Confirmed',
-    },
-    messages: [
-      {
-        id: 1,
-        sender: 'customer',
-        text: "Hello! I have a booking for 6 people tonight at 7:30 PM under 'Jenkins'. Is it possible to move my table to the terrace area? We'd prefer to be outside if there’s space.",
-        time: '7:14 PM',
-      },
-      {
-        id: 2,
-        sender: 'staff',
-        text: 'Checking that for you right now, Sarah. One moment while I verify the floor plan.',
-        time: '7:15 PM',
-      },
-    ],
-  },
-  {
-    id: 'david',
-    name: 'David Chen',
-    initials: 'DC',
-    time: '15m ago',
-    preview: 'Confirming our anniversary dinner for tonight...',
-    label: 'Confirmation',
-    labelType: 'confirmation',
-    urgent: false,
-    booking: {
-      code: '#RES-98212',
-      date: 'Tonight',
-      time: '8:00 PM',
-      guests: '2 people',
-      area: 'Window table',
-      status: 'Pending',
-    },
-    messages: [
-      {
-        id: 1,
-        sender: 'customer',
-        text: 'Hi, I would like to confirm our anniversary dinner booking for tonight.',
-        time: '7:02 PM',
-      },
-    ],
-  },
-  {
-    id: 'elena',
-    name: 'Elena Rodriguez',
-    initials: 'ER',
-    time: '1h ago',
-    preview: 'I need to cancel my reservation for Friday.',
-    label: 'Cancellation',
-    labelType: 'cancellation',
-    urgent: false,
-    booking: {
-      code: '#RES-98213',
-      date: 'Friday',
-      time: '6:30 PM',
-      guests: '4 people',
-      area: 'Main Room',
-      status: 'Confirmed',
-    },
-    messages: [
-      {
-        id: 1,
-        sender: 'customer',
-        text: 'I need to cancel my reservation for Friday.',
-        time: '6:10 PM',
-      },
-    ],
-  },
-  {
-    id: 'marcus',
-    name: 'Marcus Thompson',
-    initials: 'MT',
-    time: '3h ago',
-    preview: 'Do you have gluten-free options on the tasting menu?',
-    label: 'Inquiry',
-    labelType: 'inquiry',
-    urgent: false,
-    booking: null,
-    messages: [
-      {
-        id: 1,
-        sender: 'customer',
-        text: 'Do you have gluten-free options on the tasting menu?',
-        time: '4:20 PM',
-      },
-    ],
-  },
-];
+function getClientName(conversation) {
+  const client = conversation?.clientId;
 
-const navItems = [
-  ['Dashboard', '/schedule-calendar'],
-  ['Schedule', '/schedule-calendar'],
-  ['History', '#'],
-  ['AI Messaging', '/messages'],
-  ['Floor Plan', '#'],
-  ['Service Management', '#'],
-];
+  if (client && typeof client === "object") {
+    return [
+      client.firstName,
+      client.lastName
+    ]
+      .filter(Boolean)
+      .join(" ") || "Customer";
+  }
+
+  return "Customer";
+}
+
+function getInitials(name) {
+  return name 
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0,2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "?";
+}
+
+function formatTimestamp(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("en-AU", {
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(date);
+};
 
 export default function MessageInbox() {
-  const [liveMessages, setLiveMessages] = useState([]);
-  const [selectedId, setSelectedId] = useState('sarah');
-  const [reply, setReply] = useState('');
-  const [showDraft, setShowDraft] = useState(true);
-  const [sentMessages, setSentMessages] = useState([]);
-  const [navigationOpen, setNavigationOpen] = useState(true);
+  const [selectedId, setSelectedId] = useState(null);
+  const [reply, setReply] = useState("");
+  const [showDraft, setShowDraft] = useState(false);
 
-  const upsertMessage = (incomingMessage) => {
-    const incomingId = String(incomingMessage._id);
+  const {
+    conversations,
+    isLoading: isLoadingConversations,
+    isLoadingMore,
+    error: conversationError,
+    hasMore: hasMoreConversations,
+    loadMore: loadMoreConversations,
+    retry: retryConversations,
+    upsertConversation
+  } = useConversations();
 
-    setLiveMessages((currentMessages) => {
-      const existingIndex = currentMessages.findIndex(
-        (message) => String(message._id) === incomingId
-      );
+  const {
+    messages,
+    isLoading: isLoadingMessages,
+    isLoadingOlder,
+    isSending,
+    error: messageError,
+    hasMore: hasOlderMessages,
+    loadOlder,
+    sendMessage,
+    markRead,
+    retry: retryMessages,
+    upsertMessage,
+    updateMessageStatus,
+  } = useConversationMessages(selectedId);
 
-      // check if the incoming message is a new message
-      // or already exists and needs updating 
-      if (existingIndex === -1) {
-        return [...currentMessages, incomingMessage];
-      }
+  async function handleSubmit(event) {
+    event.preventDefault();
 
-      return currentMessages.map((message, index) => 
-        index === existingIndex 
-          /**
-           * Start with the old message, then overwrite 
-           * any matching properties with the new values.
-           */
-          ? {
-            ...message,
-            ...incomingMessage
-          }
-          // Keep the original message 
-          : messageId  
-      );
-    });
-  };
+    const body = reply.trim();
 
-  // Status-only events
-  const updateMessageStatus = (messageId, processingStatus, extra = {}) => {
-    setLiveMessages((currentMessages) => currentMessages.map(
-      (message) => String(message._id) === String(messageId)
-        ? {
-          ...message,
-          processingStatus,
-          ...extra
-        }
-        : message
-    ));
-  };
+    if (!body || isSending) return;
+
+    try {
+      await sendMessage(body);
+      setReply("");
+    } catch {
+      // The hook exposes the error.
+      // Keep the text so the user can retry.
+    }
+  }
+
+  // Select the first server conversation
+  useEffect(() => {
+    if (!selectedId && conversations.length > 0) {
+      setSelectedId(String(conversations[0]._id));
+    }
+  }, [conversations, selectedId]);
+
 
   // Implement frontend event handlers
   /**
@@ -177,20 +105,24 @@ export default function MessageInbox() {
    * unsubscribe when unmounted
    */
   useEffect(() => {
-    const handleMessageCreated = ({ messageId, message }) => {
-      if (String(messageId) !== String(message._id)) return;
+    const handleMessageCreated = ({ message, conversation }) => {
+      if (conversation) {
+        upsertConversation(conversation);
+      }
 
-      upsertMessage(message);
+      if (message && String(message.conversationId) === String(selectedId)) {
+        upsertMessage(message);
+      }
     };
 
     const handleProcessing = ({ messageId, processingStatus }) => {
       updateMessageStatus(messageId, processingStatus);
     }
 
-    const handleIntentReady = ({ messageId, message }) => {
-      if (String(messageId) !== String(message._id)) return;
-
-      upsertMessage(message);
+    const handleIntentReady = ({ message }) => {
+      if (message && String(message.conversationId) === String(selectedId)) {
+        upsertMessage(message);
+      }
     };
 
     const handleProcessingFailed = ({ messageId, processingStatus, processingError }) => {
@@ -221,6 +153,7 @@ export default function MessageInbox() {
     // Because autoConnect is set to false
     socket.connect();
 
+    // In a useEffect, the returned function is the cleanup function 
     // runs when MessageInbox unmounts.
     return () => {
       socket.off(
@@ -239,66 +172,75 @@ export default function MessageInbox() {
         SOCKET_EVENTS.MESSAGE_PROCESSING_FAILED,
         handleProcessingFailed
       );
-      socket.disconnect();
     };
-  }, []);
+  }, [
+    selectedId,
+    upsertConversation,
+    upsertMessage,
+    updateMessageStatus
+  ]);
+
+  /**
+   * DEPENDENCY RULE __
+   * If a value or function from outside the `useEffect` is used inside the effect,
+   * it should normally be included in the dependency array
+   */
 
   // Join the selected conversation room
   useEffect(() => {
-    if (!socket.connected || !selectedId) {
+    if (!selectedId) {
       return;
     }
 
-    socket.emit(
-      SOCKET_EVENTS.CONVERSATION_JOIN,
-      {
-        conversationId: selectedId
-      },
-      (response) => {
-        if (!response.success) {
-          console.error("Could not join conversation");
-        }
-      }
-    );
-
-    return () => {
+    const joinConversation = () => {
       socket.emit(
-        SOCKET_EVENTS.CONVERSATION_LEAVE,
+        SOCKET_EVENTS.CONVERSATION_JOIN,
         {
           conversationId: selectedId
+        },
+        (response) => {
+          if (!response?.success) {
+            console.error("Could not join conversation");
+          }
         }
-      );
+      )
+    };
+
+    if (socket.connected) {
+      joinConversation();
+    } else {
+      socket.once("connect", joinConversation);
+    }
+
+    return () => {
+      socket.off("connect", joinConversation);
+
+      if (socket.connected) {
+        socket.emit(
+          SOCKET_EVENTS.CONVERSATION_LEAVE,
+          {
+            conversationId: selectedId
+          }
+        );
+      }
     };
   }, [selectedId]);
 
-  const selectedConversation = useMemo(
-    () => conversations.find((conversation) => conversation.id === selectedId),
-    [selectedId],
+  // Mark selected conversations as read
+  useEffect(() => {
+    if (!selectedId) return;
+
+    markRead().catch(() => {
+      // might be error 
+    });
+  }, [selectedId, markRead])
+
+  const selectedConversation = useMemo(() => 
+      conversations.find(
+        (conversation) => String(conversation._id) === String(selectedId)
+      ) ?? null
+    ,[conversations, selectedId],
   );
-
-  const threadMessages = [
-    ...selectedConversation.messages,
-    ...sentMessages.filter((message) => message.conversationId === selectedId),
-  ];
-
-  function sendMessage(text = reply) {
-    const trimmedText = text.trim();
-
-    if (!trimmedText) return;
-
-    setSentMessages((currentMessages) => [
-      ...currentMessages,
-      {
-        id: Date.now(),
-        conversationId: selectedId,
-        sender: 'staff',
-        text: trimmedText,
-        time: 'Just now',
-      },
-    ]);
-
-    setReply('');
-  }
 
   function sendAiDraft() {
     sendMessage(
@@ -307,48 +249,78 @@ export default function MessageInbox() {
     setShowDraft(false);
   }
 
+  if (isLoadingConversations) {
+    return (
+      <main
+        className="message-page-state"
+        aria-busy="true"
+      >
+        <p>Loading conversations</p>
+      </main>
+    );
+  }
+
+  if (conversationError) {
+    return (
+      <main
+        className="message-page-state"
+        role="alert"
+      >
+        <h1>
+          {conversationError.type === "unauthorized"
+            ? "Access unavailable"
+            : "Messages could not be loaded"
+          }
+        </h1>
+
+        <p>{conversationError.message}</p>
+
+        {conversationError.type !== "unauthorized" && (
+          <button 
+            type="button"
+            onClick={retryConversations}
+          >
+            Try again
+          </button>
+        )}
+
+      </main>
+    );
+  }
+
+  if (conversations.length === 0) {
+    return (
+      <main className="message-page-state">
+        <h1>No conversations yet</h1>
+        <p>
+          New customer messages will appear here.
+        </p>
+      </main>
+    )
+  }
+
+  if (!selectedConversation) {
+    return (
+      <main
+        className="message-page-state"
+        aria-busy="true"
+      >
+        <p>Opening conversation...</p>
+      </main>
+    )
+  }
+
+  const selectedCustomerName = getClientName(selectedConversation);
+  const selectedCustomerInitials = getInitials(selectedCustomerName);
+
+  const latestIntentMessage = [...messages]
+    .reverse()
+    .find((message) => message.parsedIntent);
+  
+  const parsedIntent = latestIntentMessage?.parsedIntent ?? null;
+
   return (
-    <main className={`message-page ${navigationOpen ? '' : 'navigation-closed'}`}>
-      {navigationOpen ? (
-        <NavSider onShowBookings={() => setNavigationOpen(false)} />
-      ) : (
-        <button className="reopen-navigation" type="button" onClick={() => setNavigationOpen(true)} aria-label="Open navigation">
-          <span /><span /><span />
-        </button>
-      )}
-      <aside className="message-sidebar">
-        <div className="message-brand">
-          <span className="brand-mark" aria-hidden="true">R</span>
-          <div>
-            <strong>Reserva</strong>
-            <small>RESTAURANT SAAS</small>
-          </div>
-        </div>
-
-        <button className="new-reservation-button" type="button">
-          + New Reservation
-        </button>
-
-        <nav className="message-nav" aria-label="Main navigation">
-          {navItems.map(([label, path]) => (
-            <NavLink
-              key={label}
-              to={path}
-              className={({ isActive }) =>
-                `message-nav-link ${isActive && label === 'AI Messaging' ? 'active' : ''}`
-              }
-            >
-              <span className="nav-icon" aria-hidden="true">□</span>
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="message-sidebar-bottom">
-          <button type="button">Settings</button>
-          <button type="button">Support</button>
-        </div>
-      </aside>
+    <main className="message-page">
 
       <section className="conversation-list-panel">
         <header className="message-topbar">
@@ -365,41 +337,74 @@ export default function MessageInbox() {
         </div>
 
         <div className="conversation-list">
-          {conversations.map((conversation) => (
+          {conversations.map((conversation) => {
+            const conversationId = String(conversation._id);
+
+            const customerName = getClientName(conversation);
+
+            return (
+              <button
+                key={conversationId}
+                type="button"
+                className={`conversation-row ${
+                  String(selectedId) === String(conversationId)
+                    ? "selected"
+                    : ""
+                }`}
+                onClick = {() => {
+                  setSelectedId(conversationId);
+                  setShowDraft(false);
+                }}
+              >
+                <div className="conversation-row-header">
+                  <strong>{customerName}</strong>
+
+                  <time>
+                    {formatTimestamp(conversation.lastMessageAt)}
+                  </time>
+                </div>
+
+                <p>{conversation.lastMessagePreview || "No message yet"}</p>
+
+                <div className="conversation-tags">
+                  <span className="conversation-tag inquiry">{conversation.status}</span>
+
+                  {conversation.unreadCount > 0 && (
+                    <span className="conversation-tag urgent">
+                      {conversation.unreadCount} unread
+                    </span>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+
+          {hasMoreConversations && (
             <button
-              key={conversation.id}
               type="button"
-              className={`conversation-row ${selectedId === conversation.id ? 'selected' : ''}`}
-              onClick={() => {
-                setSelectedId(conversation.id);
-                setShowDraft(conversation.id === 'sarah');
-              }}
+              className="load-more-button"
+              onClick={loadMoreConversations}
+              disabled={isLoadingMore}
             >
-              <div className="conversation-row-header">
-                <strong>{conversation.name}</strong>
-                <time>{conversation.time}</time>
-              </div>
-
-              <p>{conversation.preview}</p>
-
-              <div className="conversation-tags">
-                <span className={`conversation-tag ${conversation.labelType}`}>
-                  {conversation.label}
-                </span>
-                {conversation.urgent && <span className="conversation-tag urgent">Urgent</span>}
-              </div>
+              {isLoadingMore 
+                ? "Loading..."
+                : "Load more"
+              }
             </button>
-          ))}
+          )}
         </div>
       </section>
 
-      <section className="message-thread-panel" aria-label={`Conversation with ${selectedConversation.name}`}>
+      <section 
+        className="message-thread-panel" 
+        aria-label={`Conversation with ${selectedCustomerName}`}
+      >
         <header className="thread-header">
-          <span className="customer-avatar">{selectedConversation.initials}</span>
+          <span className="customer-avatar">{selectedCustomerInitials}</span>
 
           <div className="thread-customer">
-            <strong>{selectedConversation.name}</strong>
-            <span>Platinum Member · 12 Visits</span>
+            <strong>{selectedCustomerName}</strong>
+            <span>{selectedConversation.channel ?? "web"}</span>
           </div>
 
           <button className="outline-button" type="button">View History</button>
@@ -408,55 +413,56 @@ export default function MessageInbox() {
           </button>
         </header>
 
-        <div className="thread-content">
-          {threadMessages.map((message) => (
-            <article
-              className={`chat-bubble ${message.sender === 'staff' ? 'outgoing' : 'incoming'}`}
-              key={message.id}
+        <div
+          className="thread-content"
+          aria-busy={isLoadingMessages}
+        >
+          {hasOlderMessages && (
+            <button
+              type="button"
+              onClick={loadOlder}
+              disable={isLoadingOlder}
             >
-              <p>{message.text}</p>
-              <time>{message.time}</time>
-            </article>
-          ))}
+              {isLoadingOlder
+                ? "Loading older messages..."
+                : "Load earlier messages"
+              }
+            </button>
+          )}
 
-          {showDraft && selectedId === 'sarah' && (
-            <section className="ai-draft" aria-label="AI assistant draft">
-              <div className="ai-draft-divider">
-                <span>AI assistant draft</span>
-              </div>
+          {isLoadingMessages ? (
+            <p>Loading messages...</p>
+          ) : messageError ? (
+            <div>
+              <p>{messageError.messages}</p>
+              <button
+                type="button"
+                onClick={retryMessages}
+              >
+                Try again
+              </button>
+            </div>
+          ) : messages.length === 0 ? (
+            <p>No messages in this conversation.</p>
+          ) : (
+            messages.map((message) => (
+              <article
+                className={`chat-bubble ${message.direction === "outbound" ? "outgoind" : "incoming"}`}
+                key={message._id}
+              >
+                <p>{message.body}</p>
 
-              <div className="ai-draft-card">
-                <strong>✦ Contextual draft</strong>
-                <p>
-                  Hi Sarah, I see your reservation. Let me check the terrace
-                  availability for tonight at 7:30 PM. We currently have one
-                  large table open near the main entrance. Would you like me to
-                  move you there?
-                </p>
-
-                <div className="ai-draft-actions">
-                  <button className="primary-small" type="button" onClick={sendAiDraft}>
-                    Send draft
-                  </button>
-                  <button
-                    className="secondary-small"
-                    type="button"
-                    onClick={() => setReply('Hi Sarah, I can check the terrace availability for you.')}
-                  >
-                    Edit reply
-                  </button>
-                </div>
-              </div>
-            </section>
+                <time dateTime={message.createdAt}>
+                  {formatTimestamp(message.createdAt)}
+                </time>
+              </article>
+            ))
           )}
         </div>
 
         <form
           className="message-composer"
-          onSubmit={(event) => {
-            event.preventDefault();
-            sendMessage();
-          }}
+          onSubmit={handleSubmit}
         >
           <textarea
             value={reply}
@@ -469,10 +475,15 @@ export default function MessageInbox() {
             <button className="ai-assist-button" type="button" onClick={() => setShowDraft(true)}>
               AI assist enabled
             </button>
-            <button className="send-message-button" type="submit">
-              Send message
+            <button 
+              className="send-message-button" 
+              type="submit"
+              disabled={isSending || !reply.trim()}
+            >
+              {isSending ? "Sending" : "Send message"}
             </button>
           </div>
+
         </form>
       </section>
 
@@ -482,65 +493,33 @@ export default function MessageInbox() {
         </header>
 
         <div className="ai-context-content">
-          {selectedConversation.booking ? (
-            <>
-              <section>
-                <h2>Active booking</h2>
-                <div className="booking-summary">
-                  <div className="booking-code-row">
-                    <span>Reservation ID</span>
-                    <em>{selectedConversation.booking.status}</em>
-                  </div>
-
-                  <strong>{selectedConversation.booking.code}</strong>
-
-                  <dl>
-                    <div>
-                      <dt>Date</dt>
-                      <dd>{selectedConversation.booking.date}</dd>
-                    </div>
-                    <div>
-                      <dt>Time</dt>
-                      <dd>{selectedConversation.booking.time}</dd>
-                    </div>
-                    <div>
-                      <dt>Guests</dt>
-                      <dd>{selectedConversation.booking.guests}</dd>
-                    </div>
-                    <div>
-                      <dt>Area</dt>
-                      <dd className="link-text">{selectedConversation.booking.area}</dd>
-                    </div>
-                  </dl>
-                </div>
-              </section>
-
-              <section>
-                <h2>Interpretation result</h2>
-                <div className="interpretation-list">
-                  <div><span>Action</span><strong>Book</strong></div>
-                  <div><span>Service</span><strong>Breakfast</strong></div>
-                  <div><span>Requested date</span><strong>2026-07-26</strong></div>
-                  <div><span>Requested time</span><strong>10:00 AM</strong></div>
-                </div>
-              </section>
-
-              <button className="context-action-button" type="button">
-                Approve and resolve
-              </button>
-              <button className="context-action-button" type="button">
-                Mark as resolved
-              </button>
-            </>
+          {selectedConversation.appointmentId ? (
+            <div className="booking-summary">
+              <span>Linked appointment</span>
+              <strong>
+                {typeof selectedConversation.appointmentId === "object"
+                  ? selectedConversation.appointmentId._id 
+                  : selectedConversation.appointmentId
+                }
+              </strong>
+            </div>
           ) : (
             <div className="no-booking-context">
-              <strong>No active booking</strong>
-              <p>Use this conversation to create a new booking when the guest is ready.</p>
-              <button className="context-action-button" type="button">
-                Create booking
-              </button>
+              <strong>No linked booking</strong>
+              <p>This conversation is not linked to an active booking</p>
             </div>
           )}
+        </div>
+
+        <div className="ai-interpretation-result">
+          <h2>Interpretation Result</h2>
+          <div className="interpretation-list">
+            <div><span>Action</span><strong>{parsedIntent?.action}</strong></div>
+            <div><span>Service</span><strong>{parsedIntent?.service}</strong></div>
+            <div><span>Requested date</span><strong>{parsedIntent?.preferredDate}</strong></div>
+            <div><span>Requested time</span><strong>{parsedIntent?.preferredTime}</strong></div>
+
+          </div>
         </div>
 
         <footer className="context-footer">

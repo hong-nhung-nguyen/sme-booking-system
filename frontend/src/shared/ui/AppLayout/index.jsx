@@ -33,6 +33,7 @@ export default function AppLayout() {
 
     // A page may hand us its own sidebar; otherwise the navigation is shown
     const [sidebar, setSidebar] = useState(null);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     const layoutValue = useMemo(() => ({ setSidebar }), []);
 
@@ -43,9 +44,13 @@ export default function AppLayout() {
 
     return (
         <LayoutContext.Provider value={layoutValue}>
-            <div className="app-shell">
+            <div className={`app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
                 {sidebar || (
-                    <NavSider onNewReservation={() => navigate("/bookings/new")} />
+                    <NavSider
+                        collapsed={sidebarCollapsed}
+                        onToggleCollapse={() => setSidebarCollapsed((collapsed) => !collapsed)}
+                        onNewReservation={() => navigate("/bookings/new")}
+                    />
                 )}
 
                 <section className="app-content">

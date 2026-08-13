@@ -25,7 +25,7 @@ module.exports.findMany = async ({businessId, limit=20, cursor, status}) => {
         businessId,
         ...(status
             ? { status }
-            : { status: { $ne: "resolved" } }
+            : { status: { $ne: "null" } } // change to resolved later
         ),
     };
 
@@ -47,6 +47,10 @@ module.exports.findMany = async ({businessId, limit=20, cursor, status}) => {
     const conversations = await Conversation.find(query)
         .sort({ lastMessageAt: -1, _id: -1 })
         .limit(limit + 1)
+        .populate(
+            "clientId",
+            "firstName lastName email phone"
+        )
         .lean();
     
     /**
@@ -63,10 +67,17 @@ module.exports.findMany = async ({businessId, limit=20, cursor, status}) => {
 };
 
 module.exports.findOneForBusiness = async (businessId, conversationId) => {
-    return Conversation.findOne({
+    const conversation = await Conversation.findOne({
         _id: conversationId,
         businessId
-    }).lean();
+    })
+        .populate(
+            "clientId",
+            "firstName lastName email phone"
+        )
+        .lean();
+    
+    return conversation;
 };
 
 module.exports.findActiveConversation = async ({ businessId, clientId }) => {
