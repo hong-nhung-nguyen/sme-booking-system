@@ -21,10 +21,10 @@ module.exports.conversations = async (req, res, next) => {
         let query = {
             businessId,
             ...(req.query.limit && { limit: Number(req.query.limit) }),
-            ...(req.query.cursor && req.query.cursor.lastMessageAt && req.query.cursor._id && {
+            ...(req.query.cursorLastMessageAt && req.query.cursorId && {
                 cursor: {
-                    lastMessageAt: new Date(req.query.cursor.lastMessageAt),
-                    _id: req.query.cursor._id
+                    lastMessageAt: new Date(req.query.cursorLastMessageAt),
+                    _id: req.query.cursorId
                 }
             }),
             ...(req.query.status && { status: req.query.status })
@@ -32,12 +32,23 @@ module.exports.conversations = async (req, res, next) => {
 
         const { items, hasMore } = await conversationService.getManyConversations(query);
 
+        const lastConversation = items[items.length - 1] ?? null;
+
+        const nextCursor = hasMore && lastConversation 
+            ? {
+                lastMessageAt: lastConversation.lastMessageAt,
+                _id: lastConversation._id
+            }
+            : null;
+
         return res.status(200).json({
             success: true,
             conversations: items,
-            hasMore
-        })
-
+            pagination: {
+                hasMore, 
+                nextCursor
+            }
+        });
 
     } catch (error) {
         next(error);
@@ -69,10 +80,10 @@ module.exports.getConversationMessages = async (req, res, next) => {
         let query = {
             businessId: req.user.businessId,
             conversationId: req.params.conversationId,
-            ...(req.query.before && req.query.before.createdAt && req.query.before._id && {
+            ...(req.query.beforeCreatedAt && req.query.beforeId && {
                 before: {
-                    createdAt: new Date(req.query.before.createdAt),
-                    _id: req.query.before._id
+                    createdAt: new Date(req.query.beforeCreatedAt),
+                    _id: req.query.beforeId
                 }
             }),
             ...(req.query.limit && { limit: Number(req.query.limit) })
@@ -80,11 +91,23 @@ module.exports.getConversationMessages = async (req, res, next) => {
 
         const { messages, hasMore } = await messageService.getConversationMessages(query);
 
+        const oldestMessage = messages[0] ?? null;
+
+        const nextCursor = hasMore && oldestMessage 
+            ? {
+                createdAt: oldestMessage.createdAt,
+                _id: oldestMessage._id
+            }
+            : null;
+
         return res.status(200).json({
             success: true,
             messages,
-            hasMore
-        })
+            pagination: {
+                hasMore, 
+                nextCursor
+            }
+        });
 
     } catch (error) {
         next(error);
@@ -166,6 +189,45 @@ module.exports.editOneConversation = async (req, res, next) => {
             success: true,
             conversation: updatedConversation
         })
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// [POST] /api/v1/message/conversations/:conversationId/resolve
+module.exports.resolveConversation = async (req, res, next) => {
+    try {
+        const conversation = await conversationService.resolveConversation({
+            businessId: req.user.businessId,
+            conversationId: req.params.conversationId,
+            resolvedBy: req.body.resolvedBy
+        });
+
+        return res.status(200).json({
+            success: true,
+            conversation
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// [POST] /api/v1/message/conversations/:conversationId/read
+module.exports.markConversationRead = async (req, res, next) => {
+    try {
+
+        const conversation = await conversationService.markConversationRead({
+            businessId: req.user.businessId,
+            conversationId: req.params.conversationId,
+            userId: req.user.userId
+        });
+
+        return res.status(200).json({
+            success: true,
+            conversation
+        });
 
     } catch (error) {
         next(error);

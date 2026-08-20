@@ -9,7 +9,7 @@
 .app-secondary-navigation { display: grid; gap: 4px; margin-top: auto; padding: 15px 12px; border-top: 1px solid #d6ddea; }
 
 /* Reference sidebar layout. These rules override the earlier utility styling. */
-.app-sidebar { width: 204px; }
+.app-sidebar { width: 204px; transition: width 180ms ease; overflow: hidden; }
 .app-sidebar-brand { height: 62px; justify-content: flex-start; gap: 11px; padding: 0 18px; }
 .app-sidebar-brand strong { color: #0759d5; font-size: 16px; letter-spacing: -.2px; }
 .nav-menu-toggle { width: 30px; height: 30px; display: grid; align-content: center; gap: 4px; padding: 0 7px; background: #0759d5; border: 0; border-radius: 6px; cursor: pointer; }
@@ -25,3 +25,12 @@
 .app-secondary-navigation { gap: 2px; padding: 16px 9px; }
 .app-secondary-navigation button { width: 100%; }
 .app-sidebar button:focus-visible, .app-sidebar a:focus-visible { outline: 3px solid #8ab7ff; outline-offset: 2px; }
+
+.app-sidebar.collapsed { width: 64px; }
+.app-sidebar.collapsed .sidebar-label { display: none; }
+.app-sidebar.collapsed .app-sidebar-brand { justify-content: center; padding: 0; }
+.app-sidebar.collapsed .app-navigation { padding-inline: 9px; }
+.app-sidebar.collapsed .app-navigation a,
+.app-sidebar.collapsed .app-secondary-navigation button { justify-content: center; padding: 0; border-left-color: transparent; }
+.app-sidebar.collapsed .app-new-reservation { width: 36px; margin-inline: auto; padding: 0; }
+.app-sidebar.collapsed .app-secondary-navigation { padding-inline: 9px; }

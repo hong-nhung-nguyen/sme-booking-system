@@ -16,9 +16,11 @@ router.patch("/conversations/:conversationId", controller.editOneConversation);
 /**
  * FOR IMPORTANT STATE TRANSITIONS, DEDICATED ENDPOINTS CAN BE CLEARER:
  * 
-    POST /conversations/:conversationId/resolve
     POST /conversations/:conversationId/reopen
-    POST /conversations/:conversationId/read
  */
+
+router.post("/conversations/:conversationId/resolve", controller.resolveConversation);
+
+router.post("/conversations/:conversationId/read", controller.markConversationRead);
 
 module.exports = router;

@@ -30,7 +30,7 @@ module.exports.findConversationMessages = async ({ businessId, conversationId, b
             { createdAt: { $lt: before.createdAt }},
             {
                 createdAt: before.createdAt,
-                _id: { $lt: before.id }
+                _id: { $lt: before._id }
             }
         ];
     }
@@ -45,7 +45,7 @@ module.exports.findConversationMessages = async ({ businessId, conversationId, b
 
     return {
         // Return this page older-first for rendering 
-        messages: records.reverse(),
+        messages: page.reverse(),
         hasMore
     }
 }

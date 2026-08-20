@@ -6,8 +6,13 @@
     min-height: 100vh;
     display: grid;
     grid-template-columns: 204px 1fr;
+    transition: grid-template-columns 180ms ease;
     color: var(--text);
     background: var(--bg);
+}
+
+.app-shell.sidebar-collapsed {
+    grid-template-columns: 64px 1fr;
 }
 
 .app-content {

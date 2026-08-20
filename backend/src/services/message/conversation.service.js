@@ -55,8 +55,8 @@ module.exports.findOneOrCreateConversation = async (data) => {
     }
 };
 
-module.exports.resolveConversatio = async ({businessId, conversationId, resolvedBy }) => {
-    const conversation = conversationRepository.findOneAndUpdate(
+module.exports.resolveConversation = async ({businessId, conversationId, resolvedBy }) => {
+    const conversation = await conversationRepository.findOneAndUpdate(
         {
             _id: conversationId,
             businessId,
@@ -91,10 +91,7 @@ module.exports.resolveConversatio = async ({businessId, conversationId, resolved
 };
 
 module.exports.markConversationRead = async ({ businessId, conversationId, userId }) => {
-    const conversation = await conversationRepository.findOneForBusiness({
-        _id: conversationId,
-        businessId
-    });
+    const conversation = await conversationRepository.findOneForBusiness(businessId, conversationId);
 
     if (!conversation) {
         const error = new Error("Conversation not found");
@@ -120,7 +117,7 @@ module.exports.markConversationRead = async ({ businessId, conversationId, userI
         }
     );
 
-    const reamaningUnread = await messageRepository.countDocuments({
+    const remaningUnread = await messageRepository.countDocuments({
         businessId,
         conversationId,
         direction: "inbound",
@@ -128,7 +125,7 @@ module.exports.markConversationRead = async ({ businessId, conversationId, userI
     });
 
     const update = {
-        unreadCount: reamaningUnread,
+        unreadCount: remaningUnread,
         lastViewedAt: viewedAt,
         lastViewedBy: userId,
     };

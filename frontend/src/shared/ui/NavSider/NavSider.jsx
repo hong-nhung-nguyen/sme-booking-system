@@ -25,30 +25,40 @@ function Icon({ name }) {
   return <svg aria-hidden="true" className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={iconPaths[name]} /></svg>;
 }
 
-export default function NavSider({ onNewReservation, onShowBookings }) {
+export default function NavSider({
+  collapsed = false,
+  onNewReservation,
+  onToggleCollapse,
+}) {
   return (
-    <aside className="app-sidebar">
+    <aside className={`app-sidebar ${collapsed ? 'collapsed' : ''}`}>
       <header className="app-sidebar-brand">
-        <button className="nav-menu-toggle" type="button" onClick={onShowBookings} aria-label="Show booking list" disabled={!onShowBookings}>
+        <button
+          className="nav-menu-toggle"
+          type="button"
+          onClick={onToggleCollapse}
+          aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+          aria-expanded={!collapsed}
+        >
           <span /><span /><span />
         </button>
-        <strong>Sunset Bistro</strong>
+        <strong className="sidebar-label">Sunset Bistro</strong>
       </header>
 
       <nav className="app-navigation" aria-label="Main navigation">
         {navigationItems.map(({ label, to, icon }) => (
           <NavLink key={label} to={to} className={({ isActive }) => (isActive ? 'active' : '')}>
             <Icon name={icon} />
-            <span>{label}</span>
+            <span className="sidebar-label">{label}</span>
           </NavLink>
         ))}
       </nav>
 
-      {onNewReservation && <button className="app-new-reservation" type="button" onClick={onNewReservation}><span aria-hidden="true">+</span> New Reservation</button>}
+      {onNewReservation && <button className="app-new-reservation" type="button" onClick={onNewReservation} aria-label="New reservation"><span aria-hidden="true">+</span> <span className="sidebar-label">New Reservation</span></button>}
 
       <div className="app-secondary-navigation">
-        <button type="button"><Icon name="settings" /> <span>Settings</span></button>
-        <button type="button"><Icon name="help" /> <span>Support</span></button>
+        <button type="button" aria-label="Settings"><Icon name="settings" /> <span className="sidebar-label">Settings</span></button>
+        <button type="button" aria-label="Support"><Icon name="help" /> <span className="sidebar-label">Support</span></button>
       </div>
     </aside>
   );
