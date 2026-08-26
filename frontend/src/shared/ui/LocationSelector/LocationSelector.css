@@ -1,0 +1,57 @@
+.location-context,
+.location-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.location-context-label,
+.location-selector > span {
+    color: #667085;
+    font-size: 0.875rem;
+}
+
+.location-context strong {
+    max-width: 16rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.location-selector select {
+    min-height: 2.75rem;
+    max-width: 16rem;
+    padding: 0 2.25rem 0 0.75rem;
+    border: 1px solid #d0d5dd;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #101828;
+    font: inherit;
+}
+
+.location-selector select:focus-visible {
+    outline: 3px solid rgba(21, 93, 252, 0.25);
+    border-color: #155dfc;
+}
+
+.location-context-error {
+    color: #b42318;
+}
+
+@media (max-width: 768px) {
+    .topbar {
+        flex-wrap: wrap;
+    }
+
+    .location-selector,
+    .location-context {
+        order: 3;
+        width: 100%;
+    }
+
+    .location-selector select {
+        flex: 1;
+        max-width: none;
+    }
+}

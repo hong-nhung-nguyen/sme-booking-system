@@ -4,6 +4,8 @@ import useAuth from "../../../features/auth/hooks/useAuth";
 import NavSider from "../NavSider/NavSider";
 import { LayoutContext } from "./layoutContext";
 import "./AppLayout.css";
+import ActiveLocationProvider from "../../context/ActiveLocationProvider";
+import LocationSelector from "../LocationSelector/LocationSelector";
 
 function initials(user) {
     const letters = [user?.firstName, user?.lastName]
@@ -27,6 +29,14 @@ function sectionTitle(pathname) {
 }
 
 export default function AppLayout() {
+    return(
+        <ActiveLocationProvider>
+            <AppLayoutContent />
+        </ActiveLocationProvider>
+    )
+}
+
+function AppLayoutContent() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -35,7 +45,14 @@ export default function AppLayout() {
     const [sidebar, setSidebar] = useState(null);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-    const layoutValue = useMemo(() => ({ setSidebar }), []);
+    const layoutValue = useMemo(
+        () => ({
+            setSidebar,
+            sidebarCollapsed,
+            toggleSidebar: () => setSidebarCollapsed((collapsed) => !collapsed),
+        }),
+        [sidebarCollapsed]
+    );
 
     async function handleLogout() {
         await logout();
@@ -48,7 +65,7 @@ export default function AppLayout() {
                 {sidebar || (
                     <NavSider
                         collapsed={sidebarCollapsed}
-                        onToggleCollapse={() => setSidebarCollapsed((collapsed) => !collapsed)}
+                        onToggleCollapse={layoutValue.toggleSidebar}
                         onNewReservation={() => navigate("/bookings/new")}
                     />
                 )}
@@ -58,6 +75,8 @@ export default function AppLayout() {
                         <h2 className="topbar-title">
                             {sectionTitle(location.pathname)}
                         </h2>
+
+                        <LocationSelector />
 
                         <div className="topbar-user">
                             <span className="user-name">
