@@ -13,21 +13,14 @@ module.exports.index = async (req, res, next) => {
         const services = await Service.find({
             businessId: businessId,
             _id: { $in: serviceIds }
-        }).select("name defaultDurationMinutes price status");
+        }).select("name defaultDurationMinutes status");
 
-        /**
-         * A location can override the price of a service, so prefer the
-         * location's price when one is set.
-         */
-        const priceByServiceId = new Map(
-            location.services.map((entry) => [String(entry.serviceId), entry.price])
-        );
+     
 
         const payload = services.map((service) => ({
             _id: service._id,
             name: service.name,
             defaultDurationMinutes: service.defaultDurationMinutes,
-            price: priceByServiceId.get(String(service._id)) ?? service.price,
             status: service.status
         }));
 
