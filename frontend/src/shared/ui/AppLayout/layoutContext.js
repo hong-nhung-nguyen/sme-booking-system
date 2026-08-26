@@ -7,6 +7,16 @@ import { createContext, useContext, useEffect } from "react";
  */
 export const LayoutContext = createContext(null);
 
+export function useAppLayout() {
+    const context = useContext(LayoutContext);
+
+    if (!context) {
+        throw new Error("useAppLayout must be used inside AppLayout");
+    }
+
+    return context;
+}
+
 export function useSidebarSlot(node) {
     const context = useContext(LayoutContext);
     const setSidebar = context?.setSidebar;

@@ -55,8 +55,11 @@ export default function LoginPage() {
         setServerError("");
     };
 
-    const redirectTo = location.state?.from?.pathname || "/schedule-calendar";
-
+    const requestedPath =
+        location.state?.from?.pathname?.startsWith("/")
+            ? location.state.from.pathname
+            : null;
+            
     async function handleSubmit(event) {
         event.preventDefault();
 
@@ -77,9 +80,16 @@ export default function LoginPage() {
                 password: form.password
             });
 
-            await refreshUser();
+            const authenticatedUser = await refreshUser();
 
-            navigate(redirectTo, { replace: true });
+            const defaultPath = authenticatedUser?.accessAllLocations 
+                ? "/dashboard"
+                : "/schedule-calendar"
+            
+            navigate(requestedPath || defaultPath, {
+                replace: true
+            });
+
         } catch (error) {
             if (error.status === 401) {
                 setServerError("The email address or password is incorrect.");
@@ -101,7 +111,16 @@ export default function LoginPage() {
     }
 
     if (user) {
-        return <Navigate to={redirectTo} replace />;
+        const defaultPath = user.accessAllLocations
+            ? "/dashboard"
+            : "/schedule-calendar";
+
+        return (
+            <Navigate
+                to={requestedPath || defaultPath}
+                replace
+            />
+        );
     }
 
     return (

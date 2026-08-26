@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { getAppointments } from "../api/appointment.api";
 import { getServices } from "../../../shared/api/location.api";
 import useLocations from "../../../shared/hooks/useLocations";
-import { useSidebarSlot } from "../../../shared/ui/AppLayout/layoutContext";
+import {
+    useAppLayout,
+    useSidebarSlot,
+} from "../../../shared/ui/AppLayout/layoutContext";
 import NavSider from "../../../shared/ui/NavSider/NavSider";
 import BookingCard from "../components/BookingCard";
 import MetricCard from "../components/MetricCard";
@@ -29,6 +32,7 @@ import "./ScheduleCalendar.css";
 
 export default function ScheduleCalendar() {
     const navigate = useNavigate();
+    const { sidebarCollapsed, toggleSidebar } = useAppLayout();
 
     const {
         locations,
@@ -163,8 +167,9 @@ export default function ScheduleCalendar() {
         () =>
             showNavigation ? (
                 <NavSider
+                    collapsed={sidebarCollapsed}
                     onNewReservation={createBooking}
-                    onShowBookings={() => setShowNavigation(false)}
+                    onToggleCollapse={toggleSidebar}
                 />
             ) : (
                 <ScheduleBookingSidebar
@@ -174,7 +179,15 @@ export default function ScheduleCalendar() {
                     onShowNavigation={() => setShowNavigation(true)}
                 />
             ),
-        [showNavigation, visibleAppointments, loading, openBooking, createBooking]
+        [
+            showNavigation,
+            visibleAppointments,
+            loading,
+            openBooking,
+            createBooking,
+            sidebarCollapsed,
+            toggleSidebar,
+        ]
     );
 
     useSidebarSlot(sidebar);
