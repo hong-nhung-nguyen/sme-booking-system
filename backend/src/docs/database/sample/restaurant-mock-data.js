@@ -13,13 +13,13 @@
  *
  * Notes:
  * - This intentionally ignores unrelated collections.
- * - The current `Location` schema stores a single `openingHours` reference, so the
- *   sample keeps one representative working-day record in `location.openingHours`
- *   and includes the full weekly schedule in the `openingHours` array below.
+ * - Location-specific service status and fixed timeslots are stored on each
+ *   embedded location service assignment.
  */
 
 const businessId = "6a54f8c84595488194204f68";
 const locationId = "6a54ff244595488194204f70";
+const wollongongLocationId = "6a54ff244595488194204f71";
 const floorPlanId = "6a55065137eda25a235e2d08";
 
 const ownerId = "6880f0f6b8bb0c4d4d2d0004";
@@ -78,22 +78,54 @@ const restaurantMockData = {
         timezone: "Australia/Sydney",
         maxCapacity: 40,
         services: [
-            { serviceId: breakfastServiceId, price: 18 },
-            { serviceId: lunchServiceId, price: 26 },
-            { serviceId: dinnerServiceId, price: 42 }
-        ],
-        timeslots: [
             {
                 serviceId: breakfastServiceId,
-                slots: ["08:00", "08:30", "09:00", "09:30", "10:00"]
+                status: "active",
+                timeslots: ["08:00", "08:30", "09:00", "09:30", "10:00"]
             },
             {
                 serviceId: lunchServiceId,
-                slots: ["12:00", "12:30", "13:00", "13:30", "14:00"]
+                status: "active",
+                timeslots: ["12:00", "12:30", "13:00", "13:30", "14:00"]
             },
             {
                 serviceId: dinnerServiceId,
-                slots: ["18:00", "18:30", "19:00", "19:30", "20:00"]
+                status: "active",
+                timeslots: ["18:00", "18:30", "19:00", "19:30", "20:00"]
+            }
+        ],
+        status: "active"
+    },
+
+    wollongongLocation: {
+        _id: wollongongLocationId,
+        businessId,
+        name: "Sunset Bistro - Wollongong",
+        phone: "+61 412 345 680",
+        address: {
+            street: "80 Crown Street",
+            suburb: "Wollongong",
+            state: "NSW",
+            postcode: "2500",
+            country: "Australia"
+        },
+        timezone: "Australia/Sydney",
+        maxCapacity: 32,
+        services: [
+            {
+                serviceId: breakfastServiceId,
+                status: "active",
+                timeslots: ["08:00", "08:30", "09:00", "09:30", "10:00"]
+            },
+            {
+                serviceId: lunchServiceId,
+                status: "active",
+                timeslots: ["12:00", "12:30", "13:00", "13:30", "14:00"]
+            },
+            {
+                serviceId: dinnerServiceId,
+                status: "active",
+                timeslots: ["18:00", "18:30", "19:00", "19:30", "20:00"]
             }
         ],
         status: "active"
@@ -213,7 +245,6 @@ const restaurantMockData = {
             businessId,
             name: "Breakfast",
             defaultDurationMinutes: 60,
-            price: 18,
             status: "active"
         },
         {
@@ -221,7 +252,6 @@ const restaurantMockData = {
             businessId,
             name: "Lunch",
             defaultDurationMinutes: 90,
-            price: 26,
             status: "active"
         },
         {
@@ -229,7 +259,6 @@ const restaurantMockData = {
             businessId,
             name: "Dinner",
             defaultDurationMinutes: 120,
-            price: 42,
             status: "active"
         }
     ],
