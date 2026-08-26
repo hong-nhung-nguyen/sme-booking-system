@@ -16,6 +16,11 @@ const serviceSchema = new mongoose.Schema({
         minlength: 2,
         maxlength: 100
     },
+    description: {
+        type: String,
+        default: "",
+        maxLength: 2000
+    },
     defaultDurationMinutes: {
         type: Number,
         min: 5,
@@ -38,6 +43,10 @@ const serviceSchema = new mongoose.Schema({
 }, {
     timestamps: true,
 })
+
+// List services for a business -> Filter by status -> Sort by name 
+serviceSchema.index({ businessId: 1, status: 1, name: 1 });
+serviceSchema.index({ businessId: 1, name: 1 }, { unique: true });
 
 const Service = mongoose.model("Service", serviceSchema, "services");
 

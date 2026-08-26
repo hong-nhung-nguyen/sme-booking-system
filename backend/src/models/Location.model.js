@@ -21,7 +21,6 @@ const locationSchema = new mongoose.Schema({
         required: true,
         trim: true,
         match: /^\+?[0-9\s-]{8,20}$/,
-        unique: true
     },
     address: {
         street: { type: String, trim: true, required: true },
@@ -79,6 +78,8 @@ const locationSchema = new mongoose.Schema({
 }, {
     timestamps: true
 })
+
+locationSchema.index({ businessId: 1, phone: 1}, { unique: true });
 
 const Location = mongoose.model("Location", locationSchema, "locations");
 
