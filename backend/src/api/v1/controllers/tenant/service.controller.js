@@ -4,17 +4,9 @@ const Service = require("../../../../models/Service.model");
 // [GET] api/v1/business/locations/:locationId/services
 module.exports.index = async (req, res, next) => {
     const businessId = req.user.businessId;
-    const { locationId } = req.params;
 
     try {
-        const location = await Location.findOne({
-            businessId: businessId,
-            _id: locationId
-        });
-
-        if (!location) {
-            return res.status(404).json({ message: "location not found" });
-        }
+        const location = req.location;
 
         const serviceIds = location.services.map((entry) => entry.serviceId);
 
