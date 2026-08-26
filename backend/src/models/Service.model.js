@@ -28,10 +28,6 @@ const serviceSchema = new mongoose.Schema({
             message: "defaultDurationMinutes must be in 5-minute intervals"
         }
     },
-    price: {
-        type: Number,
-        default: null
-    },
     status: {
         type: String,
         enum: ["active", "inactive", "temporarilyUnavailable", "discontinued", "deleted"],
