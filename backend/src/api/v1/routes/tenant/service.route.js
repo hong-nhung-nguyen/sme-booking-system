@@ -1,5 +1,5 @@
 const express = require("express");
-const authorizeLocationAccess = require("../../../middlewares/authorizeLocationAccess.middleware.js");
+const authorizeLocationAccess = require("../../../../middlewares/authorizeLocationAccess.middleware.js");
 const controller = require("../../controllers/tenant/service.controller.js");
 
 const router = express.Router({ mergeParams: true });

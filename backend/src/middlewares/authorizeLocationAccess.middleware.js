@@ -31,7 +31,7 @@ const authorizeLocationAccess = async (req, res, next) => {
 
         const location = await Location.findOne({
             _id: locationId,
-            businessdId: user.businessId,
+            businessId: user.businessId,
             status: { $ne: "deleted" }
         }).select("_id name status services");
 
