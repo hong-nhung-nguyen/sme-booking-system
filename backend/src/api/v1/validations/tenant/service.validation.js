@@ -18,15 +18,15 @@ const findAllServicesSchema = Joi.object({
 
 const findOneServiceSchema = Joi.object({
     params: Joi.object({
-        serviceId: objectId
-    }).required()
+        serviceId: objectId.required()
+    })
 });
 
 const createServiceSchema = Joi.object({
     body: Joi.object({
         name: Joi.string().min(1).max(50).trim().required(),
         description: Joi.string().max(2000).trim(),
-        durationMinutes: Joi.number().integer().max(1000)
+        durationMinutes: Joi.number().integer().min(5).max(1000).multiple(5)
     })
         .unknown(false)
 });
@@ -34,7 +34,7 @@ const createServiceSchema = Joi.object({
 const updateServiceSchema = Joi.object({
     params: Joi.object({
         serviceId: objectId.required()
-    }),
+    }).required(),
     body: Joi.object({
         name: Joi.string().min(1).max(50).trim(),
         description: Joi.string().max(2000).trim(),
@@ -47,14 +47,14 @@ const updateServiceSchema = Joi.object({
 const deleteServiceSchema = Joi.object({
     params: Joi.object({
         serviceId: objectId.required()
-    })
+    }).required()
 });
 
 const updateStatusServiceSchema = Joi.object({
     params: Joi.object({
         serviceId: objectId.required(),
         status: Joi.string().trim().min(1).max(30).required().valid(...SERVICE_STATUSES),
-    })
+    }).required()
 });
 
 module.exports = {

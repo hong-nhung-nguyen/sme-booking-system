@@ -40,6 +40,17 @@ module.exports.index = async (req, res, next) => {
     }
 };
 
+const nameAlreadyExistsError = (res, error) => {
+    if (error?.code === 11000 && error?.keyPattern?.name) {
+        return res.status(409).json({
+            success: false,
+            message: "A service with this name already exists"
+        })
+    }
+
+    return next(error);
+}
+
 // [POST] api/v1/business/services/create
 module.exports.create = async (req, res, next) => {
     const businessId = req.user.businessId;
@@ -62,7 +73,7 @@ module.exports.create = async (req, res, next) => {
         });
 
     } catch (error) {
-        next(error);
+        nameAlreadyExistsError(res, error);
     }
 };
 
@@ -124,7 +135,7 @@ module.exports.editOne = async (req, res, next) => {
         });
 
     } catch (error) {
-        next(error);
+        nameAlreadyExistsError(res, error);
     }
 };
 
