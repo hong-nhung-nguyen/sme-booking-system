@@ -1,5 +1,6 @@
 const express = require("express");
 const authorizeLocationAccess = require("../../../../middlewares/authorizeLocationAccess.middleware.js");
+const authorizeRoles = require("../../../../middlewares/authorizeRoles.middleware.js");
 
 // Joi validation
 const serviceValidationSchema = require("../../validations/tenant/service.validation.js");
@@ -21,6 +22,7 @@ router.get(
 
 router.post(
     "/create", 
+    authorizeRoles("owner", "manager"),
     validateMiddleware(serviceValidationSchema.createServiceSchema),
     controller.create
 );
@@ -33,18 +35,21 @@ router.get(
 
 router.patch(
     "/edit/:serviceId", 
+    authorizeRoles("owner", "manager"),
     validateMiddleware(serviceValidationSchema.updateServiceSchema),
     controller.editOne
 );
 
 router.delete(
     "/delete/:serviceId", 
+    authorizeRoles("owner", "manager"),
     validateMiddleware(serviceValidationSchema.deleteServiceSchema),
     controller.deleteOne
 );
 
 router.patch(
     "/:serviceId/change-status/:status",
+    authorizeRoles("owner", "manager"),
     validateMiddleware(serviceValidationSchema.updateStatusServiceSchema), 
     controller.updateStatus
 );
