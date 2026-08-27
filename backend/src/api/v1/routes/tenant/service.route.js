@@ -9,4 +9,6 @@ const router = express.Router({ mergeParams: true });
 // Business-wide services catalogue (no location authorization)
 router.get("/", controller.index);
 
+router.post("/create", controller.create);
+
 module.exports = router;

@@ -15,3 +15,30 @@ module.exports.index = async (req, res, next) => {
         next(error);
     }
 };
+
+// [POST] api/v1/business/services/create
+module.exports.create = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    try {
+        if (!req.body) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing request body"
+            });
+        }
+
+        const newService = await serviceService.create({
+            businessId,
+            input: req.body,
+        });
+
+        return res.status(200).json({
+            success: true,
+            service: newService
+        });
+
+    } catch (error) {
+        next(error);
+    }
+}
+
