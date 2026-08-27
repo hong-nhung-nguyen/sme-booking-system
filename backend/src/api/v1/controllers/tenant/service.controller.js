@@ -1,4 +1,3 @@
-const { response } = require("express");
 const serviceService = require("../../../../services/tenant/service.service");
 
 // [GET] api/v1/business/services
@@ -43,7 +42,7 @@ module.exports.create = async (req, res, next) => {
     }
 };
 
-// [GET] api/v1/business/services/:serviceId
+// [GET] api/v1/business/services/detail/:serviceId
 module.exports.detail = async (req, res, next) => {
     const businessId = req.user.businessId; 
     const serviceId = req.params.serviceId;
@@ -157,7 +156,7 @@ module.exports.updateStatus = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};
 
 
 
