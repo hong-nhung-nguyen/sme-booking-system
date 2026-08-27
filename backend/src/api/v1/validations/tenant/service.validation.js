@@ -9,6 +9,14 @@ const SERVICE_STATUSES = [
     "deleted"
 ];
 
+const findAllServicesSchema = Joi.object({
+    query: Joi.object({
+        status: Joi.string().trim().max(30).valid("active", "temporarilyUnavailable", "discontinued"),
+        name: Joi.string().trim().max(50)
+    })
+        .unknown(false)
+})
+
 const findOneServiceSchema = Joi.object({
     params: Joi.object({
         serviceId: objectId
@@ -52,6 +60,7 @@ const updateStatusServiceSchema = Joi.object({
 
 module.exports = {
     SERVICE_STATUSES,
+    findAllServicesSchema,
     findOneServiceSchema,
     createServiceSchema,
     updateServiceSchema,

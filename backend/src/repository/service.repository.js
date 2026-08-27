@@ -1,11 +1,8 @@
 const Service = require("../models/Service.model");
 
-module.exports.findAllForBusiness = async (data) => {
+module.exports.findAllForBusiness = async (find) => {
     const services =  await Service
-        .find({
-            businessId: data.businessId,
-            status: { $ne: "deleted" }
-        })
+        .find(find)
         .select("_id name description defaultDurationMinutes status")
         .sort({ name: 1 });
     return services;
@@ -15,7 +12,7 @@ module.exports.findOneForBusiness = async ({ businessId, serviceId }) => {
     const service = await Service.findOne({
         _id: serviceId,
         businessId,
-        status: { $ne: "deleted" }
+        deleted: false
     })
     .select("_id name description defaultDurationMinutes changeHistory status");
 

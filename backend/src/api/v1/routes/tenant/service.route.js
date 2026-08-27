@@ -7,8 +7,6 @@ const validateMiddleware = require("../../../../middlewares/validateRequest.midd
 // End Joi validation 
 
 const controller = require("../../controllers/tenant/service.controller.js");
-const { deleteAppointmentSchema } = require("../../validations/tenant/appointment.validation.js");
-const { validate } = require("../../../../models/Service.model.js");
 
 const router = express.Router({ mergeParams: true });
 
@@ -17,6 +15,7 @@ const router = express.Router({ mergeParams: true });
 // Business-wide services catalogue (no location authorization)
 router.get(
     "/", 
+    validateMiddleware(serviceValidationSchema.findAllServicesSchema),
     controller.index
 );
 

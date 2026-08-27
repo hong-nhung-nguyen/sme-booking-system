@@ -1,9 +1,9 @@
 const serviceRepository = require("../../repository/service.repository");
 const isSameValue = require("../../utils/checkSameValue");
 
-module.exports.findAllForBusiness = async (data) => {
-    const businessId = data.businessId;
-    return serviceRepository.findAllForBusiness({businessId});
+module.exports.findAllForBusiness = async (find) => {
+    if (!find.businessId) return null;
+    return serviceRepository.findAllForBusiness(find);
 };
 
 module.exports.create = async ({ businessId, input }) => {
@@ -71,6 +71,7 @@ module.exports.deleteOne = async ({ businessId, serviceId, actorId }) => {
     ];
 
     service.status = "deleted";
+    service.deleted = true;
 
     service.changeHistory.push({
         changes: change,

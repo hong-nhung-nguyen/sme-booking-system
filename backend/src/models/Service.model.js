@@ -14,7 +14,7 @@ const serviceSchema = new mongoose.Schema({
         required: true,
         trim: true,
         minlength: 2,
-        maxlength: 100
+        maxlength: 50
     },
     description: {
         type: String,
@@ -38,6 +38,10 @@ const serviceSchema = new mongoose.Schema({
         enum: ["active", "temporarilyUnavailable", "discontinued", "deleted"],
         required: true,
         default: "active"
+    },
+    deleted: {
+        type: Boolean,
+        default: false
     },
     changeHistory: [ChangeHistorySchema]
 }, {

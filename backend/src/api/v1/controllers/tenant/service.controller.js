@@ -5,7 +5,31 @@ module.exports.index = async (req, res, next) => {
     const businessId = req.user.businessId;
 
     try {
-        const services = await serviceService.findAllForBusiness({businessId});
+        let find = {
+            businessId,
+            deleted: false
+        };
+
+        if (req.query.status) {
+            find.status = req.query.status;
+        }
+
+        let nameSearch = {
+            keyword: ""
+        }
+
+        if (req.query.name) {
+            nameSearch.keyword = req.query.name;
+
+            // remove the special characters in the search query
+            const cleanedName = req.query.name.replace(/[^a-zA-Z0-9\s]/g, "");
+            const regex = new RegExp(cleanedName.keyword, "i");
+            nameSearch.regex = regex;
+
+            find.name = nameSearch.regex;
+        }
+
+        const services = await serviceService.findAllForBusiness(find);
 
         return res.status(200).json({
             success: true,
