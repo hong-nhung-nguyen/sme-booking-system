@@ -13,4 +13,6 @@ router.post("/create", controller.create);
 
 router.get("/:serviceId", controller.detail);
 
+router.patch("/edit/:serviceId", controller.editOneService);
+
 module.exports = router;

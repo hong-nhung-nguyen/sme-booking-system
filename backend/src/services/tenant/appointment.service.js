@@ -2,6 +2,7 @@ const appointmentRepository = require("../../repository/appointment.repository")
 const resourceRepository = require("../../repository/resource.repository");
 
 const resourceService = require("../../services/tenant/resource.service");
+const isSameValue = require("../../utils/checkSameValue");
 
 const allowedAppointmentFilters = ["serviceId", "clientId", "status", "date"];
 
@@ -116,19 +117,6 @@ module.exports.create = async (data) => {
      * with later version: the queue will be checked first to decide "unconfirm" or "queued"
      */
     return await module.exports.changeStatus(newAppointment.businessId, newAppointment.locationId, newAppointment.id, "unconfirmed", {updatedBy: actor});
-};
-
-/**
- * check if the value has the Date type
-if yes --> treat is as a Date object
-if no --> just plain String
- */
-const isSameValue = (oldValue, newValue) => {
-    if (oldValue instanceof Date) {
-        return oldValue.getTime() == new Date(newValue).getTime();
-    }
-
-    return String(oldValue) === String(newValue);
 };
 
 module.exports.edit = async (businessId, locationId, appointmentId, newData) => {

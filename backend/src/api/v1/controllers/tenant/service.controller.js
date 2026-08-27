@@ -1,3 +1,4 @@
+const { response } = require("express");
 const serviceService = require("../../../../services/tenant/service.service");
 
 // [GET] api/v1/business/services
@@ -60,6 +61,43 @@ module.exports.detail = async (req, res, next) => {
         return res.status(200).json({
             success: true,
             service
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// [PATCH] api/v1/business/services/:serviceId
+module.exports.editOneService = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const actorId = req.user.userId;
+    const serviceId = req.params.serviceId;
+
+    try {
+        const originalService = await serviceService.findOneForBusiness({ businessId, serviceId });
+        
+        if (!req.body) {
+            return res.status(200).json({
+                success: true,
+                service: originalService
+            });
+        }
+
+        const input = req.body;
+
+        const updatedService = await serviceService.editOne({ businessId, serviceId, input, actorId });
+
+        if (!updatedService) {
+            return res.status(404).json({
+                success: false,
+                message: "Service not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            service: updatedService
         });
 
     } catch (error) {

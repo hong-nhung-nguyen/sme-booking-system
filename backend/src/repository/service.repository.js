@@ -17,12 +17,19 @@ module.exports.findOneForBusiness = async ({ businessId, serviceId }) => {
         businessId,
         status: { $ne: "deleted" }
     })
-    .select("_id name description defaultDurationMinutes status");
+    .select("_id name description defaultDurationMinutes changeHistory status");
 
     return service;
-}
+};
 
 module.exports.create = async (data) => {
     return await Service.create(data);
 };
+
+module.exports.editOne = async (service) => {
+    await service.save();
+    return service;
+}
+
+
 
