@@ -129,7 +129,36 @@ module.exports.deleteOne = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+// [PATCH] api/v1/business/services/:serviceId/change-status/:status
+module.exports.updateStatus = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const actorId = req.user.userId;
+    const { serviceId, status } = req.params;
+
+    try {
+        const input = { status };
+
+        const updatedService = await serviceService.editOne({ businessId, serviceId, input, actorId });
+
+        if (!updatedService) {
+            return res.status(404).json({
+                success: false,
+                message: "Service not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            service: updatedService
+        })
+
+    } catch (error) {
+        next(error);
+    }
 }
+
 
 
 

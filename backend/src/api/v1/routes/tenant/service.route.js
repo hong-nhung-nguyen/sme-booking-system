@@ -17,4 +17,6 @@ router.patch("/edit/:serviceId", controller.editOne);
 
 router.delete("/delete/:serviceId", controller.deleteOne);
 
+router.patch("/:serviceId/change-status/:status", controller.updateStatus);
+
 module.exports = router;
