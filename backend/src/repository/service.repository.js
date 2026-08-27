@@ -1,27 +1,12 @@
 const Service = require("../models/Service.model");
 
-module.exports.findCandidatesForIntent = async ({ businessId, serviceName }) => {
-    if (!businessId) {
-        throw new TypeError("businessId is required");
-    }
-
-    if (!serviceName) return [];
-
-    // exact, case-sensitive matching 
-    const escapedName = serviceName.replace(
-        /[.*+?^${}()|[\]\\]/g,
-        "\\$&"
-    );
-
-    return await Service.find({
-        businessId,
-        name: {
-            $regex: `^${escapedName}$`,
-            $options: "i"
-        },
-        status: "active"
-    })
-        .select("_id")
-        .limit(2)
-        .lean();
+module.exports.findAllForBusiness = async (data) => {
+    const services =  await Service
+        .find({
+            businessId: data.businessId,
+            status: { $ne: "deleted" }
+        })
+        .select("_id name defaultDurationMinutes status")
+        .sort({ name: 1 });
+    return services;
 }

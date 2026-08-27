@@ -4,8 +4,9 @@ const controller = require("../../controllers/tenant/service.controller.js");
 
 const router = express.Router({ mergeParams: true });
 
-router.use(authorizeLocationAccess);
+// router.use(authorizeLocationAccess);
 
+// Business-wide services catalogue (no location authorization)
 router.get("/", controller.index);
 
 module.exports = router;

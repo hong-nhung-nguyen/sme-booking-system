@@ -1,32 +1,15 @@
-const Location = require("../../../../models/Location.model");
-const Service = require("../../../../models/Service.model");
+const serviceService = require("../../../../services/tenant/service.service");
 
-// [GET] api/v1/business/locations/:locationId/services
+// [GET] api/v1/business/services
 module.exports.index = async (req, res, next) => {
     const businessId = req.user.businessId;
 
     try {
-        const location = req.location;
-
-        const serviceIds = location.services.map((entry) => entry.serviceId);
-
-        const services = await Service.find({
-            businessId: businessId,
-            _id: { $in: serviceIds }
-        }).select("name defaultDurationMinutes status");
-
-     
-
-        const payload = services.map((service) => ({
-            _id: service._id,
-            name: service.name,
-            defaultDurationMinutes: service.defaultDurationMinutes,
-            status: service.status
-        }));
+        const services = await serviceService.findAllForBusiness({businessId});
 
         return res.status(200).json({
-            message: "Services found",
-            services: payload
+            success: true,
+            services
         });
     } catch (error) {
         next(error);

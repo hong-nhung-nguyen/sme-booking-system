@@ -18,6 +18,6 @@ router.use("/appointments", appointmentRoutes);
 // swallowed by "/locations/:locationId".
 router.use("/locations", locationRoutes);
 
-router.use(PATH_LOCATION + "/services", serviceRoutes);
+router.use("/services", serviceRoutes);
 
 module.exports = router;
