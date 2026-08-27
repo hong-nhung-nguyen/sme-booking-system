@@ -8,7 +8,7 @@ const ChangeHistorySchema = new mongoose.Schema({
                     type: String,
                     required: true
                 },
-                oldValue: {type: mongoose.Schema.Types.Mixed,},
+                oldValue: {type: mongoose.Schema.Types.Mixed},
                 newValue: {
                     type: mongoose.Schema.Types.Mixed,
                     required: true

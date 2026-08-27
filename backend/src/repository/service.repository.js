@@ -1,27 +1,32 @@
 const Service = require("../models/Service.model");
 
-module.exports.findCandidatesForIntent = async ({ businessId, serviceName }) => {
-    if (!businessId) {
-        throw new TypeError("businessId is required");
-    }
+module.exports.findAllForBusiness = async (find) => {
+    const services =  await Service
+        .find(find)
+        .select("_id name description defaultDurationMinutes status")
+        .sort({ name: 1 });
+    return services;
+};
 
-    if (!serviceName) return [];
-
-    // exact, case-sensitive matching 
-    const escapedName = serviceName.replace(
-        /[.*+?^${}()|[\]\\]/g,
-        "\\$&"
-    );
-
-    return await Service.find({
+module.exports.findOneForBusiness = async ({ businessId, serviceId }) => {
+    const service = await Service.findOne({
+        _id: serviceId,
         businessId,
-        name: {
-            $regex: `^${escapedName}$`,
-            $options: "i"
-        },
-        status: "active"
+        deleted: false
     })
-        .select("_id")
-        .limit(2)
-        .lean();
+    .select("_id name description defaultDurationMinutes changeHistory status");
+
+    return service;
+};
+
+module.exports.create = async (data) => {
+    return await Service.create(data);
+};
+
+module.exports.editOne = async (service) => {
+    await service.save();
+    return service;
 }
+
+
+

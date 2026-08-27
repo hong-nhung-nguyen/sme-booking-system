@@ -1,4 +1,5 @@
 const Location = require("../../../../models/Location.model");
+const locationService = require("../../../../services/tenant/location.service");
 
 // [GET] api/v1/business/locations
 module.exports.index = async (req, res, next) => {
@@ -27,3 +28,32 @@ module.exports.index = async (req, res, next) => {
         next(error);
     }
 };
+
+// [POST] api/v1/business/locations
+module.exports.create = async (req, res, next) => {
+    try {
+        const businessId = req.user.businessId;
+
+        if (!req.body) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing request body"
+            });
+        }
+
+        const newLocation = await locationService.create({
+            input: req.body,
+            businessId: req.user.businessId,
+            actorId: req.user.userId
+        });
+
+        return res.status(200).json({
+            success: true,
+            location: newLocation
+        });
+
+    } catch (error) {
+        next(error);
+    }
+}
+
