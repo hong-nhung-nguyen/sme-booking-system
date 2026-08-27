@@ -55,4 +55,29 @@ module.exports.editOne = async ({ businessId, serviceId, input, actorId }) => {
     }
 
     return serviceRepository.editOne(service);
+};
+
+module.exports.deleteOne = async ({ businessId, serviceId, actorId }) => {
+    const service = await module.exports.findOneForBusiness({ businessId, serviceId });
+
+    if (!service) return null;
+
+    const change = [
+        {
+            "field": "status",
+            "oldValue": service.status,
+            "newValue": "deleted",
+        }
+    ];
+
+    service.status = "deleted";
+
+    service.changeHistory.push({
+        changes: change,
+        updatedBy: actorId,
+        updatedAt: new Date()
+    });
+
+    // Soft delete 
+    return serviceRepository.editOne(service);
 }

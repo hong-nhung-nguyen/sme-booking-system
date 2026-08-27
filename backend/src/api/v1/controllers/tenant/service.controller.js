@@ -68,8 +68,8 @@ module.exports.detail = async (req, res, next) => {
     }
 };
 
-// [PATCH] api/v1/business/services/:serviceId
-module.exports.editOneService = async (req, res, next) => {
+// [PATCH] api/v1/business/services/edit/:serviceId
+module.exports.editOne = async (req, res, next) => {
     const businessId = req.user.businessId;
     const actorId = req.user.userId;
     const serviceId = req.params.serviceId;
@@ -103,6 +103,33 @@ module.exports.editOneService = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+// [DELETE] api/v1/business/services/delete/:serviceId
+module.exports.deleteOne = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const actorId = req.user.userId;
+    const serviceId = req.params.serviceId;
+
+    try {
+        const deleted = await serviceService.deleteOne({ businessId, serviceId, actorId });
+
+        if (!deleted) {
+            return res.status(404).json({
+                success: false,
+                message: "Service not found"
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Delete service successfully"
+        });
+
+    } catch (error) {
+        next(error);
+    }
 }
+
 
 

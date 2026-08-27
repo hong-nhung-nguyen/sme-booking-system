@@ -13,6 +13,8 @@ router.post("/create", controller.create);
 
 router.get("/:serviceId", controller.detail);
 
-router.patch("/edit/:serviceId", controller.editOneService);
+router.patch("/edit/:serviceId", controller.editOne);
+
+router.delete("/delete/:serviceId", controller.deleteOne);
 
 module.exports = router;
