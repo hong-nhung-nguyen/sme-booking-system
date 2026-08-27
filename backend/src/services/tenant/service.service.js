@@ -62,22 +62,11 @@ module.exports.deleteOne = async ({ businessId, serviceId, actorId }) => {
 
     if (!service) return null;
 
-    const change = [
-        {
-            "field": "status",
-            "oldValue": service.status,
-            "newValue": "deleted",
-        }
-    ];
-
-    service.status = "deleted";
     service.deleted = true;
-
-    service.changeHistory.push({
-        changes: change,
-        updatedBy: actorId,
-        updatedAt: new Date()
-    });
+    service.deletedBy = {
+        userId: actorId,
+        deletedAt: new Date()
+    };
 
     // Soft delete 
     return serviceRepository.editOne(service);

@@ -35,13 +35,20 @@ const serviceSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["active", "temporarilyUnavailable", "discontinued", "deleted"],
+        enum: ["active", "temporarilyUnavailable", "discontinued"],
         required: true,
         default: "active"
     },
     deleted: {
         type: Boolean,
         default: false
+    },
+    deletedBy: {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        deletedAt: Date
     },
     changeHistory: [ChangeHistorySchema]
 }, {

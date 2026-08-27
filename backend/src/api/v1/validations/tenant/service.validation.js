@@ -6,12 +6,11 @@ const SERVICE_STATUSES = [
     "active",
     "temporarilyUnavailable",
     "discontinued",
-    "deleted"
 ];
 
 const findAllServicesSchema = Joi.object({
     query: Joi.object({
-        status: Joi.string().trim().max(30).valid("active", "temporarilyUnavailable", "discontinued"),
+        status: Joi.string().trim().max(30).valid(...SERVICE_STATUSES),
         name: Joi.string().trim().max(50)
     })
         .unknown(false)
