@@ -40,5 +40,31 @@ module.exports.create = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+// [GET] api/v1/business/services/:serviceId
+module.exports.detail = async (req, res, next) => {
+    const businessId = req.user.businessId; 
+    const serviceId = req.params.serviceId;
+
+    try {
+        const service = await serviceService.findOneForBusiness({ businessId, serviceId });
+
+        if (!service) {
+            return res.status(404).json({
+                success: false,
+                message: "Service not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            service
+        });
+
+    } catch (error) {
+        next(error);
+    }
 }
+
 

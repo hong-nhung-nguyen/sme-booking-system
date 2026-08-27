@@ -15,4 +15,8 @@ module.exports.create = async ({ businessId, input }) => {
     };
 
     return serviceRepository.create(serviceData);
+};
+
+module.exports.findOneForBusiness = async ({ businessId, serviceId }) => {
+    return serviceRepository.findOneForBusiness({ businessId, serviceId });
 }

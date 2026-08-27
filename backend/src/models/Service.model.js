@@ -35,7 +35,7 @@ const serviceSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["active", "inactive", "temporarilyUnavailable", "discontinued", "deleted"],
+        enum: ["active", "temporarilyUnavailable", "discontinued", "deleted"],
         required: true,
         default: "active"
     },

@@ -11,4 +11,6 @@ router.get("/", controller.index);
 
 router.post("/create", controller.create);
 
+router.get("/:serviceId", controller.detail);
+
 module.exports = router;

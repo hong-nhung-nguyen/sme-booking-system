@@ -11,6 +11,18 @@ module.exports.findAllForBusiness = async (data) => {
     return services;
 };
 
+module.exports.findOneForBusiness = async ({ businessId, serviceId }) => {
+    const service = await Service.findOne({
+        _id: serviceId,
+        businessId,
+        status: { $ne: "deleted" }
+    })
+    .select("_id name description defaultDurationMinutes status");
+
+    return service;
+}
+
 module.exports.create = async (data) => {
     return await Service.create(data);
-}
+};
+
