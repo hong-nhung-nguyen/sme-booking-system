@@ -6,7 +6,7 @@ module.exports.findAllForBusiness = async (find) => {
     return serviceRepository.findAllForBusiness(find);
 };
 
-module.exports.create = async ({ businessId, input }) => {
+module.exports.create = async ({ businessId, input, session=null }) => {
     const serviceData = {
         businessId,
         name: input.name,
@@ -15,12 +15,16 @@ module.exports.create = async ({ businessId, input }) => {
         status: "active"
     };
 
-    return serviceRepository.create(serviceData);
+    return serviceRepository.create(serviceData, session);
 };
 
 module.exports.findOneForBusiness = async ({ businessId, serviceId }) => {
     return serviceRepository.findOneForBusiness({ businessId, serviceId });
 };
+
+module.exports.findManyForBusiness = async ({ businessId, serviceIds }) => {
+    return serviceRepository.findManyForBusiness({ businessId, serviceIds });
+}
 
 module.exports.editOne = async ({ businessId, serviceId, input, actorId }) => {
     const service = await module.exports.findOneForBusiness({ businessId, serviceId });
