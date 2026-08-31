@@ -13,6 +13,8 @@ const controller = require("../../controllers/tenant/location.controller");
 
 router.get("/", controller.index);
 
+router.get("/:locationId", controller.findOneForBusiness);
+
 router.post(
     "/create", 
     controller.create

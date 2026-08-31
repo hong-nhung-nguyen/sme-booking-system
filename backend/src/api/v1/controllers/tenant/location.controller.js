@@ -29,6 +29,32 @@ module.exports.index = async (req, res, next) => {
     }
 };
 
+// [GET] api/v1/business/locations/:locationId
+module.exports.findOneForBusiness = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const locationId = req.params.locationId; 
+
+    try {
+        const location = await locationService.findOneForBusiness({ businessId, locationId });
+
+        if (!location) {
+            return res.status(404).json({
+                success: false,
+                message: "Location not found"
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            location
+        });
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+
 // [POST] api/v1/business/locations
 module.exports.create = async (req, res, next) => {
     try {
@@ -88,7 +114,6 @@ module.exports.createAndAssignService = async (req, res, next) => {
     const businessId = req.user.businessId;
     const actorId = req.user.userId;
     const locationId = req.params.locationId;
-    const allowedLocationIds = req.user.locationIds;
 
     try {
         if (!req.body) {

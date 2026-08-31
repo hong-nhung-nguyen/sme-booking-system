@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const locationRepository = require("../../repository/location.repository");
 const serviceService = require("./service.service");
 
+module.exports.findOneForBusiness = async ({ businessId, locationId }) => {
+    return await locationRepository.findOne({ businessId, locationId });
+};
+
 module.exports.create = async ({ input, businessId, actorId }) => {
     const locationData = {
         businessId,
