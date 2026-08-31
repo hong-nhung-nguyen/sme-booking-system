@@ -142,40 +142,89 @@ module.exports.unassignService = async ({ businessId, locationId, serviceId, act
         throw error;
     }
 
-    const oldServices = location.services
-        .filter((entry) => entry.serviceId)
-        .map((entry) => ({
-            serviceId: entry.serviceId,
-            name: entry.serviceId.name
-        }));
-    
-    const serviceExistsOnLocation = location.services.some(
-        (entry) => entry.serviceId && entry.serviceId._id.toString() === serviceId
+    const serviceExistsInLocation = location.services.some(
+        (entry) => entry.serviceId._id.toString() === serviceId 
     );
 
-    if (!serviceExistsOnLocation) {
+    if (!serviceExistsInLocation) {
         const error = new Error("Service is not assigned to this location");
         error.status = 404;
         throw error;
     }
 
-    location.services = location.services.filter(
-        (entry) => entry.serviceId._id.toString() !== serviceId
-    );
+    const oldServices = location.services
+        .filter((entry) => entry.serviceId)
+        .map((entry) => ({
+            serviceId: entry.serviceId._id.toString(),
+            name: entry.serviceId.name 
+        }));
 
+    location.services = location.services
+        .filter((entry) => entry.serviceId._id.toString() !== serviceId);
+    
     const newServices = location.services
         .filter((entry) => entry.serviceId)
         .map((entry) => ({
-            serviceId: entry.serviceId,
+            serviceId: entry.serviceId._id.toString(),
             name: entry.serviceId.name
         }));
-
+    
     location.changeHistory.push({
         changes: [
             {
                 field: "services",
                 oldValue: oldServices,
                 newValue: newServices
+            }
+        ],
+        updatedBy: actorId,
+        updatedAt: new Date()
+    });
+
+    return await locationRepository.editOne(location);
+}
+
+module.exports.updateServiceStatus = async ({ businessId, locationId, serviceId, status, actorId }) => {
+    const location = await locationRepository.findOne({ businessId, locationId });
+
+    if (!location) {
+        const error = new Error("Location not found");
+        error.status = 404;
+        throw error;
+    }
+
+    const updatedService = location.services.find(
+        (entry) => entry.serviceId && entry.serviceId._id.toString() === serviceId
+    );
+
+    if (!updatedService) {
+        const error = new Error("Service is not assigned to this location");
+        error.status = 404;
+        throw error;
+    }
+
+    const oldServiceState = {
+        serviceId: updatedService.serviceId._id.toString(),
+        name: updatedService.serviceId.name,
+        status: updatedService.status,
+        timeslots: updatedService.timeslots
+    };
+
+    updatedService.status = status;
+
+    const newServiceState = {
+        serviceId: updatedService.serviceId._id.toString(),
+        name: updatedService.serviceId.name,
+        status: updatedService.status,
+        timeslots: updatedService.timeslots
+    }
+
+    location.changeHistory.push({
+        changes: [
+            {
+                field: "services",
+                oldValue: oldServiceState,
+                newValue: newServiceState
             }
         ],
         updatedBy: actorId,

@@ -42,4 +42,11 @@ router.delete(
     controller.unassignService
 );
 
+router.patch(
+    "/:locationId/services/:serviceId/status",
+    authorizeLocationAccess,
+    authorizeRoles("owner", "manager"),
+    controller.updateServiceStatus
+);
+
 module.exports = router;

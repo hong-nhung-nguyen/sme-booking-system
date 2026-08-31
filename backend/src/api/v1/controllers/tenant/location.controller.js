@@ -119,7 +119,7 @@ module.exports.createAndAssignService = async (req, res, next) => {
     }
 };
 
-// [DELETE] api/v1/business/locations/:locationId/services/:serviceId
+// [DELETE] api/v1/business/locations/:locationId/service/:serviceId
 module.exports.unassignService = async (req, res, next) => {
     const businessId = req.user.businessId;
     const actorId = req.user.userId;
@@ -137,11 +137,37 @@ module.exports.unassignService = async (req, res, next) => {
             success: true,
             location
         });
+    } catch (error) {
+        next(error)
+    }
+};
+
+// [PATCH] api/v1/business/locations/:locationId/services/:serviceId
+module.exports.updateServiceStatus = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const actorId = req.user.userId;
+    const { locationId, serviceId } = req.params;
+
+    try {
+        const status = req.body.status;
+
+        const location = await locationService.updateServiceStatus({
+            businessId,
+            locationId,
+            serviceId,
+            status,
+            actorId
+        });
+
+        return res.status(200).json({
+            success: true,
+            location
+        });
 
     } catch (error) {
         next(error);
     }
-}
+};
 
 
 
