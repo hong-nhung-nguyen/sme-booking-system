@@ -57,3 +57,117 @@ module.exports.create = async (req, res, next) => {
     }
 }
 
+// [PUT] api/v1/business/locations/:locationId/services
+module.exports.assignServices = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const locationId = req.params.locationId;
+    const actorId = req.user.userId;
+
+    try {
+        const serviceIds = req.body.serviceIds;
+        const location = await locationService.assignServices(
+            { 
+                businessId, 
+                locationId, 
+                ...(serviceIds.length > 0 && { serviceIds }),
+                actorId 
+            }
+        );
+
+        return res.status(200).json({
+            success: true,
+            location
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// [POST] api/v1/business/locations/:locationId/service
+module.exports.createAndAssignService = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const actorId = req.user.userId;
+    const locationId = req.params.locationId;
+    const allowedLocationIds = req.user.locationIds;
+
+    try {
+        if (!req.body) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing request body"
+            });
+        }
+
+        let newService = req.body.newService;
+
+        let result = await locationService.createAndAssignService({
+            businessId,
+            locationId,
+            input: newService,
+            actorId
+        });
+
+        if (result) {
+            return res.status(200).json({
+                success: true,
+                ...result
+            });
+        }
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// [DELETE] api/v1/business/locations/:locationId/service/:serviceId
+module.exports.unassignService = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const actorId = req.user.userId;
+    const { locationId, serviceId } = req.params;
+
+    try {
+        const location = await locationService.unassignService({
+            businessId,
+            locationId,
+            serviceId,
+            actorId
+        });
+
+        return res.status(200).json({
+            success: true,
+            location
+        });
+    } catch (error) {
+        next(error)
+    }
+};
+
+// [PATCH] api/v1/business/locations/:locationId/services/:serviceId
+module.exports.updateServiceStatus = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const actorId = req.user.userId;
+    const { locationId, serviceId } = req.params;
+
+    try {
+        const status = req.body.status;
+
+        const location = await locationService.updateServiceStatus({
+            businessId,
+            locationId,
+            serviceId,
+            status,
+            actorId
+        });
+
+        return res.status(200).json({
+            success: true,
+            location
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+

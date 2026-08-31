@@ -19,8 +19,17 @@ module.exports.findOneForBusiness = async ({ businessId, serviceId }) => {
     return service;
 };
 
-module.exports.create = async (data) => {
-    return await Service.create(data);
+module.exports.findManyForBusiness = async ({ businessId, serviceIds }) => {
+    return Service.find({
+        _id: { $in: serviceIds },
+        businessId,
+        deleted: false
+    }).select("_id name status");
+}
+
+module.exports.create = async (data, session=null) => {
+    const service = new Service(data);
+    return service.save({ session });
 };
 
 module.exports.editOne = async (service) => {

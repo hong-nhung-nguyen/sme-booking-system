@@ -40,31 +40,33 @@ const locationSchema = new mongoose.Schema({
         min: 1
     },
     services: {
-        type: [{
-            serviceId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Service",
-                required: true
-            },
-            status: {
-                type: String,
-                enum: ["active", "inactive", "temporarilyUnavailable"],
-                default: "active"
-            },
-            timeslots: {
-                type: [{
+        type: [
+            {
+                serviceId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Service",
+                    required: true
+                },
+                status: {
                     type: String,
-                    match: /^([01]\d|2[0-3]):([0-5]\d)$/,
-                }],
-                default: [],
-                validate: {
-                    validator(value) {
-                        return new Set(value).size === value.length;
-                    },
-                    message: "timeslots cannot contain duplicates"
+                    enum: ["active", "discontinued", "temporarilyUnavailable"],
+                    default: "active"
+                },
+                timeslots: {
+                    type: [{
+                        type: String,
+                        match: /^([01]\d|2[0-3]):([0-5]\d)$/,
+                    }],
+                    default: [],
+                    validate: {
+                        validator(value) {
+                            return new Set(value).size === value.length;
+                        },
+                        message: "timeslots cannot contain duplicates"
+                    }
                 }
             }
-        }],
+        ],
         default: []
     },
     status: {
