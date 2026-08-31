@@ -1,0 +1,35 @@
+import { apiRequest } from "../../../shared/api/apiClient";
+
+export function getLocationServices(locationId) {
+    return apiRequest(`/business/locations/${encodeURIComponent(locationId)}/services`);
+};
+
+export function createAndAssignLocationServices(locationId, newService) {
+    return apiRequest(
+        `/business/locations/${encodeURIComponent(locationId)}/service`,
+        {
+            method: "POST",
+            body: JSON.stringify({ newService })
+        }
+    );
+};
+
+export function unassignLocationService(locationId, serviceId) {
+    return apiRequest( 
+        `/business/locations/${encodeURIComponent(locationId)}/services/${encodeURIComponent(serviceId)}`,
+        {
+            method: "DELETE"
+        }
+    );
+};
+
+export function updateLocationServiceStatus(locationId, serviceId, status) {
+    return apiRequest(
+        `/business/locations/${encodeURIComponent(locationId)}/services/${encodeURIComponent(serviceId)}/status`,
+        {
+            method: "PATCH",
+            body: JSON.stringify({ status })
+        }
+    );
+};
+
