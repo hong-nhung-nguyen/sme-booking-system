@@ -131,5 +131,57 @@ module.exports.createAndAssignService = async ({ businessId, locationId, input, 
      * If both succeed, the transaction commits them together 
      */
     return result; 
+};
 
-}
+module.exports.unassignService = async ({ businessId, locationId, serviceId, actorId }) => {
+    const location = await locationRepository.findOne({ businessId, locationId });
+
+    if (!location) {
+        const error = new Error("Location not found");
+        error.status = 404;
+        throw error;
+    }
+
+    const oldServices = location.services
+        .filter((entry) => entry.serviceId)
+        .map((entry) => ({
+            serviceId: entry.serviceId,
+            name: entry.serviceId.name
+        }));
+    
+    const serviceExistsOnLocation = location.services.some(
+        (entry) => entry.serviceId && entry.serviceId._id.toString() === serviceId
+    );
+
+    if (!serviceExistsOnLocation) {
+        const error = new Error("Service is not assigned to this location");
+        error.status = 404;
+        throw error;
+    }
+
+    location.services = location.services.filter(
+        (entry) => entry.serviceId._id.toString() !== serviceId
+    );
+
+    const newServices = location.services
+        .filter((entry) => entry.serviceId)
+        .map((entry) => ({
+            serviceId: entry.serviceId,
+            name: entry.serviceId.name
+        }));
+
+    location.changeHistory.push({
+        changes: [
+            {
+                field: "services",
+                oldValue: oldServices,
+                newValue: newServices
+            }
+        ],
+        updatedBy: actorId,
+        updatedAt: new Date()
+    });
+
+    return locationRepository.editOne(location);
+};
+

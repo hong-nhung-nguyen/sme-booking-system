@@ -35,4 +35,11 @@ router.put(
     controller.assignServices
 );
 
+router.delete(
+    "/:locationId/services/:serviceId",
+    authorizeLocationAccess,
+    authorizeRoles("owner", "manager"),
+    controller.unassignService
+);
+
 module.exports = router;
