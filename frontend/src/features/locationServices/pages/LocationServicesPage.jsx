@@ -146,6 +146,18 @@ export default function LocationServicesPage() {
         loadServices();
     }, [loadServices]);
 
+    useEffect(() => {
+        if (!successMessage) return undefined;
+
+        const timeoutId = window.setTimeout(() => {
+            setSuccessMessage("");
+        }, 4000);
+
+        return () => {
+            window.clearTimeout(timeoutId);
+        };
+    }, [successMessage]);
+
     const filteredServices = useMemo(() => {
         const query = deferredSearch.trim().toLocaleLowerCase();
 
@@ -389,7 +401,14 @@ export default function LocationServicesPage() {
 
             {successMessage && (
                 <div className="service-success" role="status">
-                    {successMessage}
+                    <span>{successMessage}</span>
+                    <button
+                        type="button"
+                        onClick={() => setSuccessMessage("")}
+                        aria-label="Dismiss success message"
+                    >
+                        X
+                    </button>
                 </div>
             )}
 
