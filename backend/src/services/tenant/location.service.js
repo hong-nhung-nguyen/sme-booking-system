@@ -6,6 +6,30 @@ module.exports.findOneForBusiness = async ({ businessId, locationId }) => {
     return await locationRepository.findOne({ businessId, locationId });
 };
 
+module.exports.findLocationServices = async ({ businessId, locationId }) => {
+    const location = await module.exports.findOneForBusiness({ businessId, locationId });
+
+    if (!location) {
+        const error = new Error("Location not found");
+        error.status = 404;
+        throw error;
+    }
+
+    return location.services
+        .filter((entry) => entry.serviceId)
+        .map((entry) => ({
+            assignmentId: entry._id,
+            serviceId: entry.serviceId._id,
+            name: entry.serviceId.name,
+            description: entry.serviceId.description,
+            defaultDurationMinutes: entry.serviceId.defaultDurationMinutes,
+            globalStatus: entry.serviceId.status,
+            localStatus: entry.status,
+            status: entry.status,
+            timeslots: entry.timeslots
+        }));
+};
+
 module.exports.create = async ({ input, businessId, actorId }) => {
     const locationData = {
         businessId,
@@ -147,7 +171,7 @@ module.exports.unassignService = async ({ businessId, locationId, serviceId, act
     }
 
     const serviceExistsInLocation = location.services.some(
-        (entry) => entry.serviceId._id.toString() === serviceId 
+        (entry) => entry.serviceId && entry.serviceId._id.toString() === serviceId 
     );
 
     if (!serviceExistsInLocation) {
@@ -164,7 +188,7 @@ module.exports.unassignService = async ({ businessId, locationId, serviceId, act
         }));
 
     location.services = location.services
-        .filter((entry) => entry.serviceId._id.toString() !== serviceId);
+        .filter((entry) => entry.serviceId && entry.serviceId._id.toString() !== serviceId);
     
     const newServices = location.services
         .filter((entry) => entry.serviceId)

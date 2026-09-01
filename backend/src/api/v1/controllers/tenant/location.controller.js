@@ -52,8 +52,24 @@ module.exports.findOneForBusiness = async (req, res, next) => {
     } catch (error) {
         next(error)
     }
-}
+};
 
+// [GET] api/v1/business/locations/:locationId/services
+module.exports.findLocationServices = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const locationId = req.params.locationId; 
+
+    try {
+        const services = await locationService.findLocationServices({ businessId, locationId });
+
+        return res.status(200).json({
+            success: true, 
+            services
+        });
+    } catch (error) {
+        next (error)
+    }
+}
 
 // [POST] api/v1/business/locations
 module.exports.create = async (req, res, next) => {

@@ -9,7 +9,7 @@ module.exports.findOne = async ({ businessId, locationId }, session=null ) => {
     .session(session)
     .populate({
         path: "services.serviceId",
-        select: "name"
+        select: "_id name description defaultDurationMinutes status"
     });
 };
 

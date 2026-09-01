@@ -8,6 +8,7 @@ import ScheduleCalendar from '../features/schedule/pages/ScheduleCalendar';
 import MessageInbox from '../features/message/pages/MessageInbox';
 import BookingDetail from '../features/booking/pages/BookingDetail';
 import BookingForm from '../features/booking/pages/BookingForm';
+import LocationServicesPage from '../features/locationServices/pages/LocationServicesPage';
 
 export default function App() {
   return (
@@ -32,10 +33,7 @@ export default function App() {
           <Route path="/dashboard" element={<ComingSoon title="Dashboard" />} />
           <Route path="/history" element={<ComingSoon title="History" />} />
           <Route path="/floor-plan" element={<ComingSoon title="Floor Plan" />} />
-          <Route
-            path="/service-management"
-            element={<ComingSoon title="Service Management" />}
-          />
+          <Route path="/service-management" element={<LocationServicesPage />} />
         </Route>
       </Route>
 

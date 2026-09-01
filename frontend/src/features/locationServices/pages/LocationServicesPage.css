@@ -1,0 +1,356 @@
+.location-services-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px;
+    color: #172033;
+}
+
+.service-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.service-page-header h1 {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.2;
+}
+
+.service-page-header p {
+    margin: 6px 0 0;
+    color: #667085;
+}
+
+.service-page-kicker {
+    margin: 0;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.primary-action,
+.service-actions button,
+.service-error button {
+    min-height: 44px;
+    border: 1px solid #cfd7e6;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #172033;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.primary-action {
+    padding: 0 18px;
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.primary-action:hover {
+    border-color: #1d4ed8;
+    background: #1d4ed8;
+}
+
+.service-actions button:hover,
+.service-error button:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.service-actions .danger-action:hover {
+    border-color: #dc2626;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.primary-action:disabled,
+.service-actions button:disabled,
+.service-error button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+}
+
+.primary-action:disabled:hover,
+.service-actions button:disabled:hover,
+.service-error button:disabled:hover {
+    border-color: #cfd7e6;
+    background: #ffffff;
+    color: #172033;
+}
+
+.primary-action:disabled:hover {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.primary-action:hover,
+.service-actions button:hover,
+.service-error button:hover {
+    transform: translateY(-1px);
+}
+
+.primary-action:focus-visible,
+.service-actions button:focus-visible,
+.service-error button:focus-visible,
+.service-field input:focus-visible,
+.service-field select:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+.service-toolbar {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) 220px;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid #d9e0ec;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.service-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.service-field span {
+    color: #344054;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.service-field input,
+.service-field select {
+    min-height: 44px;
+    width: 100%;
+    border: 1px solid #cfd7e6;
+    border-radius: 8px;
+    padding: 0 12px;
+    background: #ffffff;
+    color: #172033;
+    font: inherit;
+}
+
+.service-error,
+.service-empty,
+.service-state-panel {
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 20px;
+    background: #fff7f7;
+}
+
+.service-error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.service-error p,
+.service-empty p,
+.service-state-panel p {
+    margin: 0;
+    color: #667085;
+}
+
+.service-empty,
+.service-state-panel {
+    background: #ffffff;
+    border-color: #d9e0ec;
+}
+
+.service-empty h2,
+.service-state-panel h1 {
+    margin: 0 0 8px;
+}
+
+.service-empty .primary-action {
+    margin-top: 16px;
+}
+
+.service-list {
+    display: grid;
+    gap: 12px;
+}
+
+.service-card {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.2fr) minmax(280px, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #d9e0ec;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.service-card-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.service-card h2 {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.3;
+}
+
+.service-card-main p {
+    margin: 4px 0 0;
+    color: #667085;
+}
+
+.service-status {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
+    white-space: nowrap;
+    border-radius: 999px;
+    padding: 0 10px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.service-status.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.service-status.temporarilyUnavailable {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.service-status.discontinued {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.service-meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(80px, 1fr));
+    gap: 12px;
+    margin: 0;
+}
+
+.service-meta div {
+    min-width: 0;
+}
+
+.service-meta dt {
+    color: #667085;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.service-meta dd {
+    margin: 3px 0 0;
+    color: #172033;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.service-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.service-actions button {
+    padding: 0 12px;
+}
+
+.service-actions .danger-action {
+    border-color: #fecaca;
+    color: #b42318;
+}
+
+.service-skeleton {
+    height: 92px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #eef2f7, #f8fafc, #eef2f7);
+    background-size: 220% 100%;
+    animation: serviceSkeleton 1.2s ease-in-out infinite;
+}
+
+@keyframes serviceSkeleton {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+@media (max-width: 1024px) {
+    .service-card {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .service-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .location-services-page {
+        padding: 20px;
+    }
+
+    .service-page-header {
+        flex-direction: column;
+    }
+
+    .service-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .primary-action {
+        width: 100%;
+    }
+}
+
+@media (max-width: 375px) {
+    .location-services-page {
+        padding: 16px;
+    }
+
+    .service-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .service-card-main {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .service-actions button {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .primary-action,
+    .service-actions button,
+    .service-error button,
+    .service-skeleton {
+        animation: none;
+        transition: none;
+    }
+}
