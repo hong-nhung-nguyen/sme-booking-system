@@ -287,6 +287,162 @@
     animation: serviceSkeleton 1.2s ease-in-out infinite;
 }
 
+/* -------------------------------------- */
+.service-form-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: flex-end;
+    background: rgba(15, 23, 42, 0.42);
+}
+
+.service-form-panel {
+    width: min(620px, 100%);
+    height: 100%;
+    overflow-y: auto;
+    background: #ffffff;
+    box-shadow: -16px 0 40px rgba(15, 23, 42, 0.18);
+}
+
+.service-form {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    gap: 18px;
+    padding: 24px;
+}
+
+.service-form-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.service-form-header p {
+    margin: 6px 0 0;
+    color: #667085;
+}
+
+.service-form-warning {
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 12px;
+    background: #fffbeb;
+    color: #92400e;
+    font-weight: 700;
+}
+
+.service-form-section {
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    border: 1px solid #d9e0ec;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.service-form-section legend {
+    padding: 0 6px;
+    color: #172033;
+    font-weight: 800;
+}
+
+.service-form-section.local-section {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+}
+
+.service-form label {
+    display: grid;
+    gap: 6px;
+}
+
+.service-form label span {
+    color: #344054;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.service-form input,
+.service-form textarea,
+.service-form select {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid #cfd7e6;
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: #172033;
+    font: inherit;
+}
+
+.service-form textarea {
+    resize: vertical;
+}
+
+.service-form input[aria-invalid="true"],
+.service-form textarea[aria-invalid="true"] {
+    border-color: #dc2626;
+}
+
+.service-form small {
+    color: #b42318;
+}
+
+.service-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+.service-form-actions button {
+    min-height: 44px;
+    border: 1px solid #cfd7e6;
+    border-radius: 8px;
+    padding: 0 16px;
+    background: #ffffff;
+    color: #172033;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.service-form-actions button:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.service-success {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 60;
+    border-radius: 8px;
+    padding: 12px 16px;
+    background: #166534;
+    color: #ffffff;
+    font-weight: 800;
+}
+
+@media (max-width: 768px) {
+    .service-form-backdrop {
+        align-items: stretch;
+    }
+
+    .service-form-panel {
+        width: 100%;
+    }
+
+    .service-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .service-form-actions button {
+        width: 100%;
+    }
+}
+
 @keyframes serviceSkeleton {
     0% {
         background-position: 100% 0;

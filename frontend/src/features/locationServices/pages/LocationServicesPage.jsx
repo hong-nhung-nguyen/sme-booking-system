@@ -2,11 +2,15 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "rea
 import useAuth from "../../auth/hooks/useAuth";
 import useActiveLocation from "../../../shared/hooks/useActiveLocation";
 import {
+    createAndAssignLocationServices,
+    editCanonicalService,
     getLocationServices,
     unassignLocationService,
     updateLocationServiceStatus
 } from "../api/locationService.api";
 import "./LocationServicesPage.css";
+
+import LocationServiceForm from "../components/LocationServiceForm";
 
 const STATUS_OPTIONS = [
     { value: "all", label: "All statuses" },
@@ -52,6 +56,68 @@ export default function LocationServicesPage() {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [mutatingId, setMutatingId] = useState("");
+
+    //---------
+    const [formMode, setFormMode] = useState(null);
+    const [editingService, setEditingService] = useState(null);
+    const [formSubmitting, setFormSubmitting] = useState(false);
+    const [serverFieldErrors, setServerFieldErrors] = useState({});
+    const [successMessage, setSuccessMessage] = useState("");
+
+    function openCreateForm() {
+        setEditingService(null);
+        setServerFieldErrors({});
+        setFormMode("create");
+    }
+
+    function openEditForm(service) {
+        setEditingService(service);
+        setServerFieldErrors({});
+        setFormMode("edit");
+    }
+
+    function closeForm() {
+        setFormMode(null);
+        setEditingService(null);
+        setServerFieldErrors({});
+    }
+
+    // submit handlers
+    async function handleFormSubmit(payload) {
+    setFormSubmitting(true);
+    setServerFieldErrors({});
+    setSuccessMessage("");
+
+    try {
+        if (formMode === "create") {
+            await createAndAssignLocationServices(activeLocationId, payload.canonical);
+            setSuccessMessage("Service created and assigned.");
+        }
+
+        if (formMode === "edit") {
+            await editCanonicalService(editingService.serviceId, payload.canonical);
+
+            if (payload.local.status !== editingService.localStatus) {
+                await updateLocationServiceStatus(
+                    activeLocationId,
+                    editingService.serviceId,
+                    payload.local.status
+                );
+            }
+
+            setSuccessMessage("Service updated.");
+        }
+
+        await loadServices();
+                closeForm();
+            } catch (requestError) {
+                setServerFieldErrors(requestError.data?.errors || {});
+                setError(requestError.message || "Unable to save service.");
+            } finally {
+                setFormSubmitting(false);
+            }
+        }
+    // ----------
 
     const deferredSearch = useDeferredValue(search);
 
@@ -108,17 +174,26 @@ export default function LocationServicesPage() {
     };
 
     async function handleArchive(serviceId) {
+        const confirmed = window.confirm(
+            "Remove this service from the current location?"
+        );
+
+        if (!confirmed) return;
+
         setMutatingId(serviceId);
 
         try {
             await unassignLocationService(activeLocationId, serviceId);
-            await loadServices();
+            setServices((current) =>
+                current.filter((service) => getServiceId(service) !== serviceId)
+            );
+            setSuccessMessage("Service removed from this location.");
         } catch (requestError) {
             setError(requestError.message || "Unable to archive service from this location.");
         } finally {
             setMutatingId("");
         }
-    };
+    }
 
     if (locationLoading) {
         return <main className="location-services-page">Loading location...</main>;
@@ -155,7 +230,7 @@ export default function LocationServicesPage() {
                 </div>
 
                 {canManageServices && (
-                    <button className="primary-action" type="button">
+                    <button className="primary-action" type="button" onClick={openCreateForm}>
                         Add Service
                     </button>
                 )}
@@ -212,7 +287,7 @@ export default function LocationServicesPage() {
                     </p>
 
                     {canManageServices && (
-                        <button className="primary-action" type="button">
+                        <button className="primary-action" type="button" onClick={openCreateForm}>
                             Add Service
                         </button>
                     )}
@@ -258,7 +333,7 @@ export default function LocationServicesPage() {
 
                                 {canManageServices && (
                                     <div className="service-actions">
-                                        <button type="button" disabled={isMutating}>
+                                        <button type="button" disabled={isMutating} onClick={() => openEditForm(item)}>
                                             Edit
                                         </button>
                                         <button type="button" disabled={isMutating}>
@@ -291,6 +366,35 @@ export default function LocationServicesPage() {
                     })}
                 </section>
             )}
+
+            {formMode && (
+                <div className="service-form-backdrop" role="presentation">
+                    <section
+                        className="service-form-panel"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={formMode === "create" ? "Add service" : "Edit service"}
+                    >
+                        <LocationServiceForm
+                            mode={formMode}
+                            service={editingService}
+                            serverErrors={serverFieldErrors}
+                            submitting={formSubmitting}
+                            onSubmit={handleFormSubmit}
+                            onCancel={closeForm}
+                        />
+                    </section>
+                </div>
+            )}
+
+            {successMessage && (
+                <div className="service-success" role="status">
+                    {successMessage}
+                </div>
+            )}
+
         </main>
+
+        
     );
 }
