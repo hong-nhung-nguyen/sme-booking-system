@@ -33,3 +33,15 @@ export function updateLocationServiceStatus(locationId, serviceId, status) {
     );
 };
 
+export function editCanonicalService(serviceId, input) {
+    return apiRequest(
+        `/business/services/edit/${encodeURIComponent(serviceId)}`,
+        {
+            method: "PATCH",
+            body: JSON.stringify(input)
+        }
+    );
+};
+
+
+
