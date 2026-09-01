@@ -2,8 +2,10 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "rea
 import useAuth from "../../auth/hooks/useAuth";
 import useActiveLocation from "../../../shared/hooks/useActiveLocation";
 import {
+    assignLocationServices,
     createAndAssignLocationServices,
     editCanonicalService,
+    getBusinessServices,
     getLocationServices,
     unassignLocationService,
     updateLocationServiceStatus
@@ -63,11 +65,24 @@ export default function LocationServicesPage() {
     const [formSubmitting, setFormSubmitting] = useState(false);
     const [serverFieldErrors, setServerFieldErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState("");
+    const [businessServices, setBusinessServices] = useState([]);
+    const [businessServicesLoading, setBusinessServicesLoading] = useState(false);
 
-    function openCreateForm() {
+    async function openCreateForm() {
         setEditingService(null);
         setServerFieldErrors({});
         setFormMode("create");
+
+        setBusinessServicesLoading(true);
+
+        try {
+            const response = await getBusinessServices();
+            setBusinessServices(response.services || []);
+        } catch (requestError) {
+            setError(requestError.message || "Unable to load business services.");
+        } finally {
+            setBusinessServicesLoading(false);
+        }
     }
 
     function openEditForm(service) {
@@ -82,42 +97,54 @@ export default function LocationServicesPage() {
         setServerFieldErrors({});
     }
 
-    // submit handlers
     async function handleFormSubmit(payload) {
-    setFormSubmitting(true);
-    setServerFieldErrors({});
-    setSuccessMessage("");
+        setFormSubmitting(true);
+        setServerFieldErrors({});
+        setSuccessMessage("");
 
-    try {
-        if (formMode === "create") {
-            await createAndAssignLocationServices(activeLocationId, payload.canonical);
-            setSuccessMessage("Service created and assigned.");
-        }
+        try {
+            if (payload.action === "assignExisting") {
+                const currentServiceIds = services
+                    .map((service) => getServiceId(service))
+                    .filter(Boolean);
 
-        if (formMode === "edit") {
-            await editCanonicalService(editingService.serviceId, payload.canonical);
+                const serviceIds = Array.from(new Set([
+                    ...currentServiceIds,
+                    ...payload.serviceIds
+                ]));
 
-            if (payload.local.status !== editingService.localStatus) {
-                await updateLocationServiceStatus(
-                    activeLocationId,
-                    editingService.serviceId,
-                    payload.local.status
-                );
+                await assignLocationServices(activeLocationId, serviceIds);
+                setSuccessMessage("Services assigned to this location.");
             }
 
-            setSuccessMessage("Service updated.");
-        }
-
-        await loadServices();
-                closeForm();
-            } catch (requestError) {
-                setServerFieldErrors(requestError.data?.errors || {});
-                setError(requestError.message || "Unable to save service.");
-            } finally {
-                setFormSubmitting(false);
+            if (payload.action === "createNew") {
+                await createAndAssignLocationServices(activeLocationId, payload.canonical);
+                setSuccessMessage("Service created and assigned.");
             }
+
+            if (payload.action === "edit") {
+                await editCanonicalService(editingService.serviceId, payload.canonical);
+
+                if (payload.local.status !== editingService.localStatus) {
+                    await updateLocationServiceStatus(
+                        activeLocationId,
+                        editingService.serviceId,
+                        payload.local.status
+                    );
+                }
+
+                setSuccessMessage("Service updated.");
+            }
+
+            await loadServices();
+            closeForm();
+        } catch (requestError) {
+            setServerFieldErrors(requestError.data?.errors || {});
+            setError(requestError.message || "Unable to save service.");
+        } finally {
+            setFormSubmitting(false);
         }
-    // ----------
+    }
 
     const deferredSearch = useDeferredValue(search);
 
@@ -390,6 +417,9 @@ export default function LocationServicesPage() {
                         <LocationServiceForm
                             mode={formMode}
                             service={editingService}
+                            businessServices={businessServices}
+                            assignedServiceIds={services.map((service) => getServiceId(service)).filter(Boolean)}
+                            loadingBusinessServices={businessServicesLoading}
                             serverErrors={serverFieldErrors}
                             submitting={formSubmitting}
                             onSubmit={handleFormSubmit}

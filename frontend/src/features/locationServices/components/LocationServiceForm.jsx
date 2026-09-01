@@ -47,6 +47,9 @@ function validateServiceForm(form) {
 export default function LocationServiceForm({
     mode = "create",
     service = null,
+    businessServices = [],
+    assignedServiceIds = [],
+    loadingBusinessServices = false,
     serverErrors = {},
     submitting = false,
     onSubmit,
@@ -55,8 +58,14 @@ export default function LocationServiceForm({
     const [form, setForm] = useState(() => serviceToForm(service));
     const [errors, setErrors] = useState({});
     const [dirty, setDirty] = useState(false);
+    const [createMode, setCreateMode] = useState("new");
+    const [selectedExistingServiceIds, setSelectedExistingServiceIds] = useState([]);
 
     const isEdit = mode === "edit";
+    const assignedServiceIdSet = useMemo(
+        () => new Set(assignedServiceIds),
+        [assignedServiceIds]
+    );
 
     const changedCanonicalFields = useMemo(() => {
         if (!service) return false;
@@ -98,6 +107,31 @@ export default function LocationServiceForm({
         }));
     };
 
+    function updateCreateMode(nextMode) {
+        setCreateMode(nextMode);
+        setDirty(true);
+        setErrors((current) => ({
+            ...current,
+            existingServices: ""
+        }));
+    }
+
+    function toggleExistingService(serviceId) {
+        setDirty(true);
+        setErrors((current) => ({
+            ...current,
+            existingServices: ""
+        }));
+
+        setSelectedExistingServiceIds((current) => {
+            if (current.includes(serviceId)) {
+                return current.filter((id) => id !== serviceId);
+            }
+
+            return [...current, serviceId];
+        });
+    }
+
     function handleCancel() {
         if (dirty && !window.confirm("Discard unsaved changes?")) {
             return;
@@ -109,6 +143,23 @@ export default function LocationServiceForm({
     async function handleSubmit(event) {
         event.preventDefault();
 
+        if (!isEdit && createMode === "existing") {
+            if (selectedExistingServiceIds.length === 0) {
+                setErrors({
+                    existingServices: "Choose at least one service to assign."
+                });
+                return;
+            }
+
+            await onSubmit({
+                action: "assignExisting",
+                serviceIds: selectedExistingServiceIds
+            });
+
+            setDirty(false);
+            return;
+        }
+
         const nextErrors = validateServiceForm(form);
         setErrors(nextErrors);
 
@@ -117,6 +168,7 @@ export default function LocationServiceForm({
         }
 
         await onSubmit({
+            action: isEdit ? "edit" : "createNew",
             canonical: {
                 name: form.name.trim(),
                 description: form.description.trim(),
@@ -147,10 +199,29 @@ export default function LocationServiceForm({
                     <p>
                         {isEdit
                             ? "Canonical changes affect every location using this service."
-                            : "Creating here will assign the service to the active location."}
+                            : "Create a new service or assign existing business-wide services to this location."}
                     </p>
                 </div>
             </header>
+
+            {!isEdit && (
+                <div className="service-form-mode" role="group" aria-label="Add service method">
+                    <button
+                        type="button"
+                        className={createMode === "new" ? "active" : ""}
+                        onClick={() => updateCreateMode("new")}
+                    >
+                        Create new
+                    </button>
+                    <button
+                        type="button"
+                        className={createMode === "existing" ? "active" : ""}
+                        onClick={() => updateCreateMode("existing")}
+                    >
+                        Use existing
+                    </button>
+                </div>
+            )}
 
             {isEdit && changedCanonicalFields && (
                 <div className="service-form-warning" role="status">
@@ -158,7 +229,50 @@ export default function LocationServiceForm({
                 </div>
             )}
 
-            <fieldset className="service-form-section">
+            {!isEdit && createMode === "existing" ? (
+                <fieldset className="service-form-section">
+                    <legend>Business-wide services</legend>
+
+                    {loadingBusinessServices ? (
+                        <p className="service-form-muted">Loading services...</p>
+                    ) : businessServices.length === 0 ? (
+                        <p className="service-form-muted">No business-wide services are available yet.</p>
+                    ) : (
+                        <div className="existing-service-list">
+                            {businessServices.map((businessService) => {
+                                const serviceId = businessService._id || businessService.serviceId;
+                                const alreadyAssigned = assignedServiceIdSet.has(serviceId);
+
+                                return (
+                                    <label
+                                        className={`existing-service-option ${alreadyAssigned ? "disabled" : ""}`}
+                                        key={serviceId}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedExistingServiceIds.includes(serviceId)}
+                                            disabled={alreadyAssigned || submitting}
+                                            onChange={() => toggleExistingService(serviceId)}
+                                        />
+                                        <span>
+                                            <strong>{businessService.name}</strong>
+                                            <small>
+                                                {alreadyAssigned
+                                                    ? "Already assigned to this location"
+                                                    : `${businessService.defaultDurationMinutes || "-"} min · ${businessService.status || "active"}`}
+                                            </small>
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {fieldError("existingServices") && <small>{fieldError("existingServices")}</small>}
+                </fieldset>
+            ) : (
+                <>
+                    <fieldset className="service-form-section">
                 <legend>Canonical service</legend>
 
                 <label>
@@ -228,13 +342,19 @@ export default function LocationServiceForm({
                     </select>
                 </label>
             </fieldset>
+                </>
+            )}
 
             <footer className="service-form-actions">
                 <button type="button" onClick={handleCancel} disabled={submitting}>
                     Cancel
                 </button>
                 <button className="primary-action" type="submit" disabled={submitting}>
-                    {submitting ? "Saving..." : "Save service"}
+                    {submitting
+                        ? "Saving..."
+                        : !isEdit && createMode === "existing"
+                            ? "Assign selected"
+                            : "Save service"}
                 </button>
             </footer>
         </form>

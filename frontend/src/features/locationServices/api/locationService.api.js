@@ -4,6 +4,20 @@ export function getLocationServices(locationId) {
     return apiRequest(`/business/locations/${encodeURIComponent(locationId)}/services`);
 };
 
+export function getBusinessServices() {
+    return apiRequest("/business/services");
+};
+
+export function assignLocationServices(locationId, serviceIds) {
+    return apiRequest(
+        `/business/locations/${encodeURIComponent(locationId)}/services`,
+        {
+            method: "PUT",
+            body: JSON.stringify({ serviceIds })
+        }
+    );
+};
+
 export function createAndAssignLocationServices(locationId, newService) {
     return apiRequest(
         `/business/locations/${encodeURIComponent(locationId)}/service`,
