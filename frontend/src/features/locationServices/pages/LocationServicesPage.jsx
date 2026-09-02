@@ -270,6 +270,7 @@ export default function LocationServicesPage() {
 
                 {canManageServices && (
                     <button className="primary-action" type="button" onClick={openCreateForm}>
+                        <span aria-hidden="true">+</span>
                         Add Service
                     </button>
                 )}

@@ -3,7 +3,7 @@ import './NavSider.css';
 
 const navigationItems = [
   { label: 'Dashboard', to: '/dashboard', icon: 'dashboard' },
-  { label: 'Schedule', to: '/schedule-calendar', icon: 'calendar' },
+  { label: 'Bookings', to: '/bookings', icon: 'calendar' },
   { label: 'History', to: '/history', icon: 'history' },
   { label: 'AI Messaging', to: '/messages', icon: 'message' },
   { label: 'Floor Plan', to: '/floor-plan', icon: 'layers' },
@@ -54,7 +54,7 @@ export default function NavSider({
         ))}
       </nav>
 
-      {onNewReservation && <button className="app-new-reservation" type="button" onClick={onNewReservation} aria-label="New reservation"><span aria-hidden="true">+</span> <span className="sidebar-label">New Reservation</span></button>}
+      {onNewReservation && <button className="app-new-reservation" type="button" onClick={onNewReservation} aria-label="New reservation"><span className="reservation-add-icon" aria-hidden="true">+</span> <span className="sidebar-label">New Reservation</span></button>}
 
       <div className="app-secondary-navigation">
         <button type="button" aria-label="Settings"><Icon name="settings" /> <span className="sidebar-label">Settings</span></button>

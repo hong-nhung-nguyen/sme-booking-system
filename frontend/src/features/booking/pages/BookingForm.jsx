@@ -304,7 +304,7 @@ export default function BookingForm() {
 
             const newId = response.data?._id;
 
-            navigate(newId ? `/bookings/${newId}` : "/schedule-calendar", { replace: true });
+            navigate(newId ? `/bookings/${newId}` : "/bookings", { replace: true });
         } catch (requestError) {
             // The validation middleware returns the failing rules in errors[]
             setServerErrors(requestError.data?.errors || []);
@@ -326,7 +326,7 @@ export default function BookingForm() {
         <div className="booking-page">
             <Link
                 className="back-link"
-                to={isEdit ? `/bookings/${appointmentId}` : "/schedule-calendar"}
+                to={isEdit ? `/bookings/${appointmentId}` : "/bookings"}
             >
                 ‹ {isEdit ? "Back to booking" : "Back to schedule"}
             </Link>
@@ -604,7 +604,7 @@ export default function BookingForm() {
                 <div className="booking-form-actions">
                     <Link
                         className="button-secondary"
-                        to={isEdit ? `/bookings/${appointmentId}` : "/schedule-calendar"}
+                        to={isEdit ? `/bookings/${appointmentId}` : "/bookings"}
                     >
                         Cancel
                     </Link>

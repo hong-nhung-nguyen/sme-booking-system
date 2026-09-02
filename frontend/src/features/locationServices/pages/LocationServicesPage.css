@@ -1,9 +1,17 @@
 .location-services-page {
+    --service-blue: #064da9;
+    --service-blue-hover: #043f8c;
+    --service-ink: #10213a;
+    --service-muted: #4f5b6d;
+    --service-border: #ccd4e2;
     display: flex;
+    min-height: calc(100vh - 62px);
     flex-direction: column;
     gap: 20px;
-    padding: 28px;
-    color: #172033;
+    padding: 27px 24px 40px;
+    color: var(--service-ink);
+    background: #f7f8fd;
+    font-size: 14px;
 }
 
 .service-page-header {
@@ -11,24 +19,26 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
+    margin-bottom: 1px;
 }
 
 .service-page-header h1 {
-    margin: 0;
+    margin: 5px 0 0;
+    color: var(--service-blue);
     font-size: 28px;
-    line-height: 1.2;
+    font-weight: 750;
+    line-height: 1.1;
+    letter-spacing: -0.6px;
 }
 
 .service-page-header p {
-    margin: 6px 0 0;
-    color: #667085;
+    margin: 0;
+    color: #465164;
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 .service-page-kicker {
-    margin: 0;
-    color: #2563eb;
-    font-size: 13px;
-    font-weight: 700;
     text-transform: uppercase;
 }
 
@@ -36,25 +46,37 @@
 .service-actions button,
 .service-error button {
     min-height: 44px;
-    border: 1px solid #cfd7e6;
-    border-radius: 8px;
+    border: 1px solid var(--service-border);
+    border-radius: 7px;
     background: #ffffff;
-    color: #172033;
-    font-weight: 700;
+    color: var(--service-ink);
+    font-size: 12px;
+    font-weight: 650;
     cursor: pointer;
     transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
 .primary-action {
-    padding: 0 18px;
-    border-color: #2563eb;
-    background: #2563eb;
+    display: inline-flex;
+    min-width: 125px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 17px;
+    border-color: var(--service-blue);
+    background: var(--service-blue);
     color: #ffffff;
 }
 
+.primary-action > span[aria-hidden="true"] {
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 1;
+}
+
 .primary-action:hover {
-    border-color: #1d4ed8;
-    background: #1d4ed8;
+    border-color: var(--service-blue-hover);
+    background: var(--service-blue-hover);
 }
 
 .service-actions button:hover,
@@ -110,11 +132,12 @@
 .service-toolbar {
     display: grid;
     grid-template-columns: minmax(220px, 1fr) 220px;
-    gap: 12px;
-    padding: 16px;
-    border: 1px solid #d9e0ec;
-    border-radius: 8px;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid var(--service-border);
+    border-radius: 11px;
     background: #ffffff;
+    box-shadow: 0 1px 2px rgb(16 33 58 / 4%);
 }
 
 .service-field {
@@ -124,21 +147,26 @@
 }
 
 .service-field span {
-    color: #344054;
-    font-size: 13px;
-    font-weight: 700;
+    color: #3f4959;
+    font-size: 11px;
+    font-weight: 650;
 }
 
 .service-field input,
 .service-field select {
     min-height: 44px;
     width: 100%;
-    border: 1px solid #cfd7e6;
-    border-radius: 8px;
+    border: 1px solid var(--service-border);
+    border-radius: 7px;
     padding: 0 12px;
     background: #ffffff;
-    color: #172033;
+    color: var(--service-ink);
     font: inherit;
+    font-size: 13px;
+}
+
+.service-field input::placeholder {
+    color: #778195;
 }
 
 .service-error,
@@ -181,7 +209,7 @@
 
 .service-list {
     display: grid;
-    gap: 12px;
+    gap: 13px;
 }
 
 .service-card {
@@ -189,10 +217,18 @@
     grid-template-columns: minmax(220px, 1.2fr) minmax(280px, 1fr) auto;
     align-items: center;
     gap: 16px;
-    padding: 16px;
-    border: 1px solid #d9e0ec;
-    border-radius: 8px;
+    min-height: 74px;
+    padding: 14px;
+    border: 1px solid var(--service-border);
+    border-radius: 11px;
     background: #ffffff;
+    box-shadow: 0 1px 2px rgb(16 33 58 / 4%);
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.service-card:hover {
+    border-color: #aebbd0;
+    box-shadow: 0 4px 12px rgb(16 33 58 / 7%);
 }
 
 .service-card-main {
@@ -204,29 +240,32 @@
 
 .service-card h2 {
     margin: 0;
-    font-size: 17px;
+    color: var(--service-ink);
+    font-size: 16px;
+    font-weight: 700;
     line-height: 1.3;
 }
 
 .service-card-main p {
     margin: 4px 0 0;
-    color: #667085;
+    color: var(--service-muted);
+    font-size: 13px;
 }
 
 .service-status {
     display: inline-flex;
-    min-height: 30px;
+    min-height: 23px;
     align-items: center;
     white-space: nowrap;
     border-radius: 999px;
-    padding: 0 10px;
-    font-size: 13px;
-    font-weight: 800;
+    padding: 0 9px;
+    font-size: 10px;
+    font-weight: 700;
 }
 
 .service-status.active {
-    background: #dcfce7;
-    color: #166534;
+    background: #e4f4e9;
+    color: #24733e;
 }
 
 .service-status.temporarilyUnavailable {
@@ -251,15 +290,15 @@
 }
 
 .service-meta dt {
-    color: #667085;
-    font-size: 12px;
-    font-weight: 700;
+    color: #485365;
+    font-size: 10px;
+    font-weight: 500;
 }
 
 .service-meta dd {
     margin: 3px 0 0;
-    color: #172033;
-    font-size: 14px;
+    color: var(--service-ink);
+    font-size: 12px;
     font-weight: 700;
 }
 
@@ -271,7 +310,7 @@
 }
 
 .service-actions button {
-    padding: 0 12px;
+    padding: 0 14px;
 }
 
 .service-actions .danger-action {
@@ -294,52 +333,65 @@
     z-index: 50;
     display: flex;
     justify-content: flex-end;
-    background: rgba(15, 23, 42, 0.42);
+    padding-left: 24px;
+    background: rgb(8 21 40 / 48%);
+    backdrop-filter: blur(1px);
 }
 
 .service-form-panel {
-    width: min(620px, 100%);
+    width: min(580px, 100%);
     height: 100%;
     overflow-y: auto;
-    background: #ffffff;
-    box-shadow: -16px 0 40px rgba(15, 23, 42, 0.18);
+    color: var(--service-ink);
+    background: #f7f8fd;
+    box-shadow: -18px 0 44px rgb(8 21 40 / 20%);
+    animation: servicePanelEnter 180ms ease-out;
 }
 
 .service-form {
     display: flex;
     min-height: 100%;
     flex-direction: column;
-    gap: 18px;
-    padding: 24px;
+    gap: 20px;
+    padding: 28px 26px;
 }
 
 .service-form-header h2 {
     margin: 0;
-    font-size: 24px;
+    color: var(--service-blue);
+    font-size: 25px;
+    font-weight: 750;
+    line-height: 1.15;
+    letter-spacing: -0.4px;
 }
 
 .service-form-header p {
-    margin: 6px 0 0;
-    color: #667085;
+    max-width: 490px;
+    margin: 7px 0 0;
+    color: var(--service-muted);
+    font-size: 13px;
+    line-height: 1.5;
 }
 
 .service-form-warning {
-    border: 1px solid #f59e0b;
-    border-radius: 8px;
-    padding: 12px;
-    background: #fffbeb;
-    color: #92400e;
-    font-weight: 700;
+    border: 1px solid #e8c982;
+    border-radius: 9px;
+    padding: 11px 13px;
+    background: #fff9eb;
+    color: #79540c;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.5;
 }
 
 .service-form-mode {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    border: 1px solid #d9e0ec;
-    border-radius: 8px;
-    padding: 6px;
-    background: #f8fafc;
+    border: 1px solid var(--service-border);
+    border-radius: 9px;
+    padding: 5px;
+    background: #edf1f7;
 }
 
 .service-form-mode button {
@@ -347,22 +399,24 @@
     border: 1px solid transparent;
     border-radius: 6px;
     background: transparent;
-    color: #475467;
+    color: #526075;
     cursor: pointer;
     font: inherit;
-    font-weight: 800;
+    font-size: 12px;
+    font-weight: 700;
+    transition: color 160ms ease, background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .service-form-mode button:hover {
-    background: #eff6ff;
-    color: #1d4ed8;
+    background: #f7f9fd;
+    color: var(--service-blue);
 }
 
 .service-form-mode button.active {
-    border-color: #bfdbfe;
+    border-color: #b9cae2;
     background: #ffffff;
-    color: #1d4ed8;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    color: var(--service-blue);
+    box-shadow: 0 1px 3px rgb(16 33 58 / 9%);
 }
 
 .service-form-mode button:focus-visible {
@@ -374,25 +428,29 @@
     display: grid;
     gap: 14px;
     margin: 0;
-    border: 1px solid #d9e0ec;
-    border-radius: 8px;
-    padding: 16px;
+    border: 1px solid var(--service-border);
+    border-radius: 11px;
+    padding: 18px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgb(16 33 58 / 4%);
 }
 
 .service-form-section legend {
-    padding: 0 6px;
-    color: #172033;
-    font-weight: 800;
+    padding: 0 7px;
+    color: var(--service-ink);
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .service-form-section.local-section {
-    border-color: #bfdbfe;
-    background: #eff6ff;
+    border-color: #bfd0e8;
+    background: #f4f7fc;
 }
 
 .service-form-muted {
     margin: 0;
-    color: #667085;
+    color: var(--service-muted);
+    font-size: 13px;
 }
 
 .existing-service-list {
@@ -405,16 +463,18 @@
     grid-template-columns: auto 1fr;
     gap: 10px;
     align-items: flex-start;
-    border: 1px solid #d9e0ec;
+    border: 1px solid var(--service-border);
     border-radius: 8px;
     padding: 12px;
     background: #ffffff;
     cursor: pointer;
+    transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
 }
 
 .existing-service-option:hover {
-    border-color: #93c5fd;
-    background: #eff6ff;
+    border-color: #9eb8d9;
+    background: #f4f7fc;
+    box-shadow: 0 2px 6px rgb(16 33 58 / 5%);
 }
 
 .existing-service-option.disabled {
@@ -425,6 +485,7 @@
 .existing-service-option.disabled:hover {
     border-color: #d9e0ec;
     background: #ffffff;
+    box-shadow: none;
 }
 
 .existing-service-option input {
@@ -439,11 +500,13 @@
 }
 
 .existing-service-option strong {
-    color: #172033;
+    color: var(--service-ink);
+    font-size: 13px;
 }
 
 .existing-service-option small {
-    color: #667085;
+    color: var(--service-muted);
+    font-size: 12px;
 }
 
 .service-form label {
@@ -452,9 +515,9 @@
 }
 
 .service-form label span {
-    color: #344054;
-    font-size: 13px;
-    font-weight: 800;
+    color: #3f4959;
+    font-size: 11px;
+    font-weight: 650;
 }
 
 .service-form input,
@@ -462,11 +525,22 @@
 .service-form select {
     width: 100%;
     min-height: 44px;
-    border: 1px solid #cfd7e6;
-    border-radius: 8px;
+    border: 1px solid var(--service-border);
+    border-radius: 7px;
     padding: 10px 12px;
-    color: #172033;
+    color: var(--service-ink);
+    background: #ffffff;
     font: inherit;
+    font-size: 13px;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.service-form input:focus-visible,
+.service-form textarea:focus-visible,
+.service-form select:focus-visible {
+    border-color: #6f9bd2;
+    outline: 0;
+    box-shadow: 0 0 0 3px rgb(6 77 169 / 13%);
 }
 
 .service-form textarea {
@@ -480,31 +554,58 @@
 
 .service-form small {
     color: #b42318;
+    font-size: 11px;
+    line-height: 1.4;
 }
 
 .service-form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 9px;
     margin-top: auto;
     padding-top: 8px;
 }
 
 .service-form-actions button {
     min-height: 44px;
-    border: 1px solid #cfd7e6;
-    border-radius: 8px;
-    padding: 0 16px;
+    min-width: 104px;
+    border: 1px solid var(--service-border);
+    border-radius: 7px;
+    padding: 0 18px;
     background: #ffffff;
-    color: #172033;
-    font-weight: 800;
+    color: var(--service-ink);
+    font-size: 12px;
+    font-weight: 700;
     cursor: pointer;
+    transition: color 160ms ease, background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .service-form-actions button:hover {
-    border-color: #2563eb;
-    background: #eff6ff;
-    color: #1d4ed8;
+    border-color: #9eb8d9;
+    background: #f1f5fb;
+    color: var(--service-blue);
+}
+
+.service-form-actions .primary-action {
+    border-color: var(--service-blue);
+    background: var(--service-blue);
+    color: #ffffff;
+}
+
+.service-form-actions .primary-action:hover {
+    border-color: var(--service-blue-hover);
+    background: var(--service-blue-hover);
+    color: #ffffff;
+}
+
+.service-form-actions button:focus-visible {
+    outline: 3px solid #93b8e6;
+    outline-offset: 2px;
+}
+
+.service-form-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
 }
 
 .service-success {
@@ -554,6 +655,7 @@
 @media (max-width: 768px) {
     .service-form-backdrop {
         align-items: stretch;
+        padding-left: 0;
     }
 
     .service-form-panel {
@@ -576,6 +678,18 @@
 
     100% {
         background-position: -100% 0;
+    }
+}
+
+@keyframes servicePanelEnter {
+    from {
+        opacity: 0;
+        transform: translateX(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
     }
 }
 
@@ -631,6 +745,14 @@
     .primary-action,
     .service-actions button,
     .service-error button,
+    .service-card,
+    .service-form-panel,
+    .service-form-mode button,
+    .existing-service-option,
+    .service-form input,
+    .service-form textarea,
+    .service-form select,
+    .service-form-actions button,
     .service-skeleton {
         animation: none;
         transition: none;

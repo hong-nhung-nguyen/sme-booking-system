@@ -18,10 +18,10 @@ export default function App() {
       {/* Everything below requires a session and renders inside the app shell */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route index element={<Navigate to="/schedule-calendar" replace />} />
+          <Route index element={<Navigate to="/bookings" replace />} />
 
           {/* Path kept as-is so the existing NavSider links keep working */}
-          <Route path="/schedule-calendar" element={<ScheduleCalendar />} />
+          <Route path="/bookings" element={<ScheduleCalendar />} />
 
           <Route path="/messages" element={<MessageInbox />} />
 
