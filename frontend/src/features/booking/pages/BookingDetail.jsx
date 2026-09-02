@@ -120,7 +120,7 @@ export default function BookingDetail() {
                 reason,
             });
 
-            navigate("/schedule-calendar", { replace: true });
+            navigate("/bookings", { replace: true });
         } catch (requestError) {
             setActionError(
                 requestError.message || "Unable to delete this booking"
@@ -142,7 +142,7 @@ export default function BookingDetail() {
                     {error || "Booking not found"}
                 </div>
 
-                <Link className="back-link" to="/schedule-calendar">
+                <Link className="back-link" to="/bookings">
                     ‹ Back to schedule
                 </Link>
             </div>
@@ -163,7 +163,7 @@ export default function BookingDetail() {
 
     return (
         <div className="booking-page">
-            <Link className="back-link" to="/schedule-calendar">
+            <Link className="back-link" to="/bookings">
                 ‹ Back to schedule
             </Link>
 

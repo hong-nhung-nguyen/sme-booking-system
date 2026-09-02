@@ -20,8 +20,9 @@
 .nav-icon { width: 16px; height: 16px; flex: 0 0 16px; }
 .app-navigation a.active { color: #53637a; }
 .app-navigation a:hover, .app-secondary-navigation button:hover { color: #0759d5; background: #f2f6fc; }
-.app-new-reservation { min-height: 36px; display: flex; align-items: center; justify-content: center; gap: 5px; margin: auto 18px 17px; padding: 0; border-radius: 6px; box-shadow: 0 5px 10px rgb(7 89 213 / 22%); font-size: 12px; }
-.app-new-reservation span { width: 12px; height: 12px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: 11px; line-height: 1; }
+.app-new-reservation { min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 7px; margin: auto 18px 17px; padding: 0 12px; border-radius: 7px; box-shadow: 0 5px 10px rgb(7 89 213 / 22%); font-size: 12px; line-height: 1; white-space: nowrap; }
+.app-new-reservation .reservation-add-icon { width: 16px; height: 16px; flex: 0 0 16px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: 12px; line-height: 1; }
+.app-new-reservation .sidebar-label { width: auto; height: auto; display: inline; border: 0; font-size: inherit; line-height: 1; }
 .app-secondary-navigation { gap: 2px; padding: 16px 9px; }
 .app-secondary-navigation button { width: 100%; }
 .app-sidebar button:focus-visible, .app-sidebar a:focus-visible { outline: 3px solid #8ab7ff; outline-offset: 2px; }
@@ -32,5 +33,5 @@
 .app-sidebar.collapsed .app-navigation { padding-inline: 9px; }
 .app-sidebar.collapsed .app-navigation a,
 .app-sidebar.collapsed .app-secondary-navigation button { justify-content: center; padding: 0; border-left-color: transparent; }
-.app-sidebar.collapsed .app-new-reservation { width: 36px; margin-inline: auto; padding: 0; }
+.app-sidebar.collapsed .app-new-reservation { width: 44px; margin-inline: auto; padding: 0; }
 .app-sidebar.collapsed .app-secondary-navigation { padding-inline: 9px; }

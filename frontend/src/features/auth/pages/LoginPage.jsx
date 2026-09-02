@@ -84,7 +84,7 @@ export default function LoginPage() {
 
             const defaultPath = authenticatedUser?.accessAllLocations 
                 ? "/dashboard"
-                : "/schedule-calendar"
+                : "/bookings"
             
             navigate(requestedPath || defaultPath, {
                 replace: true
@@ -113,7 +113,7 @@ export default function LoginPage() {
     if (user) {
         const defaultPath = user.accessAllLocations
             ? "/dashboard"
-            : "/schedule-calendar";
+            : "/bookings";
 
         return (
             <Navigate

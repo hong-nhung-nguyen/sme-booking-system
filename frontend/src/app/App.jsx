@@ -8,6 +8,7 @@ import ScheduleCalendar from '../features/schedule/pages/ScheduleCalendar';
 import MessageInbox from '../features/message/pages/MessageInbox';
 import BookingDetail from '../features/booking/pages/BookingDetail';
 import BookingForm from '../features/booking/pages/BookingForm';
+import LocationServicesPage from '../features/locationServices/pages/LocationServicesPage';
 
 export default function App() {
   return (
@@ -17,10 +18,10 @@ export default function App() {
       {/* Everything below requires a session and renders inside the app shell */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route index element={<Navigate to="/schedule-calendar" replace />} />
+          <Route index element={<Navigate to="/bookings" replace />} />
 
           {/* Path kept as-is so the existing NavSider links keep working */}
-          <Route path="/schedule-calendar" element={<ScheduleCalendar />} />
+          <Route path="/bookings" element={<ScheduleCalendar />} />
 
           <Route path="/messages" element={<MessageInbox />} />
 
@@ -32,10 +33,7 @@ export default function App() {
           <Route path="/dashboard" element={<ComingSoon title="Dashboard" />} />
           <Route path="/history" element={<ComingSoon title="History" />} />
           <Route path="/floor-plan" element={<ComingSoon title="Floor Plan" />} />
-          <Route
-            path="/service-management"
-            element={<ComingSoon title="Service Management" />}
-          />
+          <Route path="/service-management" element={<LocationServicesPage />} />
         </Route>
       </Route>
 
