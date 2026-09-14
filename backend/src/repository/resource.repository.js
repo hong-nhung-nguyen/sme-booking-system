@@ -1,6 +1,5 @@
-const FloorPlan = require("../models/FloorPlan.model");
-const Section = require("../models/Section.schema");
 const Resource = require("../models/Resource.model");
+const { query } = require("../models/Section.schema");
 
 module.exports.findResources = async (findObject) => {
     const resources = await Resource.find(findObject);
@@ -8,14 +7,18 @@ module.exports.findResources = async (findObject) => {
     return resources;
 };
 
-module.exports.findFloorPlan = async (findObject) => {
-    const floorPlan = await FloorPlan.findOne(findObject);
-
-    return floorPlan;
+module.exports.find = async (query, session = null) => {
+    return Resource.find(query).session(session);
 };
 
-module.exports.findOneSection = async (findObject) => {
-    const section = await Resource.findOne(findObject);
+module.exports.insertMany = async (resources, session = null) => {
+    return Resource.insertMany(resources, { session });
+};
 
-    return section;
-}
+module.exports.bullWrite = async (operations, session = null) => {
+    if (operations.length === 0) {
+        return null;
+    }
+
+    return Resource.bulkWrite(operations, { session });
+};

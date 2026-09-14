@@ -1,18 +1,12 @@
 const floorPlanService = require("../../../../services/tenant/floorplan.service.js");
 
+// [GET] api/v1/business/locations/:locationId/floorplans
 module.exports.getSelectedLocationFloorPlan = async (req, res, next) => {
     const businessId = req.user.businessId;
     const locationId = req.location._id;
 
     try {
         const floorPlan = await floorPlanService.findOneForLocation({ businessId, locationId });
-
-        if (!floorPlan) {
-            return res.status(404).json({
-                success: false,
-                message: "No floorPlan found"
-            });
-        }
 
         return res.status(200).json({
             success: true,
@@ -22,8 +16,9 @@ module.exports.getSelectedLocationFloorPlan = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};
 
+// [POST] api/v1/business/locations/:locationId/floorplans/create
 module.exports.create = async (req, res, next) => {
     const businessId = req.user.businessId;
     const locationId = req.location._id;
@@ -42,6 +37,15 @@ module.exports.create = async (req, res, next) => {
             success: true,
             floorPlan
         });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+// [POST] api/v1/business/locations/:locationId/floorplans/:floorPlanId
+module.exports.update = async (req, res, next) => {
+    try {
 
     } catch (error) {
         next(error);

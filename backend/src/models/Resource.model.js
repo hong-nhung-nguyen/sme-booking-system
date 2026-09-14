@@ -40,7 +40,12 @@ const ResourceSchema = new mongoose.Schema({
     changeHistory: [ChangeHistorySchema]
 }, {
     timestamps: true
-})
+});
+
+ResourceSchema.index(
+    { floorPlanId: 1, number: 1 },
+    { unique: true }
+);
 
 const Resource = mongoose.model("Resource", ResourceSchema, "resources");
 

@@ -17,4 +17,10 @@ router.post(
     controller.create
 );
 
+router.put(
+    "/:floorPlanId",
+    authorizeLocationAccess,
+    controller.update
+);
+
 module.exports = router;

@@ -43,7 +43,7 @@ const TableLayoutSchema = new mongoose.Schema({
     },
     shape: {
         type: String,
-        enum: ["regtangle", "square", "circle"],
+        enum: ["rectangle", "square", "circle"],
         required: true
     },
     rotation: {
@@ -66,7 +66,7 @@ const TableLayoutSchema = new mongoose.Schema({
     }
 }, {
     _id: true,
-    timestamps: false
+    timestamps: true
 });
 
 module.exports = TableLayoutSchema;
