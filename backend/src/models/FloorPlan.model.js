@@ -26,7 +26,7 @@ const FloorPlanSchema = new mongoose.Schema({
         width: {
             type: Number,
             required: true,
-            default: 12000,
+            default: 1200,
             validate: finitePositiveNumber
         },
         height: {
@@ -54,7 +54,7 @@ const FloorPlanSchema = new mongoose.Schema({
         default: "active",
         required: true
     },
-    updatedBy: [
+    updatedBy: 
         {
             account_id: {
                 type: mongoose.Schema.Types.ObjectId,
@@ -66,7 +66,7 @@ const FloorPlanSchema = new mongoose.Schema({
                 default: Date.now
             }
         }
-    ]
+    
 }, {
     timestamps: true,
     optimisticConcurrency: true, // cannot save it if somebody changed this document since it is loaded 
@@ -115,6 +115,15 @@ FloorPlanSchema.pre("validate", function validateLayout() {
         }
 
         resourceIds.add(resourceId);
+
+        // objects don't fit inside the canvas
+        if (table.x + table.width > this.canvas.width) {
+            this.invalidate("tableLayouts", "A table exceeds the canvas width");
+        }
+
+        if (table.y + table.height > this.canvas.height) {
+            this.invalidate("tableLayouts", "A table exceeds the canvas height");
+        }
     }
 
     // floorplan object's sectionId !== sectionIds 
@@ -122,15 +131,6 @@ FloorPlanSchema.pre("validate", function validateLayout() {
         if (!sectionIds.has(object.sectionId.toString())) {
             this.invalidate("objects", `Object ${object._id} references an unknown section`);
         }
-    }
-
-    // objects don't fit inside the canvas
-    if (table.x + table.width > this.canvas.width) {
-        this.invalidate("tableLayouts", "A table exceeds the canvas width");
-    }
-
-    if (table.y + table.height > this.canvas.height) {
-        this.invalidate("tableLayouts", "A table exceeds the canvas height");
     }
 });
 

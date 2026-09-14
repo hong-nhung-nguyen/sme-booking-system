@@ -69,4 +69,4 @@ const FloorPlanObjectSchema = new mongoose.Schema({
     timestamp: false 
 });
 
-module.exports = FloorPlanObjectSchemap;
+module.exports = FloorPlanObjectSchema;
