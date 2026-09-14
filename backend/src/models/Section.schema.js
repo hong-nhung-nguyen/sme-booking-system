@@ -8,15 +8,17 @@ const SectionSchema = new mongoose.Schema({
         minlength: 2,
         maxlength: 20
     },
-    // maxCapacity: {
-    //     type: Number,
-    //     required: true,
-    //     min: 1
-    // },
+    displayOrder: {
+        type: Number,
+        required: true,
+        min: 0,
+        validate: Number.isInteger
+    },
     status: {
         type: String,
         enum: ["active", "inactive"],
-        default: "active"
+        default: "active",
+        required: true,
     },
     updatedBy: [
         {
@@ -31,8 +33,9 @@ const SectionSchema = new mongoose.Schema({
             }
         }
     ]
+},{
+    _id: true,
+    timestamps: false
 });
-
-const Section = mongoose.model("Section", SectionSchema, "sections");
 
 module.exports = SectionSchema;
