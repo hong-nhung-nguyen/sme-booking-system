@@ -102,12 +102,14 @@ FloorPlanSchema.pre("validate", function validateLayout() {
     const resourceIds = new Set();
 
     for (const table of this.tableLayouts) {
+        // table.sectionId !== sectionIds
         if (!sectionIds.has(table.sectionId.toString())) {
             this.invalidate("tableLayouts", `Table ${table.resourceId} references an unknown section`);
         }
 
         const resourceId = table.resourceId.toString();
 
+        // duplicate resourceIds
         if (resourceIds.has(resourceId)) {
             this.invalidate("tableLayouts", `Resource ${resourceId} appears more than once`);
         }
@@ -115,10 +117,20 @@ FloorPlanSchema.pre("validate", function validateLayout() {
         resourceIds.add(resourceId);
     }
 
+    // floorplan object's sectionId !== sectionIds 
     for (const object of this.objects) {
         if (!sectionIds.has(object.sectionId.toString())) {
             this.invalidate("objects", `Object ${object._id} references an unknown section`);
         }
+    }
+
+    // objects don't fit inside the canvas
+    if (table.x + table.width > this.canvas.width) {
+        this.invalidate("tableLayouts", "A table exceeds the canvas width");
+    }
+
+    if (table.y + table.height > this.canvas.height) {
+        this.invalidate("tableLayouts", "A table exceeds the canvas height");
     }
 });
 
