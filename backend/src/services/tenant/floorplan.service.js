@@ -1,5 +1,9 @@
 const floorPlanRepository = require("../../repository/floorPlan.repository.js");
 
+module.exports.findOneForLocation = async ({ businessId, locationId }) => {
+    return floorPlanRepository.findOne({ businessId, locationId });
+}
+
 module.exports.create = async ({ businessId, locationId, actorId, input}) => {
 
     const floorPlanData = {

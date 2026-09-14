@@ -5,6 +5,12 @@ const authorizeLocationAccess = require("../../../../middlewares/authorizeLocati
 
 const controller = require("../../controllers/tenant/floorplan.controller");
 
+router.get(
+    "/", 
+    authorizeLocationAccess,
+    controller.getSelectedLocationFloorPlan
+);
+
 router.post(
     "/create",
     authorizeLocationAccess, 
