@@ -20,8 +20,8 @@ function initials(user) {
 // Used for the topbar heading, so each page does not have to repeat it
 function sectionTitle(pathname) {
     if (pathname === "/floor-plan/create") return "Create Layout";
-    // if (pathname === "/floor-plan/edit") return "Edit Layout";
-    // if (pathname.startsWith("/floor-plan")) return "Floor Plan";
+    if (pathname === "/floor-plan/edit") return "Edit Layout";
+    if (pathname.startsWith("/floor-plan")) return "Floor Plan";
     if (pathname.startsWith("/bookings/new")) return "New Booking";
     if (pathname.endsWith("/edit")) return "Edit Booking";
     if (pathname.startsWith("/bookings")) return "Booking";

@@ -10,7 +10,7 @@ import BookingDetail from '../features/booking/pages/BookingDetail';
 import BookingForm from '../features/booking/pages/BookingForm';
 import LocationServicesPage from '../features/locationServices/pages/LocationServicesPage';
 import FloorPlanPage from "../features/floorPlan/pages/FloorPlanPage";
-// import FloorPlanEditorEntry from "../features/floorPlan/pages/FloorPlanEditorEntry";
+import FloorPlanEditorEntry from "../features/floorPlan/pages/FloorPlanEditorEntry";
 
 export default function App() {
   return (
@@ -35,7 +35,7 @@ export default function App() {
           <Route path="/dashboard" element={<ComingSoon title="Dashboard" />} />
           <Route path="/history" element={<ComingSoon title="History" />} />
           <Route path="/floor-plan" element={<FloorPlanPage />} />
-          {/* <Route
+          <Route
               path="/floor-plan/create"
               element={<FloorPlanEditorEntry mode="create" />}
           />
@@ -43,7 +43,7 @@ export default function App() {
           <Route
               path="/floor-plan/edit"
               element={<FloorPlanEditorEntry mode="edit" />}
-          /> */}
+          />
           <Route path="/service-management" element={<LocationServicesPage />} />
         </Route>
       </Route>
