@@ -2,16 +2,25 @@ const mongoose = require('mongoose');
 
 const ChangeHistorySchema = require("./ChangeHistory.schema");
 
+/**
+ * RESOURCE IS INDEPENDENTLY LOCATION-SCOPED 
+ */
 const ResourceSchema = new mongoose.Schema({
-    floorPlanId: {
+    businessId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "FloorPlan",
+        ref: "Business",
         required: true,
         index: true
     },
     sectionId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
+        index: true
+    },
+    floorPlanId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FloorPlan",
+        default: null,
         index: true
     },
     number: {
@@ -31,7 +40,12 @@ const ResourceSchema = new mongoose.Schema({
     changeHistory: [ChangeHistorySchema]
 }, {
     timestamps: true
-})
+});
+
+ResourceSchema.index(
+    { floorPlanId: 1, number: 1 },
+    { unique: true }
+);
 
 const Resource = mongoose.model("Resource", ResourceSchema, "resources");
 
