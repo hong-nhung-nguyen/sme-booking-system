@@ -9,6 +9,8 @@ import MessageInbox from '../features/message/pages/MessageInbox';
 import BookingDetail from '../features/booking/pages/BookingDetail';
 import BookingForm from '../features/booking/pages/BookingForm';
 import LocationServicesPage from '../features/locationServices/pages/LocationServicesPage';
+import FloorPlanPage from "../features/floorPlan/pages/FloorPlanPage";
+// import FloorPlanEditorEntry from "../features/floorPlan/pages/FloorPlanEditorEntry";
 
 export default function App() {
   return (
@@ -32,7 +34,16 @@ export default function App() {
           {/* Sidebar sections that have no backend support yet */}
           <Route path="/dashboard" element={<ComingSoon title="Dashboard" />} />
           <Route path="/history" element={<ComingSoon title="History" />} />
-          <Route path="/floor-plan" element={<ComingSoon title="Floor Plan" />} />
+          <Route path="/floor-plan" element={<FloorPlanPage />} />
+          {/* <Route
+              path="/floor-plan/create"
+              element={<FloorPlanEditorEntry mode="create" />}
+          />
+
+          <Route
+              path="/floor-plan/edit"
+              element={<FloorPlanEditorEntry mode="edit" />}
+          /> */}
           <Route path="/service-management" element={<LocationServicesPage />} />
         </Route>
       </Route>

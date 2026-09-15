@@ -81,3 +81,75 @@
     color: var(--red);
     border-color: var(--red);
 }
+
+.app-shell.floor-plan-shell {
+    min-width: 0;
+    grid-template-columns: 204px minmax(0, 1fr);
+}
+
+.app-shell.floor-plan-shell.sidebar-collapsed {
+    grid-template-columns: 64px minmax(0, 1fr);
+}
+
+.floor-plan-shell .topbar {
+    height: auto;
+    min-height: 62px;
+    flex-wrap: wrap;
+    padding-block: 12px;
+}
+
+@media (max-width: 768px) {
+    .app-shell.floor-plan-shell,
+    .app-shell.floor-plan-shell.sidebar-collapsed {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .floor-plan-shell .app-sidebar,
+    .floor-plan-shell .app-sidebar.collapsed {
+        width: 100%;
+        min-height: auto;
+    }
+
+    .floor-plan-shell .app-sidebar .app-navigation {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .floor-plan-shell .app-navigation a {
+        min-height: 44px;
+    }
+
+    .floor-plan-shell .app-sidebar.collapsed .sidebar-label {
+        display: inline;
+    }
+
+    .floor-plan-shell .app-new-reservation,
+    .floor-plan-shell .app-sidebar.collapsed .app-new-reservation {
+        width: auto;
+        margin: 12px;
+        padding: 12px;
+    }
+
+    .floor-plan-shell .topbar {
+        gap: 12px;
+        padding-inline: 16px;
+    }
+
+    .floor-plan-shell .topbar-user {
+        flex-wrap: wrap;
+        min-width: 0;
+    }
+
+    .floor-plan-shell .user-name {
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-shell.floor-plan-shell,
+    .floor-plan-shell .app-sidebar {
+        transition: none;
+    }
+}

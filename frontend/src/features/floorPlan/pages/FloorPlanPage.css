@@ -1,0 +1,263 @@
+.fp-page {
+    min-width: 0;
+    padding: clamp(16px, 3vw, 32px);
+    color: var(--text);
+}
+
+.fp-page h1,
+.fp-page h2,
+.fp-page h3,
+.fp-page p {
+    margin: 0;
+}
+
+.fp-page p {
+    line-height: 1.6;
+}
+
+.fp-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+}
+
+.fp-breadcrumb li + li::before {
+    content: "/";
+    margin-right: 8px;
+    color: var(--text-muted);
+}
+
+.fp-page a {
+    color: var(--blue);
+}
+
+.fp-header,
+.fp-toolbar,
+.fp-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.fp-header,
+.fp-toolbar {
+    justify-content: space-between;
+}
+
+.fp-header {
+    margin-bottom: 24px;
+}
+
+.fp-header > div {
+    min-width: 0;
+}
+
+.fp-header h1 {
+    font-size: clamp(24px, 3vw, 32px);
+}
+
+.fp-header p {
+    margin-top: 8px;
+    overflow-wrap: anywhere;
+}
+
+.fp-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.fp-live > span,
+.fp-dot {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 10px;
+    border-radius: 50%;
+}
+
+.fp-live > span,
+.fp-dot-available {
+    background: var(--green);
+}
+
+.fp-dot-booked {
+    background: var(--blue);
+}
+
+.fp-dot-unavailable {
+    background: var(--red);
+}
+
+.fp-card,
+.fp-state {
+    min-width: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.fp-state {
+    display: grid;
+    justify-items: start;
+    gap: 16px;
+    padding: clamp(20px, 4vw, 40px);
+}
+
+.fp-state h2 {
+    font-size: 20px;
+    overflow-wrap: anywhere;
+}
+
+.fp-state [role="alert"] {
+    color: var(--red);
+}
+
+.fp-toolbar {
+    padding: 16px;
+}
+
+.fp-toolbar h2 {
+    font-size: 18px;
+}
+
+.fp-button,
+.fp-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+}
+
+.fp-page .fp-primary {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: white;
+}
+
+.fp-button:hover,
+.fp-tab:hover {
+    background: var(--surface-muted);
+}
+
+.fp-page .fp-primary:hover {
+    background: var(--blue-dark);
+}
+
+.fp-page :is(a, button, select, [tabindex]):focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 3px;
+}
+
+.fp-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 8px 16px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.fp-tab {
+    flex: 0 0 auto;
+}
+
+.fp-tab[aria-selected="true"] {
+    color: var(--blue);
+    border-color: var(--blue);
+    background: var(--surface-muted);
+}
+
+.fp-canvas {
+    position: relative;
+    min-width: 0;
+    min-height: clamp(280px, 50vh, 640px);
+    overflow: auto;
+    background-color: var(--surface-muted);
+    background-image: radial-gradient(
+        var(--border-strong) 1px,
+        transparent 1px
+    );
+    background-size: 20px 20px;
+}
+
+.fp-canvas-caption {
+    display: inline-grid;
+    gap: 8px;
+    max-width: calc(100% - 32px);
+    margin: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow-wrap: anywhere;
+}
+
+.fp-footer {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 14px;
+}
+
+.fp-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fp-legend li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fp-header .location-selector {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+
+.fp-header .location-selector select {
+    min-width: 0;
+    max-width: 100%;
+}
+
+@media (max-width: 600px) {
+    .fp-header {
+        align-items: stretch;
+    }
+
+    .fp-header > div,
+    .fp-header .location-selector {
+        width: 100%;
+    }
+
+    .fp-header .location-selector select {
+        width: 100%;
+        flex-basis: 100%;
+    }
+}
