@@ -92,10 +92,16 @@
 }
 
 .floor-plan-shell .topbar {
-    height: auto;
+    height: 62px;
     min-height: 62px;
-    flex-wrap: wrap;
-    padding-block: 12px;
+    flex-wrap: nowrap;
+    padding-block: 0;
+}
+
+.floor-plan-shell .app-sidebar-brand {
+    height: 62px;
+    min-height: 62px;
+    flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
@@ -133,8 +139,11 @@
     }
 
     .floor-plan-shell .topbar {
+        height: auto;
+        min-height: 62px;
+        flex-wrap: wrap;
         gap: 12px;
-        padding-inline: 16px;
+        padding: 12px 16px;
     }
 
     .floor-plan-shell .topbar-user {

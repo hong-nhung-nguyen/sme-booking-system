@@ -87,7 +87,7 @@ function AppLayoutContent() {
                             {sectionTitle(location.pathname)}
                         </h2>
 
-                        {!isFloorPlanPage && <LocationSelector />}
+                        <LocationSelector allowOverview={!isFloorPlanPage} />
 
                         <div className="topbar-user">
                             <span className="user-name">
