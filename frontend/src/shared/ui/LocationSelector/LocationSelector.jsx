@@ -2,7 +2,7 @@ import useAuth from "../../../features/auth/hooks/useAuth";
 import useActiveLocation from "../../hooks/useActiveLocation";
 import "./LocationSelector.css";
 
-export default function LocationSelector() {
+export default function LocationSelector({ allowOverview = false }) {
     const { user } = useAuth();
 
     const {
@@ -31,6 +31,14 @@ export default function LocationSelector() {
         );
     }
 
+    if (locations.length === 0) {
+        return (
+            <div className="location-context" role="status">No accessible locations</div>
+        )
+    }
+
+    const showOverview = allowOverview && user?.accessAllLocations;
+
     // Staff/manager: show assigned location as text
     if (!user?.accessAllLocations) {
         return (
@@ -51,7 +59,7 @@ export default function LocationSelector() {
 
         if (locationId) {
             selectLocation(locationId);
-        } else {
+        } else if (showOverview) {
             clearActiveLocation();
         }
     }
@@ -65,7 +73,10 @@ export default function LocationSelector() {
                 value={activeLocationId}
                 onChange={handleChange}
             >
-                <option value="">Business overview</option>
+                {showOverview 
+                    ? (<option value="">Business overview</option>)
+                    : (<option value="" disabled>Select a location</option>)
+                }
 
                 {locations.map((location) => (
                     <option
