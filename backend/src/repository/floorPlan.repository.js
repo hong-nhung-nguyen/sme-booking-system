@@ -10,6 +10,6 @@ module.exports.findOne = async (query, session = null) => {
         .session(session);
 };
 
-module.exports.create = async (floorPlan, session = null) => {
+module.exports.save = async (floorPlan, session = null) => {
     return await floorPlan.save({ session });
 };

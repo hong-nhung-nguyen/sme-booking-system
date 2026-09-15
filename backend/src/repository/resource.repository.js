@@ -1,5 +1,4 @@
 const Resource = require("../models/Resource.model");
-const { query } = require("../models/Section.schema");
 
 module.exports.findResources = async (findObject) => {
     const resources = await Resource.find(findObject);
@@ -15,7 +14,7 @@ module.exports.insertMany = async (resources, session = null) => {
     return Resource.insertMany(resources, { session });
 };
 
-module.exports.bullWrite = async (operations, session = null) => {
+module.exports.bulkWrite = async (operations, session = null) => {
     if (operations.length === 0) {
         return null;
     }

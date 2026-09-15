@@ -22,6 +22,35 @@ function assertUnique(values, message) {
     }
 };
 
+function getResourceId(resourceReference) {
+    return resourceReference?._id || resourceReference;
+};
+
+function validateInsideCanvas(item, canvas, field) {
+    const rightEdge = item.x + item.width;
+    const bottomEdge = item.y + item.height;
+
+    if (rightEdge > canvas.width) {
+        throw httpError(
+            400, 
+            `${field} exceeds the canvas width`,
+            {
+                [field]: "The item must fit inside the canvas width"
+            }
+        );
+    }
+
+    if (bottomEdge > canvas.height) {
+        throw httpError(
+            400,
+            `${field} exceeds the canvas height`,
+            {
+                [field]: "The item must fit inside the canvas height"
+            }
+        );
+    }
+}
+
 module.exports.findOneForLocation = async ({ businessId, locationId }) => {
     return floorPlanRepository.findOne({ businessId, locationId });
 }
@@ -42,7 +71,7 @@ module.exports.create = async ({ businessId, locationId, actorId, input}) => {
         }
     };
 
-    return await floorPlanRepository.create(floorPlanData);
+    return await floorPlanRepository.save(floorPlanData);
 };
 
 module.exports.update = async ({
@@ -75,7 +104,7 @@ module.exports.update = async ({
 
         const sectionIds = new Set(
             floorPlan.sections
-                .filter((section) => section.status = "active")
+                .filter((section) => section.status === "active")
                 .map((section) => String(section._id))
         );
 
@@ -88,8 +117,8 @@ module.exports.update = async ({
          * Every placement must reference a section in this FloorPlan 
          */
 
-        for (const layout of existingLayouts) {
-            if (!sectionIds.has(layout.sectionsId.toString())) {
+        for (const layout of existingLayouts) { 
+            if (!sectionIds.has(layout.sectionId.toString())) {
                 throw httpError(
                     400, 
                     "An existing table references an unknown section",
@@ -132,6 +161,18 @@ module.exports.update = async ({
         );
 
         assertUnique(existingResourceIds, "Each existing table can appear only once");
+
+        /*
+        * Capture Resources that were previously placed but are absent
+        * from the submitted replacement layout.
+        */
+        const submittedResourceIdSet = new Set(existingResourceIds.map(String));
+
+        const removedResourceIds = floorPlan.tableLayouts
+            .map((layout) => getResourceId(layout.resourceId))
+            .filter(
+                (resourceId) => !submittedResourceIdSet.has(String(resourceId))
+            );
 
         /**
          * Reject duplicate new table numbers in the request
@@ -187,6 +228,22 @@ module.exports.update = async ({
         }
 
         /**
+         * Validate coordinates
+         */
+
+        for (const layout of existingLayouts) {
+            validateInsideCanvas(layout, input.canvas, "tableLayouts");
+        }
+
+        for (const table of newTables) {
+            validateInsideCanvas(table.layout, input.canvas, "newTables");
+        }
+
+        for (const object of objects) {
+            validateInsideCanvas(object, input.canvas, "objects");
+        }
+
+        /**
          * Create all new Resource documents in one operation 
          */
 
@@ -229,6 +286,23 @@ module.exports.update = async ({
          * so keep it synchronized when a saved table changes area
          */
 
+        const removedResourceUpdates = removedResourceIds.map(
+            (resourceId) => ({
+                updateOne: {
+                    filter: {
+                        _id: resourceId,
+                        businessId,
+                        floorPlanId: floorPlan._id
+                    },
+                    update: {
+                        $set: {
+                            status: "unavailable"
+                        }
+                    }
+                }
+            })
+        );
+
         const resourceSectionUpdates = existingLayouts.map(
             (layout) => ({
                 updateOne: {
@@ -246,7 +320,13 @@ module.exports.update = async ({
             })
         );
 
-        await resourceRepository.bulkWrite(resourceSectionUpdates, session);
+        await resourceRepository.bulkWrite(
+            [
+                ...resourceSectionUpdates,
+                ...removedResourceUpdates
+            ],
+            session
+        );
 
         /**
          * Replace the saved layout with the submitted draft

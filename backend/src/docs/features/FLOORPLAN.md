@@ -1,6 +1,6 @@
 ## Floor Plan feature Document
 
-## POST /floorplans/create
+## POST locations/:locationId/floorplans/create
 
 - Create sections as part of the new floor plan
 - Allow users to select existing table resources or create new ones
@@ -90,6 +90,60 @@ locationId: {
     rotation: 0,
     zIndex: 0,
     status: "active"
+}
+```
+
+## PUT locations/:locationId/floorplans/:floorPlanId
+
+### Body
+
+```json
+{
+  "canvas": {
+    "width": 1200,
+    "height": 800
+  },
+  "tableLayouts": [],
+  "newTables": [
+    {
+      "number": "T1",
+      "maxCapacity": 4,
+      "resourceStatus": "available",
+      "layout": {
+        "sectionId": "SECTION_ID_FROM_POST_RESPONSE",
+        "x": 100,
+        "y": 100,
+        "width": 90,
+        "height": 70,
+        "shape": "rectangle",
+        "rotation": 0,
+        "zIndex": 0,
+        "status": "active"
+      }
+    }
+  ],
+  "objects": [],
+  "layoutVersion": 0
+}
+```
+
+## Expected response 
+
+```json
+{
+  "success": true,
+  "message": "Floor plan updated",
+  "floorPlan": {
+    "tableLayouts": [
+      {
+        "resourceId": "NEW_RESOURCE_ID",
+        "sectionId": "SECTION_ID_FROM_POST_RESPONSE",
+        "x": 100,
+        "y": 100
+      }
+    ],
+    "layoutVersion": 1
+  }
 }
 ```
 
