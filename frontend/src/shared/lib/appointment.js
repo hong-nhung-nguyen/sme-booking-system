@@ -32,6 +32,15 @@ export function getGuestName(appointment) {
     return `Guest ${shortId(appointment?.clientId)}`;
 }
 
+/**
+ * The location services endpoint returns { serviceId, name, ... } with no
+ * _id, so read the id from serviceId first and fall back for other shapes.
+ */
+export function getServiceOptionId(service) {
+    return getId(service?.serviceId) || service?._id || "";
+}
+
+
 export function getServiceName(appointment) {
     const service = appointment?.serviceId;
 

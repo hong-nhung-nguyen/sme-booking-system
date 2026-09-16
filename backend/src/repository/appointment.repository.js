@@ -12,7 +12,8 @@ const buildScopedAppointmentQuery = (businessId, locationId, appointmentId) => {
 module.exports.findMany = async (query) => {
     const appointments = await Appointment.find(query)
         .populate("clientId", "firstName lastName email phone")
-        .populate("serviceId", "name");
+        .populate("serviceId", "name")
+        .populate("resourceId", "number maxCapacity status");
 
     return appointments;
 };
@@ -22,14 +23,17 @@ module.exports.findByTenantScopeAndId = async (businessId, locationId, appointme
         buildScopedAppointmentQuery(businessId, locationId, appointmentId)
     )
         .populate("clientId", "firstName lastName email phone")
-        .populate("serviceId", "name");
+        .populate("serviceId", "name")
+        .populate("resourceId", "number maxCapacity status");
+
     return appointment;
 };
 
 module.exports.findOneByQuery = async (query) => {
     return await Appointment.findOne(query)
         .populate("clientId", "firstName lastName email phone")
-        .populate("serviceId", "name");
+        .populate("serviceId", "name")
+        .populate("resourceId", "number maxCapacity status");
 };
 
 module.exports.findCandidatesForIntent = async ({

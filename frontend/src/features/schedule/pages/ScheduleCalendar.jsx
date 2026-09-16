@@ -15,7 +15,7 @@ import {
     APPOINTMENT_STATUSES,
     INACTIVE_STATUSES,
 } from "../../../shared/constants/appointmentStatus";
-import { getId } from "../../../shared/lib/appointment";
+import { getId, getServiceOptionId } from "../../../shared/lib/appointment";
 import { shiftDate } from "../../../shared/lib/datetime";
 import {
     END_HOUR,
@@ -107,7 +107,7 @@ export default function ScheduleCalendar() {
         if (
             serviceFilter &&
             services.length > 0 &&
-            !services.some((service) => service._id === serviceFilter)
+            !services.some((service) => getServiceOptionId(service) === serviceFilter)
         ) {
             setServiceFilter("");
         }
@@ -336,11 +336,16 @@ export default function ScheduleCalendar() {
                 >
                     <option value="">All services</option>
 
-                    {services.map((service) => (
-                        <option key={service._id} value={service._id}>
-                            {service.name}
-                        </option>
-                    ))}
+                    {services.map((service) => {
+                        const id = getServiceOptionId(service);
+
+                        return (
+                            <option key={id} value={id}>
+                                {service.name}
+                            </option>
+                        );
+                    })}
+
                 </select>
 
                 <select
