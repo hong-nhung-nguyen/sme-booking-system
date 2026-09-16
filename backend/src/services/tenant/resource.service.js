@@ -1,15 +1,12 @@
 const resourceRepository = require("../../repository/resource.repository");
+const floorPlanRepository = require("../../repository/floorPlan.repository");
 
 module.exports.findFloorPlan = async (businessId, locationId) => {
-    let find = {
-        businessId: businessId,
-        locationId: locationId,
+    return floorPlanRepository.findOne({
+        businessId,
+        locationId,
         status: "active"
-    };
-
-    const floorPlan = await resourceRepository.findFloorPlan(find);
-
-    return floorPlan;
+    });
 };
 
 module.exports.findSection = async (floorPlanId) => {
@@ -26,7 +23,11 @@ module.exports.findSection = async (floorPlanId) => {
 module.exports.findResources = async (businessId, locationId, partySize) => {
     const floorPlan = await module.exports.findFloorPlan(businessId, locationId);
 
-    if (!floorPlan) return "no floorPlan found";
+    if (!floorPlan) {
+        const error = new Error("No floor plan found");
+        error.status = 404;
+        throw error;
+    };
 
     let find = {
         floorPlanId: floorPlan._id,

@@ -10,7 +10,7 @@ import useLocations from "../../../shared/hooks/useLocations";
 import useAuth, { actorName } from "../../auth/hooks/useAuth";
 import PageLoader from "../../../shared/ui/PageLoader";
 import Spinner from "../../../shared/ui/Spinner";
-import { getClient, getId } from "../../../shared/lib/appointment";
+import { getClient, getId, getServiceOptionId } from "../../../shared/lib/appointment";
 import {
     combineDateAndTime,
     toDateInputValue,
@@ -201,7 +201,7 @@ export default function BookingForm() {
     }, [form.locationId]);
 
     const selectedService = useMemo(
-        () => services.find((service) => service._id === form.serviceId),
+        () => services.find((service) => getServiceOptionId(service) === form.serviceId),
         [services, form.serviceId]
     );
 
@@ -228,7 +228,7 @@ export default function BookingForm() {
 
     function handleServiceChange(event) {
         const serviceId = event.target.value;
-        const service = services.find((item) => item._id === serviceId);
+        const service = services.find((item) => getServiceOptionId(item) === serviceId);
 
         setForm((current) => ({
             ...current,
@@ -467,14 +467,19 @@ export default function BookingForm() {
                                         : "Choose a location first"}
                                 </option>
 
-                                {services.map((service) => (
-                                    <option key={service._id} value={service._id}>
-                                        {service.name}
-                                        {service.defaultDurationMinutes
-                                            ? ` (${service.defaultDurationMinutes} min)`
-                                            : ""}
-                                    </option>
-                                ))}
+                                {services.map((service) => {
+                                    const id = getServiceOptionId(service);
+
+                                    return (
+                                        <option key={id} value={id}>
+                                            {service.name}
+                                            {service.defaultDurationMinutes
+                                                ? ` (${service.defaultDurationMinutes} min)`
+                                                : ""}
+                                        </option>
+                                    );
+                                })}
+
                             </select>
 
                             {errors.serviceId && <small>{errors.serviceId}</small>}
