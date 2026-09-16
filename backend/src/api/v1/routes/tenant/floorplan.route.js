@@ -31,4 +31,10 @@ router.put(
     controller.update
 );
 
+router.get(
+    "/:floorPlanId/live/:resourceId",
+    authorizeLocationAccess,
+    controller.tableStatusLive
+);
+
 module.exports = router;

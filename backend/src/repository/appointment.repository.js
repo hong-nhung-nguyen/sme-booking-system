@@ -9,11 +9,13 @@ const buildScopedAppointmentQuery = (businessId, locationId, appointmentId) => {
     };
 };
 
-module.exports.findMany = async (query) => {
+module.exports.findMany = async (query, select="") => {
     const appointments = await Appointment.find(query)
         .populate("clientId", "firstName lastName email phone")
         .populate("serviceId", "name")
-        .populate("resourceId", "number maxCapacity status");
+        .populate("resourceId", "number maxCapacity status")
+        .sort({ startTime: 1 })
+        .select(select);
 
     return appointments;
 };
@@ -29,11 +31,12 @@ module.exports.findByTenantScopeAndId = async (businessId, locationId, appointme
     return appointment;
 };
 
-module.exports.findOneByQuery = async (query) => {
+module.exports.findOneByQuery = async (query, select="") => {
     return await Appointment.findOne(query)
         .populate("clientId", "firstName lastName email phone")
         .populate("serviceId", "name")
-        .populate("resourceId", "number maxCapacity status");
+        .populate("resourceId", "number maxCapacity status")
+        .select(select);
 };
 
 module.exports.findCandidatesForIntent = async ({

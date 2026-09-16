@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 
 const floorPlanRepository = require("../../repository/floorPlan.repository.js");
 const resourceRepository = require("../../repository/resource.repository.js");
+const appointmentRepository = require("../../repository/appointment.repository.js");
+
+const localDate = require("../../utils/localDate.js");
 
 function httpError(status, message, errors = undefined) {
     const error = new Error(message);
@@ -352,4 +355,53 @@ module.exports.update = async ({
     });
 
     return result;
+};
+
+module.exports.loadTableStatusLive = async ({ businessId, locationId, floorPlanId, resourceId, timezone }) => {
+    const now = new Date();
+    const today = localDate.localDate(timezone, now);
+
+    const resource = await resourceRepository.find({
+        _id: resourceId,
+        businessId,
+        floorPlanId
+    });
+
+    if (resource.length === 0) {
+        const error = new Error(`Resource ${resourceId} not found`);
+        error.status = 404;
+        throw error;
+    }
+
+    let currentParty = await (appointmentRepository.findOneByQuery(
+        {
+            businessId,
+            locationId,
+            resourceId: resourceId,
+            date: today,
+            startTime: { $lte: now },
+            endTime: { $gte: now },
+        },
+        "_id guestName partySize startTime endTime durationMinutes status"
+    ));
+
+    let nextBookings = await appointmentRepository.findMany(
+        {
+            businessId,
+            locationId,
+            resourceId: resourceId,
+            date: today,
+            startTime: { $gt: new Date() },
+            deleted: false
+        },
+        "_id guestName partySize startTime endTime durationMinutes status"       
+    );
+
+    let ret = {
+        resource,
+        currentParty,
+        nextBookings
+    };
+
+    return ret;
 }

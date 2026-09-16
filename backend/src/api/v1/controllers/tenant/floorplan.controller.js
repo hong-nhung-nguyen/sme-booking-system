@@ -68,4 +68,30 @@ module.exports.update = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+// [GET] api/v1/business/locations/:locationId/floorplans/:floorPlanId/live/:resourceId
+module.exports.tableStatusLive = async (req, res, next) => {
+    const businessId = req.user.businessId;
+    const locationId = req.location._id;
+    const { floorPlanId, resourceId } = req.params;
+
+    try {
+        const resourceStatus = await floorPlanService.loadTableStatusLive({
+            businessId,
+            locationId,
+            floorPlanId,
+            resourceId,
+            timezone: req.location.timezone
+        });
+
+        return res.status(200).json({
+            success: true,
+            tableStatus: resourceStatus
+        });
+
+    } catch (error) {
+        next(error);
+    }
 }
+
